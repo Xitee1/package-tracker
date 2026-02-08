@@ -44,6 +44,24 @@ const router = createRouter({
       component: () => import('@/views/AccountsView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('@/views/admin/UsersView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+      path: '/admin/llm',
+      name: 'admin-llm',
+      component: () => import('@/views/admin/LLMConfigView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+      path: '/admin/system',
+      name: 'admin-system',
+      component: () => import('@/views/admin/SystemView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
   ],
 })
 
@@ -59,6 +77,10 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.guest && auth.isLoggedIn) {
+    return { name: 'dashboard' }
+  }
+
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
     return { name: 'dashboard' }
   }
 })
