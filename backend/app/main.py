@@ -13,6 +13,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Package Tracker", version="0.1.0", lifespan=lifespan)
 
+from app.api.auth import router as auth_router
+app.include_router(auth_router)
+
 
 @app.get("/api/v1/health")
 async def health():
