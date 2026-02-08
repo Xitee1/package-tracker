@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: tracker
+      POSTGRES_PASSWORD: tracker
+      POSTGRES_DB: tracker
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      PT_DATABASE_URL: postgresql+asyncpg://tracker:tracker@db:5432/tracker
+      PT_SECRET_KEY: ${PT_SECRET_KEY:-dev-secret-key}
+      PT_ENCRYPTION_KEY: ${PT_ENCRYPTION_KEY:-dev-encryption-key}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+
+volumes:
+  pgdata:
