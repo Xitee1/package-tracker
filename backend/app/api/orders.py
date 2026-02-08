@@ -1,0 +1,87 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from typing import Optional
+
+from app.database import get_db
+from app.models.user import User
+from app.models.order import Order, OrderEvent
+from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest
+from app.api.deps import get_current_user
+
+router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
+
+
+@router.get("", response_model=list[OrderResponse])
+async def list_orders(
+    status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Order).where(Order.user_id == user.id).order_by(Order.updated_at.desc())
+    if status:
+        query = query.where(Order.status == status)
+    if search:
+        query = query.where(
+            (Order.order_number.contains(search))
+            | (Order.vendor_name.contains(search))
+            | (Order.tracking_number.contains(search))
+        )
+    result = await db.execute(query)
+    return result.scalars().all()
+
+
+@router.get("/{order_id}", response_model=OrderDetailResponse)
+async def get_order(order_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Order).where(Order.id == order_id, Order.user_id == user.id).options(selectinload(Order.events))
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
+
+@router.patch("/{order_id}", response_model=OrderResponse)
+async def update_order(order_id: int, req: UpdateOrderRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    order = await db.get(Order, order_id)
+    if not order or order.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Order not found")
+    for field, value in req.model_dump(exclude_unset=True).items():
+        setattr(order, field, value)
+    await db.commit()
+    await db.refresh(order)
+    return order
+
+
+@router.post("/{order_id}/link")
+async def link_orders(order_id: int, req: LinkOrderRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    source = await db.get(Order, order_id)
+    target = await db.get(Order, req.target_order_id)
+    if not source or source.user_id != user.id or not target or target.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if target.tracking_number and not source.tracking_number:
+        source.tracking_number = target.tracking_number
+    if target.carrier and not source.carrier:
+        source.carrier = target.carrier
+    if target.status and target.status != "ordered":
+        source.status = target.status
+    # Move events from target to source
+    result = await db.execute(select(OrderEvent).where(OrderEvent.order_id == target.id))
+    for event in result.scalars().all():
+        event.order_id = source.id
+    await db.delete(target)
+    await db.commit()
+    await db.refresh(source)
+    return {"merged_into": source.id}
+
+
+@router.delete("/{order_id}", status_code=204)
+async def delete_order(order_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    order = await db.get(Order, order_id)
+    if not order or order.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Order not found")
+    await db.delete(order)
+    await db.commit()
