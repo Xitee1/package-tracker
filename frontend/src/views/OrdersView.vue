@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Orders</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('orders.title') }}</h1>
     </div>
 
     <!-- Search and Filters -->
@@ -29,7 +29,7 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search orders, tracking numbers, vendors..."
+                :placeholder="$t('orders.searchPlaceholder')"
                 class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 @input="debouncedSearch"
               />
@@ -74,15 +74,15 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
     >
       <div v-if="ordersStore.loading" class="p-8 text-center text-gray-500 dark:text-gray-400">
-        Loading orders...
+        {{ $t('orders.loadingOrders') }}
       </div>
 
       <div
         v-else-if="filteredOrders.length === 0"
         class="p-8 text-center text-gray-500 dark:text-gray-400"
       >
-        <p class="text-lg mb-1">No orders found</p>
-        <p class="text-sm">Try adjusting your search or filter criteria.</p>
+        <p class="text-lg mb-1">{{ $t('orders.noOrdersFound') }}</p>
+        <p class="text-sm">{{ $t('orders.noOrdersHint') }}</p>
       </div>
 
       <div v-else class="overflow-x-auto">
@@ -91,12 +91,12 @@
             <tr
               class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
             >
-              <th class="px-5 py-3">Order</th>
-              <th class="px-5 py-3">Vendor</th>
-              <th class="px-5 py-3">Carrier</th>
-              <th class="px-5 py-3">Status</th>
-              <th class="px-5 py-3">Date</th>
-              <th class="px-5 py-3 text-right">Amount</th>
+              <th class="px-5 py-3">{{ $t('orders.order') }}</th>
+              <th class="px-5 py-3">{{ $t('orders.vendor') }}</th>
+              <th class="px-5 py-3">{{ $t('orders.carrier') }}</th>
+              <th class="px-5 py-3">{{ $t('orders.status') }}</th>
+              <th class="px-5 py-3">{{ $t('orders.date') }}</th>
+              <th class="px-5 py-3 text-right">{{ $t('orders.amount') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -142,9 +142,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useOrdersStore } from '@/stores/orders'
 import StatusBadge from '@/components/StatusBadge.vue'
 
+const { t } = useI18n()
 const ordersStore = useOrdersStore()
 
 const searchQuery = ref('')
@@ -162,11 +164,11 @@ const tabs = computed(() => {
   const delivered = ordersStore.orders.filter((o) => o.status === 'delivered').length
 
   return [
-    { label: 'All', value: '', count: all },
-    { label: 'Ordered', value: 'ordered', count: ordered },
-    { label: 'Shipped', value: 'shipped', count: shipped },
-    { label: 'In Transit', value: 'in_transit', count: inTransit },
-    { label: 'Delivered', value: 'delivered', count: delivered },
+    { label: t('orders.all'), value: '', count: all },
+    { label: t('orders.ordered'), value: 'ordered', count: ordered },
+    { label: t('orders.shipped'), value: 'shipped', count: shipped },
+    { label: t('orders.inTransit'), value: 'in_transit', count: inTransit },
+    { label: t('orders.delivered'), value: 'delivered', count: delivered },
   ]
 })
 
