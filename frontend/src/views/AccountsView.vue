@@ -8,26 +8,39 @@
         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
         </svg>
         Add Account
       </button>
     </div>
 
     <!-- Add / Edit Form -->
-    <div v-if="showForm" class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div
+      v-if="showForm"
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+    >
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         {{ editingId ? 'Edit Account' : 'Add Email Account' }}
       </h2>
 
-      <div v-if="formError" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm mb-4">
+      <div
+        v-if="formError"
+        class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm mb-4"
+      >
         {{ formError }}
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Name</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Account Name</label
+            >
             <input
               v-model="form.name"
               type="text"
@@ -38,7 +51,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IMAP Host</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >IMAP Host</label
+            >
             <input
               v-model="form.imap_host"
               type="text"
@@ -49,7 +64,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IMAP Port</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >IMAP Port</label
+            >
             <input
               v-model.number="form.imap_port"
               type="number"
@@ -61,7 +78,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Username</label
+            >
             <input
               v-model="form.username"
               type="text"
@@ -74,7 +93,9 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Password
-              <span v-if="editingId" class="text-gray-400 dark:text-gray-500 font-normal">(leave blank to keep current)</span>
+              <span v-if="editingId" class="text-gray-400 dark:text-gray-500 font-normal"
+                >(leave blank to keep current)</span
+              >
             </label>
             <input
               v-model="form.password"
@@ -87,7 +108,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Polling Interval (seconds)</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Polling Interval (seconds)</label
+            >
             <input
               v-model.number="form.polling_interval"
               type="number"
@@ -105,7 +128,9 @@
             type="checkbox"
             class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
           />
-          <label for="use_ssl" class="text-sm font-medium text-gray-700 dark:text-gray-300">Use SSL/TLS</label>
+          <label for="use_ssl" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Use SSL/TLS</label
+          >
         </div>
 
         <div class="flex items-center gap-3 pt-2">
@@ -137,7 +162,12 @@
       v-else-if="accountsStore.accounts.length === 0 && !showForm"
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center"
     >
-      <svg class="mx-auto w-12 h-12 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        class="mx-auto w-12 h-12 text-gray-300 dark:text-gray-600 mb-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -154,7 +184,12 @@
         class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
         </svg>
         Add Account
       </button>
@@ -172,30 +207,68 @@
           <div class="flex items-start justify-between">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-3 mb-1">
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate">{{ account.name }}</h3>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate">
+                  {{ account.name }}
+                </h3>
                 <span
                   class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                  :class="account.is_active ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+                  :class="
+                    account.is_active
+                      ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                  "
                 >
                   {{ account.is_active ? 'Active' : 'Inactive' }}
                 </span>
               </div>
-              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-500 dark:text-gray-400">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-500 dark:text-gray-400"
+              >
                 <span class="flex items-center gap-1">
-                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
+                  <svg
+                    class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"
+                    />
                   </svg>
                   {{ account.imap_host }}:{{ account.imap_port }}
                 </span>
                 <span class="flex items-center gap-1">
-                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <svg
+                    class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                   </svg>
                   {{ account.username }}
                 </span>
                 <span v-if="account.use_ssl" class="flex items-center gap-1">
-                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <svg
+                    class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                   SSL
                 </span>
@@ -236,7 +309,12 @@
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
             </div>
@@ -246,14 +324,21 @@
           <div
             v-if="testResults[account.id]"
             class="mt-3 px-3 py-2 rounded-md text-sm"
-            :class="testResults[account.id]!.success ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'"
+            :class="
+              testResults[account.id]!.success
+                ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
+                : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
+            "
           >
             {{ testResults[account.id]!.message }}
           </div>
         </div>
 
         <!-- Expanded Folder Management -->
-        <div v-if="expandedId === account.id" class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
+        <div
+          v-if="expandedId === account.id"
+          class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5"
+        >
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Folder Management</h4>
             <button
@@ -262,21 +347,36 @@
               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 disabled:opacity-50"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
               </svg>
               {{ foldersLoading ? 'Loading...' : 'Load Folders' }}
             </button>
           </div>
 
-          <div v-if="folderError" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-md text-sm mb-4">
+          <div
+            v-if="folderError"
+            class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 py-2 rounded-md text-sm mb-4"
+          >
             {{ folderError }}
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- Watched Folders -->
             <div>
-              <h5 class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Watched Folders</h5>
-              <div v-if="watchedFolders.length === 0" class="text-sm text-gray-400 dark:text-gray-500 italic py-2">
+              <h5
+                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+              >
+                Watched Folders
+              </h5>
+              <div
+                v-if="watchedFolders.length === 0"
+                class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
+              >
                 No folders being watched.
               </div>
               <div v-else class="space-y-1">
@@ -286,8 +386,18 @@
                   class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
                 >
                   <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    <svg
+                      class="w-4 h-4 text-blue-500 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                      />
                     </svg>
                     {{ wf.folder_name }}
                   </span>
@@ -303,8 +413,15 @@
 
             <!-- Available Folders -->
             <div>
-              <h5 class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Available IMAP Folders</h5>
-              <div v-if="availableFolders.length === 0 && !foldersLoading" class="text-sm text-gray-400 dark:text-gray-500 italic py-2">
+              <h5
+                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+              >
+                Available IMAP Folders
+              </h5>
+              <div
+                v-if="availableFolders.length === 0 && !foldersLoading"
+                class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
+              >
                 Click "Load Folders" to fetch available folders.
               </div>
               <div v-else-if="foldersLoading" class="text-sm text-gray-400 dark:text-gray-500 py-2">
@@ -317,8 +434,18 @@
                   class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
                 >
                   <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    <svg
+                      class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                      />
                     </svg>
                     {{ folder.name }}
                   </span>
@@ -331,7 +458,12 @@
                   </button>
                   <span v-else class="text-xs text-green-600 font-medium flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     Watched
                   </span>
@@ -349,7 +481,8 @@
       <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Account</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-          Are you sure you want to delete "{{ deleteTarget?.name }}"? This will also remove all watched folder settings.
+          Are you sure you want to delete "{{ deleteTarget?.name }}"? This will also remove all
+          watched folder settings.
         </p>
         <div class="flex justify-end gap-2">
           <button
@@ -373,7 +506,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useAccountsStore, type EmailAccount, type IMAPFolder, type WatchedFolder } from '@/stores/accounts'
+import {
+  useAccountsStore,
+  type EmailAccount,
+  type IMAPFolder,
+  type WatchedFolder,
+} from '@/stores/accounts'
 
 const accountsStore = useAccountsStore()
 
@@ -545,7 +683,8 @@ async function loadFolders(id: number) {
     watchedFolders.value = watched
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value = err.response?.data?.detail || 'Failed to load folders. Check account connection.'
+    folderError.value =
+      err.response?.data?.detail || 'Failed to load folders. Check account connection.'
   } finally {
     foldersLoading.value = false
   }

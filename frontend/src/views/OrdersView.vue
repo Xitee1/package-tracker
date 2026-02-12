@@ -5,14 +5,26 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6"
+    >
       <div class="p-4">
         <div class="flex flex-col sm:flex-row gap-4">
           <!-- Search -->
           <div class="flex-1">
             <div class="relative">
-              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
               <input
                 v-model="searchQuery"
@@ -58,12 +70,17 @@
     </div>
 
     <!-- Orders Table -->
-    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+    >
       <div v-if="ordersStore.loading" class="p-8 text-center text-gray-500 dark:text-gray-400">
         Loading orders...
       </div>
 
-      <div v-else-if="filteredOrders.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+      <div
+        v-else-if="filteredOrders.length === 0"
+        class="p-8 text-center text-gray-500 dark:text-gray-400"
+      >
         <p class="text-lg mb-1">No orders found</p>
         <p class="text-sm">Try adjusting your search or filter criteria.</p>
       </div>
@@ -71,7 +88,9 @@
       <div v-else class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+            <tr
+              class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
+            >
               <th class="px-5 py-3">Order</th>
               <th class="px-5 py-3">Vendor</th>
               <th class="px-5 py-3">Carrier</th>
@@ -91,7 +110,10 @@
                 <div class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ order.order_number || `#${order.id}` }}
                 </div>
-                <div v-if="order.tracking_number" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <div
+                  v-if="order.tracking_number"
+                  class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                >
                   {{ order.tracking_number }}
                 </div>
               </td>
@@ -131,8 +153,12 @@ const activeTab = ref('')
 const tabs = computed(() => {
   const all = ordersStore.orders.length
   const ordered = ordersStore.orders.filter((o) => o.status === 'ordered').length
-  const shipped = ordersStore.orders.filter((o) => o.status === 'shipped' || o.status === 'shipment_preparing').length
-  const inTransit = ordersStore.orders.filter((o) => o.status === 'in_transit' || o.status === 'out_for_delivery').length
+  const shipped = ordersStore.orders.filter(
+    (o) => o.status === 'shipped' || o.status === 'shipment_preparing',
+  ).length
+  const inTransit = ordersStore.orders.filter(
+    (o) => o.status === 'in_transit' || o.status === 'out_for_delivery',
+  ).length
   const delivered = ordersStore.orders.filter((o) => o.status === 'delivered').length
 
   return [
@@ -149,8 +175,10 @@ const filteredOrders = computed(() => {
 
   if (activeTab.value) {
     result = result.filter((o) => {
-      if (activeTab.value === 'shipped') return o.status === 'shipped' || o.status === 'shipment_preparing'
-      if (activeTab.value === 'in_transit') return o.status === 'in_transit' || o.status === 'out_for_delivery'
+      if (activeTab.value === 'shipped')
+        return o.status === 'shipped' || o.status === 'shipment_preparing'
+      if (activeTab.value === 'in_transit')
+        return o.status === 'in_transit' || o.status === 'out_for_delivery'
       return o.status === activeTab.value
     })
   }
@@ -167,7 +195,9 @@ const filteredOrders = computed(() => {
     )
   }
 
-  return [...result].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  return [...result].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  )
 })
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null

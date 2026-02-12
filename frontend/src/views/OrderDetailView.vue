@@ -2,9 +2,17 @@
   <div class="p-6 max-w-4xl mx-auto">
     <!-- Back link -->
     <div class="mb-6">
-      <router-link to="/orders" class="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1">
+      <router-link
+        to="/orders"
+        class="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
+      >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Back to Orders
       </router-link>
@@ -16,7 +24,10 @@
     </div>
 
     <!-- Error -->
-    <div v-else-if="error" class="bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400 px-4 py-3 rounded-md">
+    <div
+      v-else-if="error"
+      class="bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400 px-4 py-3 rounded-md"
+    >
       {{ error }}
     </div>
 
@@ -57,18 +68,35 @@
       <!-- Order Info Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <!-- Order Details Card -->
-        <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Order Details</h3>
+        <div
+          class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
+        >
+          <h3
+            class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4"
+          >
+            Order Details
+          </h3>
 
           <template v-if="editing">
             <div class="space-y-3">
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Order Number</label>
-                <input v-model="editForm.order_number" type="text" class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  >Order Number</label
+                >
+                <input
+                  v-model="editForm.order_number"
+                  type="text"
+                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
-                <select v-model="editForm.status" class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  >Status</label
+                >
+                <select
+                  v-model="editForm.status"
+                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
                   <option value="ordered">Ordered</option>
                   <option value="shipment_preparing">Shipment Preparing</option>
                   <option value="shipped">Shipped</option>
@@ -78,12 +106,24 @@
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Vendor</label>
-                <input v-model="editForm.vendor_name" type="text" class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  >Vendor</label
+                >
+                <input
+                  v-model="editForm.vendor_name"
+                  type="text"
+                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Order Date</label>
-                <input v-model="editForm.order_date" type="date" class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  >Order Date</label
+                >
+                <input
+                  v-model="editForm.order_date"
+                  type="date"
+                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
             </div>
           </template>
@@ -92,41 +132,73 @@
             <dl class="space-y-3">
               <div>
                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Order Number</dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">{{ order.order_number || '-' }}</dd>
+                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                  {{ order.order_number || '-' }}
+                </dd>
               </div>
               <div>
                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Vendor</dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">{{ order.vendor_name || order.vendor_domain || '-' }}</dd>
+                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                  {{ order.vendor_name || order.vendor_domain || '-' }}
+                </dd>
               </div>
               <div>
                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Order Date</dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">{{ order.order_date ? formatDate(order.order_date) : '-' }}</dd>
+                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                  {{ order.order_date ? formatDate(order.order_date) : '-' }}
+                </dd>
               </div>
               <div>
                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Amount</dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">{{ formatAmount(order.total_amount, order.currency) }}</dd>
+                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                  {{ formatAmount(order.total_amount, order.currency) }}
+                </dd>
               </div>
             </dl>
           </template>
         </div>
 
         <!-- Shipping Details Card -->
-        <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Shipping Details</h3>
+        <div
+          class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
+        >
+          <h3
+            class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4"
+          >
+            Shipping Details
+          </h3>
 
           <template v-if="editing">
             <div class="space-y-3">
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Tracking Number</label>
-                <input v-model="editForm.tracking_number" type="text" class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  >Tracking Number</label
+                >
+                <input
+                  v-model="editForm.tracking_number"
+                  type="text"
+                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Carrier</label>
-                <input v-model="editForm.carrier" type="text" class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  >Carrier</label
+                >
+                <input
+                  v-model="editForm.carrier"
+                  type="text"
+                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Estimated Delivery</label>
-                <input v-model="editForm.estimated_delivery" type="date" class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  >Estimated Delivery</label
+                >
+                <input
+                  v-model="editForm.estimated_delivery"
+                  type="date"
+                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
             </div>
 
@@ -150,16 +222,26 @@
           <template v-else>
             <dl class="space-y-3">
               <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Tracking Number</dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">{{ order.tracking_number || '-' }}</dd>
+                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Tracking Number
+                </dt>
+                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                  {{ order.tracking_number || '-' }}
+                </dd>
               </div>
               <div>
                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Carrier</dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">{{ order.carrier || '-' }}</dd>
+                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                  {{ order.carrier || '-' }}
+                </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Estimated Delivery</dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">{{ order.estimated_delivery ? formatDate(order.estimated_delivery) : '-' }}</dd>
+                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Estimated Delivery
+                </dt>
+                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                  {{ order.estimated_delivery ? formatDate(order.estimated_delivery) : '-' }}
+                </dd>
               </div>
             </dl>
           </template>
@@ -167,14 +249,21 @@
       </div>
 
       <!-- Items -->
-      <div v-if="order.items && order.items.length > 0" class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+      <div
+        v-if="order.items && order.items.length > 0"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8"
+      >
         <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Items</h3>
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
+            Items
+          </h3>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
-              <tr class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+              <tr
+                class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
+              >
                 <th class="px-5 py-3">Item</th>
                 <th class="px-5 py-3">Qty</th>
                 <th class="px-5 py-3 text-right">Price</th>
@@ -183,7 +272,9 @@
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="(item, idx) in order.items" :key="idx">
                 <td class="px-5 py-3 text-sm text-gray-900 dark:text-white">{{ item.name }}</td>
-                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }}</td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
+                  {{ item.quantity }}
+                </td>
                 <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400 text-right">
                   {{ item.price !== null ? formatAmount(item.price, order.currency) : '-' }}
                 </td>
@@ -194,12 +285,19 @@
       </div>
 
       <!-- Event Timeline -->
-      <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+      >
         <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Event Timeline</h3>
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
+            Event Timeline
+          </h3>
         </div>
 
-        <div v-if="order.events.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+        <div
+          v-if="order.events.length === 0"
+          class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm"
+        >
           No events recorded yet.
         </div>
 
@@ -207,10 +305,16 @@
           <div class="relative">
             <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
 
-            <div v-for="(event, idx) in sortedEvents" :key="event.id" class="relative flex gap-4 pb-6 last:pb-0">
+            <div
+              v-for="(event, idx) in sortedEvents"
+              :key="event.id"
+              class="relative flex gap-4 pb-6 last:pb-0"
+            >
               <div
                 class="relative z-10 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
-                :class="idx === 0 ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-gray-100 dark:bg-gray-800'"
+                :class="
+                  idx === 0 ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-gray-100 dark:bg-gray-800'
+                "
               >
                 <div
                   class="w-2.5 h-2.5 rounded-full"
@@ -348,7 +452,9 @@ async function saveEdit() {
     if (editForm.value.order_date !== (order.value.order_date?.split('T')[0] || '')) {
       data.order_date = editForm.value.order_date || null
     }
-    if (editForm.value.estimated_delivery !== (order.value.estimated_delivery?.split('T')[0] || '')) {
+    if (
+      editForm.value.estimated_delivery !== (order.value.estimated_delivery?.split('T')[0] || '')
+    ) {
       data.estimated_delivery = editForm.value.estimated_delivery || null
     }
 

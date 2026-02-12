@@ -8,16 +8,26 @@
         </div>
 
         <form @submit.prevent="handleSetup" class="space-y-5">
-          <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm">
+          <div
+            v-if="error"
+            class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm"
+          >
             {{ error }}
           </div>
 
-          <div v-if="success" class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm">
+          <div
+            v-if="success"
+            class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm"
+          >
             {{ success }}
           </div>
 
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+            <label
+              for="username"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Username</label
+            >
             <input
               id="username"
               v-model="username"
@@ -30,7 +40,11 @@
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Password</label
+            >
             <input
               id="password"
               v-model="password"
@@ -43,7 +57,11 @@
           </div>
 
           <div>
-            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
+            <label
+              for="confirmPassword"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Confirm Password</label
+            >
             <input
               id="confirmPassword"
               v-model="confirmPassword"
@@ -66,7 +84,10 @@
         </form>
 
         <div class="mt-6 text-center">
-          <router-link to="/login" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+          <router-link
+            to="/login"
+            class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
+          >
             Already have an account? Sign in
           </router-link>
         </div>

@@ -14,8 +14,7 @@ export const useThemeStore = defineStore('theme', () => {
   function applyTheme() {
     const isDark =
       preference.value === 'dark' ||
-      (preference.value === 'system' &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
+      (preference.value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
     document.documentElement.classList.toggle('dark', isDark)
   }

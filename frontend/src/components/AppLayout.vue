@@ -16,7 +16,12 @@
       <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-200 dark:border-gray-700">
         <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+            />
           </svg>
         </div>
         <span class="text-lg font-bold text-gray-900 dark:text-white">Package Tracker</span>
@@ -29,7 +34,11 @@
           :key="item.to"
           :to="item.to"
           class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
-          :class="isActive(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'"
+          :class="
+            isActive(item.to)
+              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+          "
           @click="sidebarOpen = false"
         >
           <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
@@ -46,7 +55,11 @@
             :key="item.to"
             :to="item.to"
             class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
-            :class="isActive(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'"
+            :class="
+              isActive(item.to)
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+            "
             @click="sidebarOpen = false"
           >
             <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
@@ -63,14 +76,30 @@
       <!-- User Info -->
       <div class="border-t border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          <div
+            class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0"
+          >
+            <svg
+              class="w-4 h-4 text-gray-500 dark:text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ auth.user?.username }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ auth.isAdmin ? 'Admin' : 'User' }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {{ auth.user?.username }}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ auth.isAdmin ? 'Admin' : 'User' }}
+            </p>
           </div>
           <button
             @click="handleLogout"
@@ -78,7 +107,12 @@
             title="Logout"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
             </svg>
           </button>
         </div>
@@ -88,13 +122,20 @@
     <!-- Main Content -->
     <div class="lg:pl-64">
       <!-- Top bar (mobile) -->
-      <div class="sticky top-0 z-30 flex items-center gap-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 lg:hidden">
+      <div
+        class="sticky top-0 z-30 flex items-center gap-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 lg:hidden"
+      >
         <button
           @click="sidebarOpen = true"
           class="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </button>
         <span class="text-lg font-bold text-gray-900 dark:text-white">Package Tracker</span>
