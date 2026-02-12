@@ -79,9 +79,17 @@ Backend uses pytest with `pytest-asyncio` (`asyncio_mode = "auto"` in pyproject.
 
 ## Configuration
 
-Environment variables use `PT_` prefix (Pydantic Settings in `config.py`):
-- `PT_DATABASE_URL` — PostgreSQL connection string (asyncpg)
-- `PT_SECRET_KEY` — JWT signing key
-- `PT_ENCRYPTION_KEY` — Fernet key for IMAP password encryption
+All configuration lives in `.env` (required — copy `.env.example` to get started). Both dev and prod compose files use `env_file: .env` to pass vars directly into containers — no `environment:` sections or inline variable construction.
 
-See `.env.example` for all options.
+**Database:**
+- `POSTGRES_USER` — PostgreSQL username (default: `tracker`)
+- `POSTGRES_PASSWORD` — PostgreSQL password
+- `POSTGRES_DB` — PostgreSQL database name (default: `tracker`)
+
+**Backend** (Pydantic Settings with `PT_` prefix in `config.py`):
+- `PT_SECRET_KEY` — JWT signing key (required, no default)
+- `PT_ENCRYPTION_KEY` — Fernet key for IMAP password encryption (required, no default)
+- `PT_DATABASE_URL` — PostgreSQL connection string (asyncpg)
+
+**Frontend:**
+- `PORT` — public-facing port for prod nginx (default: `80`)
