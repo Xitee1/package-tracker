@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Dashboard</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ $t('dashboard.title') }}</h1>
 
     <!-- Status Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -9,7 +9,7 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ordered</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.ordered') }}</p>
             <p class="text-2xl font-bold text-blue-600 mt-1">{{ statusCounts.ordered }}</p>
           </div>
           <div
@@ -37,7 +37,7 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Shipped</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.shipped') }}</p>
             <p class="text-2xl font-bold text-indigo-600 mt-1">{{ statusCounts.shipped }}</p>
           </div>
           <div
@@ -65,7 +65,7 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">In Transit</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.inTransit') }}</p>
             <p class="text-2xl font-bold text-orange-600 mt-1">{{ statusCounts.in_transit }}</p>
           </div>
           <div
@@ -93,7 +93,7 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Delivered</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.delivered') }}</p>
             <p class="text-2xl font-bold text-green-600 mt-1">{{ statusCounts.delivered }}</p>
           </div>
           <div
@@ -124,24 +124,24 @@
       <div
         class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
       >
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.recentOrders') }}</h2>
         <router-link
           to="/orders"
           class="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
         >
-          View all
+          {{ $t('dashboard.viewAll') }}
         </router-link>
       </div>
 
       <div v-if="ordersStore.loading" class="p-8 text-center text-gray-500 dark:text-gray-400">
-        Loading orders...
+        {{ $t('dashboard.loadingOrders') }}
       </div>
 
       <div
         v-else-if="recentOrders.length === 0"
         class="p-8 text-center text-gray-500 dark:text-gray-400"
       >
-        No orders found. Orders will appear here once emails are processed.
+        {{ $t('dashboard.noOrders') }}
       </div>
 
       <div v-else class="overflow-x-auto">
@@ -150,11 +150,11 @@
             <tr
               class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
             >
-              <th class="px-5 py-3">Order</th>
-              <th class="px-5 py-3">Vendor</th>
-              <th class="px-5 py-3">Status</th>
-              <th class="px-5 py-3">Date</th>
-              <th class="px-5 py-3">Amount</th>
+              <th class="px-5 py-3">{{ $t('dashboard.order') }}</th>
+              <th class="px-5 py-3">{{ $t('dashboard.vendor') }}</th>
+              <th class="px-5 py-3">{{ $t('dashboard.status') }}</th>
+              <th class="px-5 py-3">{{ $t('dashboard.date') }}</th>
+              <th class="px-5 py-3">{{ $t('dashboard.amount') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -202,8 +202,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useOrdersStore } from '@/stores/orders'
 
+const { t, te } = useI18n()
 const ordersStore = useOrdersStore()
 
 const statusCounts = computed(() => {
@@ -237,6 +239,8 @@ function statusClass(status: string): string {
 }
 
 function formatStatus(status: string): string {
+  const key = `status.${status}`
+  if (te(key)) return t(key)
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
