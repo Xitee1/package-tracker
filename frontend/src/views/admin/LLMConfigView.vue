@@ -33,9 +33,9 @@
 
         <!-- Provider -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >{{ $t('llm.provider') }}</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('llm.provider')
+          }}</label>
           <div class="flex gap-2">
             <select
               v-model="providerSelect"
@@ -66,9 +66,9 @@
 
         <!-- Model Name -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >{{ $t('llm.modelName') }}</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('llm.modelName')
+          }}</label>
           <input
             v-model="form.model_name"
             type="text"
@@ -82,9 +82,9 @@
         <div v-if="showApiKey">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {{ $t('llm.apiKey') }}
-            <span v-if="hasExistingKey" class="text-gray-400 dark:text-gray-500 font-normal"
-              >{{ $t('llm.apiKeyKeepCurrent') }}</span
-            >
+            <span v-if="hasExistingKey" class="text-gray-400 dark:text-gray-500 font-normal">{{
+              $t('llm.apiKeyKeepCurrent')
+            }}</span>
           </label>
           <input
             v-model="form.api_key"

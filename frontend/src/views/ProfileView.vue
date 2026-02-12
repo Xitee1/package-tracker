@@ -6,8 +6,12 @@
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
     >
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">{{ $t('profile.language') }}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ $t('profile.languageDescription') }}</p>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+        {{ $t('profile.language') }}
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        {{ $t('profile.languageDescription') }}
+      </p>
       <select
         :value="locale"
         @change="setLocale(($event.target as HTMLSelectElement).value)"
@@ -22,7 +26,9 @@
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('profile.changePassword') }}</h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        {{ $t('profile.changePassword') }}
+      </h2>
 
       <div
         v-if="success"
@@ -40,9 +46,9 @@
 
       <form @submit.prevent="handleChangePassword" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >{{ $t('profile.currentPassword') }}</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('profile.currentPassword')
+          }}</label>
           <input
             v-model="form.currentPassword"
             type="password"
@@ -54,9 +60,9 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >{{ $t('profile.newPassword') }}</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('profile.newPassword')
+          }}</label>
           <input
             v-model="form.newPassword"
             type="password"
@@ -68,9 +74,9 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >{{ $t('profile.confirmNewPassword') }}</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('profile.confirmNewPassword')
+          }}</label>
           <input
             v-model="form.confirmPassword"
             type="password"

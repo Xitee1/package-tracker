@@ -24,7 +24,9 @@
       v-if="showForm"
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
     >
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('users.createNewUser') }}</h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        {{ $t('users.createNewUser') }}
+      </h2>
 
       <div
         v-if="formError"
@@ -36,9 +38,9 @@
       <form @submit.prevent="handleCreateUser" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >{{ $t('users.username') }}</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('users.username')
+            }}</label>
             <input
               v-model="form.username"
               type="text"
@@ -49,9 +51,9 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >{{ $t('users.password') }}</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('users.password')
+            }}</label>
             <input
               v-model="form.password"
               type="password"
@@ -70,9 +72,9 @@
             type="checkbox"
             class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
           />
-          <label for="is_admin" class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >{{ $t('users.adminPrivileges') }}</label
-          >
+          <label for="is_admin" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+            $t('users.adminPrivileges')
+          }}</label>
         </div>
 
         <div class="flex items-center gap-3 pt-2">
@@ -187,7 +189,9 @@
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="fixed inset-0 bg-black/50" @click="showDeleteConfirm = false"></div>
       <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('users.deleteUser') }}</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          {{ $t('users.deleteUser') }}
+        </h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
           {{ $t('users.deleteConfirm', { username: deleteTarget?.username }) }}
         </p>

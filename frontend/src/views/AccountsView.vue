@@ -38,9 +38,9 @@
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >{{ $t('accounts.accountName') }}</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('accounts.accountName')
+            }}</label>
             <input
               v-model="form.name"
               type="text"
@@ -51,9 +51,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >{{ $t('accounts.imapHost') }}</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('accounts.imapHost')
+            }}</label>
             <input
               v-model="form.imap_host"
               type="text"
@@ -64,9 +64,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >{{ $t('accounts.imapPort') }}</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('accounts.imapPort')
+            }}</label>
             <input
               v-model.number="form.imap_port"
               type="number"
@@ -78,9 +78,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >{{ $t('accounts.username') }}</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('accounts.username')
+            }}</label>
             <input
               v-model="form.username"
               type="text"
@@ -93,9 +93,9 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {{ $t('accounts.password') }}
-              <span v-if="editingId" class="text-gray-400 dark:text-gray-500 font-normal"
-                >{{ $t('accounts.passwordKeepCurrent') }}</span
-              >
+              <span v-if="editingId" class="text-gray-400 dark:text-gray-500 font-normal">{{
+                $t('accounts.passwordKeepCurrent')
+              }}</span>
             </label>
             <input
               v-model="form.password"
@@ -108,9 +108,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >{{ $t('accounts.pollingInterval') }}</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('accounts.pollingInterval')
+            }}</label>
             <input
               v-model.number="form.polling_interval"
               type="number"
@@ -128,9 +128,9 @@
             type="checkbox"
             class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
           />
-          <label for="use_ssl" class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >{{ $t('accounts.useSsl') }}</label
-          >
+          <label for="use_ssl" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+            $t('accounts.useSsl')
+          }}</label>
         </div>
 
         <div class="flex items-center gap-3 pt-2">
@@ -139,7 +139,13 @@
             :disabled="formSaving"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ formSaving ? $t('common.saving') : editingId ? $t('accounts.updateAccount') : $t('accounts.createAccount') }}
+            {{
+              formSaving
+                ? $t('common.saving')
+                : editingId
+                  ? $t('accounts.updateAccount')
+                  : $t('accounts.createAccount')
+            }}
           </button>
           <button
             type="button"
@@ -175,7 +181,9 @@
           d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
         />
       </svg>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">{{ $t('accounts.noAccounts') }}</h3>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">
+        {{ $t('accounts.noAccounts') }}
+      </h3>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
         {{ $t('accounts.noAccountsHint') }}
       </p>
@@ -340,7 +348,9 @@
           class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5"
         >
           <div class="flex items-center justify-between mb-4">
-            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $t('accounts.folderManagement') }}</h4>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+              {{ $t('accounts.folderManagement') }}
+            </h4>
             <button
               @click="loadFolders(account.id)"
               :disabled="foldersLoading"
@@ -479,7 +489,9 @@
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="fixed inset-0 bg-black/50" @click="showDeleteConfirm = false"></div>
       <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('accounts.deleteAccount') }}</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          {{ $t('accounts.deleteAccount') }}
+        </h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
           {{ $t('accounts.deleteConfirm', { name: deleteTarget?.name }) }}
         </p>
@@ -684,8 +696,7 @@ async function loadFolders(id: number) {
     watchedFolders.value = watched
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value =
-      err.response?.data?.detail || t('accounts.loadFoldersFailed')
+    folderError.value = err.response?.data?.detail || t('accounts.loadFoldersFailed')
   } finally {
     foldersLoading.value = false
   }

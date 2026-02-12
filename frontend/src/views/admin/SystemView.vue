@@ -42,19 +42,25 @@
         <div
           class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
         >
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('system.totalWorkers') }}</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {{ $t('system.totalWorkers') }}
+          </p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ workers.length }}</p>
         </div>
         <div
           class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
         >
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('system.running') }}</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {{ $t('system.running') }}
+          </p>
           <p class="text-2xl font-bold text-green-600 mt-1">{{ runningCount }}</p>
         </div>
         <div
           class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
         >
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('system.errors') }}</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {{ $t('system.errors') }}
+          </p>
           <p
             class="text-2xl font-bold mt-1"
             :class="
@@ -71,7 +77,9 @@
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
       >
         <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('system.imapWorkers') }}</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ $t('system.imapWorkers') }}
+          </h2>
         </div>
 
         <div
@@ -118,9 +126,9 @@
                   </span>
                 </td>
                 <td class="px-5 py-3">
-                  <span v-if="!worker.error" class="text-sm text-gray-400 dark:text-gray-500"
-                    >{{ $t('common.none') }}</span
-                  >
+                  <span v-if="!worker.error" class="text-sm text-gray-400 dark:text-gray-500">{{
+                    $t('common.none')
+                  }}</span>
                   <span v-else class="text-sm text-red-600 dark:text-red-400">{{
                     worker.error
                   }}</span>

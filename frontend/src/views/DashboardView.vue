@@ -1,6 +1,8 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ $t('dashboard.title') }}</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+      {{ $t('dashboard.title') }}
+    </h1>
 
     <!-- Status Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -9,7 +11,9 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.ordered') }}</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {{ $t('dashboard.ordered') }}
+            </p>
             <p class="text-2xl font-bold text-blue-600 mt-1">{{ statusCounts.ordered }}</p>
           </div>
           <div
@@ -37,7 +41,9 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.shipped') }}</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {{ $t('dashboard.shipped') }}
+            </p>
             <p class="text-2xl font-bold text-indigo-600 mt-1">{{ statusCounts.shipped }}</p>
           </div>
           <div
@@ -65,7 +71,9 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.inTransit') }}</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {{ $t('dashboard.inTransit') }}
+            </p>
             <p class="text-2xl font-bold text-orange-600 mt-1">{{ statusCounts.in_transit }}</p>
           </div>
           <div
@@ -93,7 +101,9 @@
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('dashboard.delivered') }}</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {{ $t('dashboard.delivered') }}
+            </p>
             <p class="text-2xl font-bold text-green-600 mt-1">{{ statusCounts.delivered }}</p>
           </div>
           <div
@@ -124,7 +134,9 @@
       <div
         class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
       >
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('dashboard.recentOrders') }}</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+          {{ $t('dashboard.recentOrders') }}
+        </h2>
         <router-link
           to="/orders"
           class="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"

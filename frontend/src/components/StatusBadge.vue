@@ -27,7 +27,9 @@ const statusConfig: Record<string, string> = {
 }
 
 const badgeClass = computed(() => {
-  return statusConfig[props.status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+  return (
+    statusConfig[props.status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+  )
 })
 
 const label = computed(() => {

@@ -48,7 +48,9 @@
         <!-- Admin Section -->
         <template v-if="auth.isAdmin">
           <div class="pt-4 pb-1 px-3">
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ $t('common.admin') }}</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              {{ $t('common.admin') }}
+            </p>
           </div>
           <router-link
             v-for="item in adminNavItems"

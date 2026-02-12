@@ -80,9 +80,9 @@
           <template v-if="editing">
             <div class="space-y-3">
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-                  >{{ $t('orderDetail.orderNumber') }}</label
-                >
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
+                  $t('orderDetail.orderNumber')
+                }}</label>
                 <input
                   v-model="editForm.order_number"
                   type="text"
@@ -90,25 +90,29 @@
                 />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-                  >{{ $t('orderDetail.status') }}</label
-                >
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
+                  $t('orderDetail.status')
+                }}</label>
                 <select
                   v-model="editForm.status"
                   class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="ordered">{{ $t('orderDetail.statusOrdered') }}</option>
-                  <option value="shipment_preparing">{{ $t('orderDetail.statusShipmentPreparing') }}</option>
+                  <option value="shipment_preparing">
+                    {{ $t('orderDetail.statusShipmentPreparing') }}
+                  </option>
                   <option value="shipped">{{ $t('orderDetail.statusShipped') }}</option>
                   <option value="in_transit">{{ $t('orderDetail.statusInTransit') }}</option>
-                  <option value="out_for_delivery">{{ $t('orderDetail.statusOutForDelivery') }}</option>
+                  <option value="out_for_delivery">
+                    {{ $t('orderDetail.statusOutForDelivery') }}
+                  </option>
                   <option value="delivered">{{ $t('orderDetail.statusDelivered') }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-                  >{{ $t('orderDetail.vendor') }}</label
-                >
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
+                  $t('orderDetail.vendor')
+                }}</label>
                 <input
                   v-model="editForm.vendor_name"
                   type="text"
@@ -116,9 +120,9 @@
                 />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-                  >{{ $t('orderDetail.orderDate') }}</label
-                >
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
+                  $t('orderDetail.orderDate')
+                }}</label>
                 <input
                   v-model="editForm.order_date"
                   type="date"
@@ -131,25 +135,33 @@
           <template v-else>
             <dl class="space-y-3">
               <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $t('orderDetail.orderNumber') }}</dt>
+                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {{ $t('orderDetail.orderNumber') }}
+                </dt>
                 <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
                   {{ order.order_number || '-' }}
                 </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $t('orderDetail.vendor') }}</dt>
+                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {{ $t('orderDetail.vendor') }}
+                </dt>
                 <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
                   {{ order.vendor_name || order.vendor_domain || '-' }}
                 </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $t('orderDetail.orderDate') }}</dt>
+                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {{ $t('orderDetail.orderDate') }}
+                </dt>
                 <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
                   {{ order.order_date ? formatDate(order.order_date) : '-' }}
                 </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $t('orderDetail.totalAmount') }}</dt>
+                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {{ $t('orderDetail.totalAmount') }}
+                </dt>
                 <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
                   {{ formatAmount(order.total_amount, order.currency) }}
                 </dd>
@@ -171,9 +183,9 @@
           <template v-if="editing">
             <div class="space-y-3">
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-                  >{{ $t('orderDetail.trackingNumber') }}</label
-                >
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
+                  $t('orderDetail.trackingNumber')
+                }}</label>
                 <input
                   v-model="editForm.tracking_number"
                   type="text"
@@ -181,9 +193,9 @@
                 />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-                  >{{ $t('orderDetail.carrier') }}</label
-                >
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
+                  $t('orderDetail.carrier')
+                }}</label>
                 <input
                   v-model="editForm.carrier"
                   type="text"
@@ -191,9 +203,9 @@
                 />
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
-                  >{{ $t('orderDetail.estimatedDelivery') }}</label
-                >
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
+                  $t('orderDetail.estimatedDelivery')
+                }}</label>
                 <input
                   v-model="editForm.estimated_delivery"
                   type="date"
@@ -230,7 +242,9 @@
                 </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $t('orderDetail.carrier') }}</dt>
+                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {{ $t('orderDetail.carrier') }}
+                </dt>
                 <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
                   {{ order.carrier || '-' }}
                 </dd>
@@ -342,7 +356,9 @@
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="fixed inset-0 bg-black/50" @click="showDeleteConfirm = false"></div>
       <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('orderDetail.deleteOrder') }}</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          {{ $t('orderDetail.deleteOrder') }}
+        </h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
           {{ $t('orderDetail.deleteConfirm') }}
         </p>
