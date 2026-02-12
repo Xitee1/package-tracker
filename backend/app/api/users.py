@@ -6,9 +6,9 @@ from app.core.auth import hash_password
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import CreateUserRequest, UpdateUserRequest, UserResponse
-from app.api.deps import get_admin_user
+from app.api.deps import get_admin_user, require_jwt_auth
 
-router = APIRouter(prefix="/api/v1/users", tags=["users"], dependencies=[Depends(get_admin_user)])
+router = APIRouter(prefix="/api/v1/users", tags=["users"], dependencies=[Depends(get_admin_user), Depends(require_jwt_auth)])
 
 
 @router.get("", response_model=list[UserResponse])
