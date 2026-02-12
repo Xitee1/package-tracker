@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     env_file: .env
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -33,6 +33,3 @@ services:
       - /app/node_modules
     depends_on:
       - backend
-
-volumes:
-  pgdata:
