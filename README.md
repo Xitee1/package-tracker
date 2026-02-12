@@ -1,4 +1,7 @@
-# Package Tracker
+# WIP: Package Tracker
+
+> [!NOTE]  
+> This tool was at least 99% written by AI. Altough I have tested it and it seems to work as it should, use with care and expect things to go really wrong.
 
 A self-hosted application that monitors your email inboxes and automatically tracks your online orders and shipments. It uses an LLM to analyze incoming emails and extract order details, tracking numbers, and delivery status updates into a unified dashboard.
 
