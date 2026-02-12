@@ -22,7 +22,10 @@
     "no": "No",
     "ssl": "SSL",
     "watch": "Watch",
-    "watched": "Watched"
+    "watched": "Watched",
+    "themeLight": "Light",
+    "themeSystem": "System",
+    "themeDark": "Dark"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -235,7 +238,9 @@
     "connectionFailed": "Connection Failed",
     "loadFailed": "Failed to load configuration.",
     "saveFailed": "Failed to save configuration.",
-    "testFailed": "Connection test failed."
+    "testFailed": "Connection test failed.",
+    "modelNameFallback": "model-name",
+    "apiKeyFallback": "API key"
   },
   "system": {
     "title": "System Status",

@@ -187,13 +187,13 @@ const modelPlaceholder = computed(() => {
   if (providerSelect.value === 'openai') return 'gpt-4o'
   if (providerSelect.value === 'anthropic') return 'claude-sonnet-4-20250514'
   if (providerSelect.value === 'ollama') return 'llama3'
-  return 'model-name'
+  return t('llm.modelNameFallback')
 })
 
 const apiKeyPlaceholder = computed(() => {
   if (providerSelect.value === 'anthropic') return 'sk-ant-api03-...'
   if (providerSelect.value === 'openai') return 'sk-...'
-  return 'API key'
+  return t('llm.apiKeyFallback')
 })
 
 const basePlaceholder = computed(() => {

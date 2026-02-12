@@ -8,7 +8,7 @@
           ? 'bg-white dark:bg-gray-600 shadow-sm text-yellow-500'
           : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'
       "
-      title="Light"
+      :title="$t('common.themeLight')"
     >
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -27,7 +27,7 @@
           ? 'bg-white dark:bg-gray-600 shadow-sm text-blue-500'
           : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'
       "
-      title="System"
+      :title="$t('common.themeSystem')"
     >
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -46,7 +46,7 @@
           ? 'bg-white dark:bg-gray-600 shadow-sm text-indigo-400'
           : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'
       "
-      title="Dark"
+      :title="$t('common.themeDark')"
     >
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path

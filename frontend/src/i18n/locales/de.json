@@ -22,7 +22,10 @@
     "no": "Nein",
     "ssl": "SSL",
     "watch": "Überwachen",
-    "watched": "Überwacht"
+    "watched": "Überwacht",
+    "themeLight": "Hell",
+    "themeSystem": "System",
+    "themeDark": "Dunkel"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -235,7 +238,9 @@
     "connectionFailed": "Verbindung fehlgeschlagen",
     "loadFailed": "Konfiguration konnte nicht geladen werden.",
     "saveFailed": "Konfiguration konnte nicht gespeichert werden.",
-    "testFailed": "Verbindungstest fehlgeschlagen."
+    "testFailed": "Verbindungstest fehlgeschlagen.",
+    "modelNameFallback": "Modellname",
+    "apiKeyFallback": "API-Schlüssel"
   },
   "system": {
     "title": "Systemstatus",
