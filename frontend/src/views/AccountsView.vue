@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 max-w-5xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Email Accounts</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('accounts.title') }}</h1>
       <button
         v-if="!showForm"
         @click="openAddForm"
@@ -15,7 +15,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-        Add Account
+        {{ $t('accounts.addAccount') }}
       </button>
     </div>
 
@@ -25,7 +25,7 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
     >
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ editingId ? 'Edit Account' : 'Add Email Account' }}
+        {{ editingId ? $t('accounts.editAccount') : $t('accounts.addEmailAccount') }}
       </h2>
 
       <div
@@ -39,33 +39,33 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Account Name</label
+              >{{ $t('accounts.accountName') }}</label
             >
             <input
               v-model="form.name"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g. Personal Gmail"
+              :placeholder="$t('accounts.accountNamePlaceholder')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >IMAP Host</label
+              >{{ $t('accounts.imapHost') }}</label
             >
             <input
               v-model="form.imap_host"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="imap.gmail.com"
+              :placeholder="$t('accounts.imapHostPlaceholder')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >IMAP Port</label
+              >{{ $t('accounts.imapPort') }}</label
             >
             <input
               v-model.number="form.imap_port"
@@ -79,22 +79,22 @@
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Username</label
+              >{{ $t('accounts.username') }}</label
             >
             <input
               v-model="form.username"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="user@gmail.com"
+              :placeholder="$t('accounts.usernamePlaceholder')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Password
+              {{ $t('accounts.password') }}
               <span v-if="editingId" class="text-gray-400 dark:text-gray-500 font-normal"
-                >(leave blank to keep current)</span
+                >{{ $t('accounts.passwordKeepCurrent') }}</span
               >
             </label>
             <input
@@ -103,13 +103,13 @@
               :required="!editingId"
               autocomplete="new-password"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="App password or IMAP password"
+              :placeholder="$t('accounts.passwordPlaceholder')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Polling Interval (seconds)</label
+              >{{ $t('accounts.pollingInterval') }}</label
             >
             <input
               v-model.number="form.polling_interval"
@@ -129,7 +129,7 @@
             class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
           />
           <label for="use_ssl" class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Use SSL/TLS</label
+            >{{ $t('accounts.useSsl') }}</label
           >
         </div>
 
@@ -139,14 +139,14 @@
             :disabled="formSaving"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ formSaving ? 'Saving...' : editingId ? 'Update Account' : 'Create Account' }}
+            {{ formSaving ? $t('common.saving') : editingId ? $t('accounts.updateAccount') : $t('accounts.createAccount') }}
           </button>
           <button
             type="button"
             @click="closeForm"
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </button>
         </div>
       </form>
@@ -154,7 +154,7 @@
 
     <!-- Loading -->
     <div v-if="accountsStore.loading" class="text-center py-12 text-gray-500 dark:text-gray-400">
-      Loading email accounts...
+      {{ $t('accounts.loadingAccounts') }}
     </div>
 
     <!-- Empty State -->
@@ -175,9 +175,9 @@
           d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
         />
       </svg>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">No email accounts</h3>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">{{ $t('accounts.noAccounts') }}</h3>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-        Add an email account to start tracking packages from your inbox.
+        {{ $t('accounts.noAccountsHint') }}
       </p>
       <button
         @click="openAddForm"
@@ -191,7 +191,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-        Add Account
+        {{ $t('accounts.addAccount') }}
       </button>
     </div>
 
@@ -218,7 +218,7 @@
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                   "
                 >
-                  {{ account.is_active ? 'Active' : 'Inactive' }}
+                  {{ account.is_active ? $t('common.active') : $t('common.inactive') }}
                 </span>
               </div>
               <div
@@ -270,7 +270,7 @@
                       d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                     />
                   </svg>
-                  SSL
+                  {{ $t('common.ssl') }}
                 </span>
               </div>
             </div>
@@ -280,27 +280,27 @@
                 @click="handleTest(account.id)"
                 :disabled="testingId === account.id"
                 class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
-                title="Test Connection"
+                :title="$t('common.test')"
               >
-                {{ testingId === account.id ? 'Testing...' : 'Test' }}
+                {{ testingId === account.id ? $t('common.testing') : $t('common.test') }}
               </button>
               <button
                 @click="openEditForm(account)"
                 class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                Edit
+                {{ $t('common.edit') }}
               </button>
               <button
                 @click="handleDelete(account)"
                 :disabled="deletingId === account.id"
                 class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50"
               >
-                {{ deletingId === account.id ? 'Deleting...' : 'Delete' }}
+                {{ deletingId === account.id ? $t('common.deleting') : $t('common.delete') }}
               </button>
               <button
                 @click="toggleExpand(account.id)"
                 class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                title="Manage folders"
+                :title="$t('accounts.manageFolders')"
               >
                 <svg
                   class="w-5 h-5 transition-transform duration-200"
@@ -340,7 +340,7 @@
           class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5"
         >
           <div class="flex items-center justify-between mb-4">
-            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Folder Management</h4>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $t('accounts.folderManagement') }}</h4>
             <button
               @click="loadFolders(account.id)"
               :disabled="foldersLoading"
@@ -354,7 +354,7 @@
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              {{ foldersLoading ? 'Loading...' : 'Load Folders' }}
+              {{ foldersLoading ? $t('accounts.loadingFolders') : $t('accounts.loadFolders') }}
             </button>
           </div>
 
@@ -371,13 +371,13 @@
               <h5
                 class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
               >
-                Watched Folders
+                {{ $t('accounts.watchedFolders') }}
               </h5>
               <div
                 v-if="watchedFolders.length === 0"
                 class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
               >
-                No folders being watched.
+                {{ $t('accounts.noWatchedFolders') }}
               </div>
               <div v-else class="space-y-1">
                 <div
@@ -405,7 +405,7 @@
                     @click="handleRemoveWatched(account.id, wf.folder_name)"
                     class="text-xs text-red-600 hover:text-red-800 font-medium"
                   >
-                    Remove
+                    {{ $t('common.remove') }}
                   </button>
                 </div>
               </div>
@@ -416,16 +416,16 @@
               <h5
                 class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
               >
-                Available IMAP Folders
+                {{ $t('accounts.availableFolders') }}
               </h5>
               <div
                 v-if="availableFolders.length === 0 && !foldersLoading"
                 class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
               >
-                Click "Load Folders" to fetch available folders.
+                {{ $t('accounts.loadFoldersHint') }}
               </div>
               <div v-else-if="foldersLoading" class="text-sm text-gray-400 dark:text-gray-500 py-2">
-                Loading folders...
+                {{ $t('accounts.loadingFolders') }}
               </div>
               <div v-else class="space-y-1 max-h-64 overflow-y-auto">
                 <div
@@ -454,7 +454,7 @@
                     @click="handleAddWatched(account.id, folder.name)"
                     class="text-xs text-blue-600 hover:text-blue-800 font-medium"
                   >
-                    Watch
+                    {{ $t('common.watch') }}
                   </button>
                   <span v-else class="text-xs text-green-600 font-medium flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -465,7 +465,7 @@
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    Watched
+                    {{ $t('common.watched') }}
                   </span>
                 </div>
               </div>
@@ -479,24 +479,23 @@
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="fixed inset-0 bg-black/50" @click="showDeleteConfirm = false"></div>
       <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Account</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('accounts.deleteAccount') }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-          Are you sure you want to delete "{{ deleteTarget?.name }}"? This will also remove all
-          watched folder settings.
+          {{ $t('accounts.deleteConfirm', { name: deleteTarget?.name }) }}
         </p>
         <div class="flex justify-end gap-2">
           <button
             @click="showDeleteConfirm = false"
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </button>
           <button
             @click="confirmDelete"
             :disabled="deletingId !== null"
             class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
           >
-            Delete
+            {{ $t('common.delete') }}
           </button>
         </div>
       </div>
@@ -506,6 +505,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   useAccountsStore,
   type EmailAccount,
@@ -513,6 +513,7 @@ import {
   type WatchedFolder,
 } from '@/stores/accounts'
 
+const { t } = useI18n()
 const accountsStore = useAccountsStore()
 
 // Form state
@@ -609,7 +610,7 @@ async function handleSubmit() {
     closeForm()
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    formError.value = err.response?.data?.detail || 'Failed to save account.'
+    formError.value = err.response?.data?.detail || t('accounts.saveFailed')
   } finally {
     formSaving.value = false
   }
@@ -625,7 +626,7 @@ async function handleTest(id: number) {
     const err = e as { response?: { data?: { detail?: string } } }
     testResults.value[id] = {
       success: false,
-      message: err.response?.data?.detail || 'Connection test failed.',
+      message: err.response?.data?.detail || t('accounts.connectionTestFailed'),
     }
   } finally {
     testingId.value = null
@@ -649,7 +650,7 @@ async function confirmDelete() {
     }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    formError.value = err.response?.data?.detail || 'Failed to delete account.'
+    formError.value = err.response?.data?.detail || t('accounts.deleteFailed')
   } finally {
     deletingId.value = null
   }
@@ -684,7 +685,7 @@ async function loadFolders(id: number) {
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
     folderError.value =
-      err.response?.data?.detail || 'Failed to load folders. Check account connection.'
+      err.response?.data?.detail || t('accounts.loadFoldersFailed')
   } finally {
     foldersLoading.value = false
   }
@@ -700,7 +701,7 @@ async function handleAddWatched(accountId: number, folderName: string) {
     watchedFolders.value.push(wf)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value = err.response?.data?.detail || 'Failed to add watched folder.'
+    folderError.value = err.response?.data?.detail || t('accounts.addWatchedFailed')
   }
 }
 
@@ -710,7 +711,7 @@ async function handleRemoveWatched(accountId: number, folderName: string) {
     watchedFolders.value = watchedFolders.value.filter((wf) => wf.folder_name !== folderName)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value = err.response?.data?.detail || 'Failed to remove watched folder.'
+    folderError.value = err.response?.data?.detail || t('accounts.removeWatchedFailed')
   }
 }
 
