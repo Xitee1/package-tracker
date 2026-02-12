@@ -22,6 +22,19 @@
       </select>
     </div>
 
+    <!-- Theme -->
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+    >
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+        {{ $t('profile.theme') }}
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        {{ $t('profile.themeDescription') }}
+      </p>
+      <ThemeToggle />
+    </div>
+
     <!-- Change Password -->
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
@@ -106,6 +119,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/client'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()

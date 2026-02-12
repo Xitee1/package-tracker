@@ -190,7 +190,9 @@
     "passwordMinLength": "New password must be at least 6 characters.",
     "updateFailed": "Failed to update password.",
     "language": "Language",
-    "languageDescription": "Choose your preferred display language."
+    "languageDescription": "Choose your preferred display language.",
+    "theme": "Theme",
+    "themeDescription": "Choose your preferred color theme."
   },
   "users": {
     "title": "User Management",

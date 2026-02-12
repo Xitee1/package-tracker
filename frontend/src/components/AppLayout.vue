@@ -70,11 +70,6 @@
         </template>
       </nav>
 
-      <!-- Theme Toggle -->
-      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-        <ThemeToggle />
-      </div>
-
       <!-- User Info -->
       <div class="border-t border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center gap-3">
@@ -162,8 +157,6 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import ThemeToggle from '@/components/ThemeToggle.vue'
-
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()

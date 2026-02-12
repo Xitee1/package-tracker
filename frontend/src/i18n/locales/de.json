@@ -190,7 +190,9 @@
     "passwordMinLength": "Neues Passwort muss mindestens 6 Zeichen lang sein.",
     "updateFailed": "Passwort konnte nicht aktualisiert werden.",
     "language": "Sprache",
-    "languageDescription": "Wählen Sie Ihre bevorzugte Anzeigesprache."
+    "languageDescription": "Wählen Sie Ihre bevorzugte Anzeigesprache.",
+    "theme": "Design",
+    "themeDescription": "Wählen Sie Ihr bevorzugtes Farbschema."
   },
   "users": {
     "title": "Benutzerverwaltung",
