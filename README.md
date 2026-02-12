@@ -56,6 +56,13 @@ docker compose -f docker-compose.prod.yaml up -d
 
 The application is available at `http://localhost` (port 80, configurable via `PORT` in `.env`).
 
+### API Documentation
+
+The backend provides interactive API docs powered by FastAPI:
+
+- **Swagger UI** — `/api/docs`
+- **ReDoc** — `/api/redoc`
+
 ### 3. Initial setup
 
 Open the application in your browser. On first launch you'll be directed to a setup page to create the admin account.

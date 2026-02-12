@@ -14,7 +14,14 @@ async def lifespan(app: FastAPI):
     await stop_all_watchers()
 
 
-app = FastAPI(title="Package Tracker", version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title="Package Tracker",
+    version="0.1.0",
+    lifespan=lifespan,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
+)
 
 from app.api.auth import router as auth_router
 from app.api.users import router as users_router
