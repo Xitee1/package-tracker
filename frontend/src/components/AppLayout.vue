@@ -24,7 +24,7 @@
             />
           </svg>
         </div>
-        <span class="text-lg font-bold text-gray-900 dark:text-white">Package Tracker</span>
+        <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $t('app.title') }}</span>
       </div>
 
       <!-- Navigation -->
@@ -48,7 +48,7 @@
         <!-- Admin Section -->
         <template v-if="auth.isAdmin">
           <div class="pt-4 pb-1 px-3">
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Admin</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ $t('common.admin') }}</p>
           </div>
           <router-link
             v-for="item in adminNavItems"
@@ -103,14 +103,14 @@
                 {{ auth.user?.username }}
               </p>
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ auth.isAdmin ? 'Admin' : 'User' }}
+                {{ auth.isAdmin ? $t('common.admin') : $t('common.user') }}
               </p>
             </div>
           </router-link>
           <button
             @click="handleLogout"
             class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-            title="Logout"
+            :title="$t('nav.logout')"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -144,7 +144,7 @@
             />
           </svg>
         </button>
-        <span class="text-lg font-bold text-gray-900 dark:text-white">Package Tracker</span>
+        <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $t('app.title') }}</span>
       </div>
 
       <!-- Page Content -->
@@ -156,52 +156,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 
 const sidebarOpen = ref(false)
 
-const navItems = [
+const navItems = computed(() => [
   {
     to: '/dashboard',
-    label: 'Dashboard',
+    label: t('nav.dashboard'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>',
   },
   {
     to: '/orders',
-    label: 'Orders',
+    label: t('nav.orders'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>',
   },
   {
     to: '/accounts',
-    label: 'Email Accounts',
+    label: t('nav.emailAccounts'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
   },
-]
+])
 
-const adminNavItems = [
+const adminNavItems = computed(() => [
   {
     to: '/admin/users',
-    label: 'Users',
+    label: t('nav.users'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>',
   },
   {
     to: '/admin/llm',
-    label: 'LLM Config',
+    label: t('nav.llmConfig'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
   },
   {
     to: '/admin/system',
-    label: 'System',
+    label: t('nav.system'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>',
   },
-]
+])
 
 function isActive(path: string): boolean {
   if (path === '/orders' && route.path.startsWith('/orders/')) return true
