@@ -7,7 +7,9 @@ services:
     restart: unless-stopped
 
   package-tracker:
-    image: ghcr.io/xitee1/package-tracker:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     env_file: .env
     ports:
       - "80:80"
