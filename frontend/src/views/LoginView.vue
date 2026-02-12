@@ -4,7 +4,7 @@
     v-if="auth.setupCompleted === null"
     class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950"
   >
-    <p class="text-gray-500 dark:text-gray-400">Loading...</p>
+    <p class="text-gray-500 dark:text-gray-400">{{ $t('common.loading') }}</p>
   </div>
 
   <!-- Setup form -->
@@ -15,8 +15,8 @@
     <div class="w-full max-w-md">
       <div class="bg-white dark:bg-gray-900 rounded-lg shadow-md p-8">
         <div class="text-center mb-8">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Package Tracker</h1>
-          <p class="text-gray-500 dark:text-gray-400 mt-1">Create Admin Account</p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('app.title') }}</h1>
+          <p class="text-gray-500 dark:text-gray-400 mt-1">{{ $t('login.createAdmin') }}</p>
         </div>
 
         <form @submit.prevent="handleSetup" class="space-y-5">
@@ -31,7 +31,7 @@
             <label
               for="username"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Username</label
+              >{{ $t('login.username') }}</label
             >
             <input
               id="username"
@@ -40,7 +40,7 @@
               required
               autocomplete="username"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Choose a username"
+              :placeholder="$t('login.chooseUsername')"
             />
           </div>
 
@@ -48,7 +48,7 @@
             <label
               for="password"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Password</label
+              >{{ $t('login.password') }}</label
             >
             <input
               id="password"
@@ -57,7 +57,7 @@
               required
               autocomplete="new-password"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Choose a password"
+              :placeholder="$t('login.choosePassword')"
             />
           </div>
 
@@ -65,7 +65,7 @@
             <label
               for="confirmPassword"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Confirm Password</label
+              >{{ $t('login.confirmPassword') }}</label
             >
             <input
               id="confirmPassword"
@@ -74,7 +74,7 @@
               required
               autocomplete="new-password"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Confirm your password"
+              :placeholder="$t('login.confirmYourPassword')"
             />
           </div>
 
@@ -83,8 +83,8 @@
             :disabled="loading"
             class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="loading">Creating account...</span>
-            <span v-else>Create Admin Account</span>
+            <span v-if="loading">{{ $t('login.creatingAccount') }}</span>
+            <span v-else>{{ $t('login.createAdmin') }}</span>
           </button>
         </form>
       </div>
@@ -96,8 +96,8 @@
     <div class="w-full max-w-md">
       <div class="bg-white dark:bg-gray-900 rounded-lg shadow-md p-8">
         <div class="text-center mb-8">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Package Tracker</h1>
-          <p class="text-gray-500 dark:text-gray-400 mt-1">Sign in to your account</p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('app.title') }}</h1>
+          <p class="text-gray-500 dark:text-gray-400 mt-1">{{ $t('login.signIn') }}</p>
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-5">
@@ -112,7 +112,7 @@
             <label
               for="username"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Username</label
+              >{{ $t('login.username') }}</label
             >
             <input
               id="username"
@@ -121,7 +121,7 @@
               required
               autocomplete="username"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your username"
+              :placeholder="$t('login.enterUsername')"
             />
           </div>
 
@@ -129,7 +129,7 @@
             <label
               for="password"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Password</label
+              >{{ $t('login.password') }}</label
             >
             <input
               id="password"
@@ -138,7 +138,7 @@
               required
               autocomplete="current-password"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your password"
+              :placeholder="$t('login.enterPassword')"
             />
           </div>
 
@@ -147,8 +147,8 @@
             :disabled="loading"
             class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="loading">Signing in...</span>
-            <span v-else>Sign In</span>
+            <span v-if="loading">{{ $t('login.signingIn') }}</span>
+            <span v-else>{{ $t('login.signInButton') }}</span>
           </button>
         </form>
       </div>
@@ -159,8 +159,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const router = useRouter()
 const auth = useAuthStore()
 
@@ -174,12 +176,12 @@ async function handleSetup() {
   error.value = ''
 
   if (password.value !== confirmPassword.value) {
-    error.value = 'Passwords do not match.'
+    error.value = t('login.passwordsNoMatch')
     return
   }
 
   if (password.value.length < 6) {
-    error.value = 'Password must be at least 6 characters.'
+    error.value = t('login.passwordMinLength')
     return
   }
 
@@ -190,7 +192,7 @@ async function handleSetup() {
     router.push('/dashboard')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || 'Setup failed. An admin account may already exist.'
+    error.value = err.response?.data?.detail || t('login.setupFailed')
   } finally {
     loading.value = false
   }
@@ -204,7 +206,7 @@ async function handleLogin() {
     router.push('/dashboard')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || 'Login failed. Please check your credentials.'
+    error.value = err.response?.data?.detail || t('login.loginFailed')
   } finally {
     loading.value = false
   }
