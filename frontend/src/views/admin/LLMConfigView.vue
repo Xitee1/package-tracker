@@ -1,31 +1,46 @@
 <template>
   <div class="p-6 max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">LLM Configuration</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">LLM Configuration</h1>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div v-if="loadError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm mb-4">
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <div
+        v-if="loadError"
+        class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm mb-4"
+      >
         {{ loadError }}
       </div>
 
-      <div v-if="loading" class="text-center py-8 text-gray-500">Loading configuration...</div>
+      <div v-if="loading" class="text-center py-8 text-gray-500 dark:text-gray-400">
+        Loading configuration...
+      </div>
 
       <form v-else @submit.prevent="handleSave" class="space-y-5">
-        <div v-if="saveSuccess" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">
+        <div
+          v-if="saveSuccess"
+          class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm"
+        >
           Configuration saved successfully.
         </div>
 
-        <div v-if="saveError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+        <div
+          v-if="saveError"
+          class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm"
+        >
           {{ saveError }}
         </div>
 
         <!-- Provider -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Provider</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Provider</label
+          >
           <div class="flex gap-2">
             <select
               v-model="providerSelect"
               @change="handleProviderChange"
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="openai">OpenAI / OpenAI-compatible</option>
               <option value="anthropic">Anthropic</option>
@@ -37,53 +52,64 @@
               v-model="form.provider"
               type="text"
               required
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter custom provider name"
             />
           </div>
-          <p v-if="providerSelect === 'openai'" class="mt-1 text-xs text-gray-500">
+          <p
+            v-if="providerSelect === 'openai'"
+            class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+          >
             Also works with OpenAI-compatible APIs (e.g. local proxies, LM Studio).
           </p>
         </div>
 
         <!-- Model Name -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Model Name</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Model Name</label
+          >
           <input
             v-model="form.model_name"
             type="text"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             :placeholder="modelPlaceholder"
           />
         </div>
 
         <!-- API Key (not for Ollama) -->
         <div v-if="showApiKey">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             API Key
-            <span v-if="hasExistingKey" class="text-gray-400 font-normal">(leave blank to keep current)</span>
+            <span v-if="hasExistingKey" class="text-gray-400 dark:text-gray-500 font-normal"
+              >(leave blank to keep current)</span
+            >
           </label>
           <input
             v-model="form.api_key"
             type="password"
             autocomplete="new-password"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             :placeholder="apiKeyPlaceholder"
           />
         </div>
 
         <!-- API Base URL (not for Anthropic) -->
         <div v-if="showBaseUrl">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             API Base URL
-            <span v-if="providerSelect === 'openai'" class="text-gray-400 font-normal">(only for custom endpoints)</span>
+            <span
+              v-if="providerSelect === 'openai'"
+              class="text-gray-400 dark:text-gray-500 font-normal"
+              >(only for custom endpoints)</span
+            >
           </label>
           <input
             v-model="form.api_base_url"
             type="url"
             :required="providerSelect === 'ollama'"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             :placeholder="basePlaceholder"
           />
         </div>
@@ -101,7 +127,7 @@
             type="button"
             @click="handleTest"
             :disabled="testing"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ testing ? 'Testing...' : 'Test Connection' }}
           </button>
@@ -112,9 +138,15 @@
       <div
         v-if="testResult"
         class="mt-5 px-4 py-3 rounded-md text-sm border"
-        :class="testResult.success ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'"
+        :class="
+          testResult.success
+            ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
+            : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'
+        "
       >
-        <p class="font-medium mb-1">{{ testResult.success ? 'Connection Successful' : 'Connection Failed' }}</p>
+        <p class="font-medium mb-1">
+          {{ testResult.success ? 'Connection Successful' : 'Connection Failed' }}
+        </p>
         <p>{{ testResult.message }}</p>
       </div>
     </div>

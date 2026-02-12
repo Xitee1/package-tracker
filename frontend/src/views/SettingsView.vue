@@ -1,52 +1,66 @@
 <template>
   <div class="p-6 max-w-2xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Settings</h1>
 
     <!-- Change Password -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Change Password</h2>
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Change Password</h2>
 
-      <div v-if="success" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm mb-4">
+      <div
+        v-if="success"
+        class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm mb-4"
+      >
         {{ success }}
       </div>
 
-      <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm mb-4">
+      <div
+        v-if="error"
+        class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm mb-4"
+      >
         {{ error }}
       </div>
 
       <form @submit.prevent="handleChangePassword" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Current Password</label
+          >
           <input
             v-model="form.currentPassword"
             type="password"
             required
             autocomplete="current-password"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Enter your current password"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >New Password</label
+          >
           <input
             v-model="form.newPassword"
             type="password"
             required
             autocomplete="new-password"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Enter new password"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Confirm New Password</label
+          >
           <input
             v-model="form.confirmPassword"
             type="password"
             required
             autocomplete="new-password"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Confirm new password"
           />
         </div>

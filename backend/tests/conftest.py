@@ -1,3 +1,9 @@
+import os
+
+os.environ.setdefault("PT_DATABASE_URL", "sqlite+aiosqlite:///:memory:")
+os.environ.setdefault("PT_SECRET_KEY", "test-secret-key")
+os.environ.setdefault("PT_ENCRYPTION_KEY", "test-encryption-key")
+
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport

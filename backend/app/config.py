@@ -2,9 +2,9 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+asyncpg://tracker:tracker@db:5432/tracker"
-    secret_key: str = "change-me-in-production"
-    encryption_key: str = "change-me-in-production"
+    database_url: str
+    secret_key: str
+    encryption_key: str
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 1440  # 24 hours
 
