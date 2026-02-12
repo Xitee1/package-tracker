@@ -13,12 +13,16 @@ const router = createRouter({
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
       meta: { guest: true },
+      beforeEnter: async () => {
+        const auth = useAuthStore()
+        if (auth.setupCompleted === null) {
+          await auth.checkStatus()
+        }
+      },
     },
     {
       path: '/setup',
-      name: 'setup',
-      component: () => import('@/views/SetupView.vue'),
-      meta: { guest: true },
+      redirect: '/login',
     },
     {
       path: '/dashboard',
