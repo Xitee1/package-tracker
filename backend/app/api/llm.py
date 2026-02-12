@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models.llm_config import LLMConfig
 from app.schemas.llm_config import LLMConfigRequest, LLMConfigResponse
 from app.api.deps import get_admin_user
+from app.services.llm_service import call_llm
 
 router = APIRouter(prefix="/api/v1/llm", tags=["llm"], dependencies=[Depends(get_admin_user)])
 
@@ -55,16 +56,12 @@ async def test_llm(db: AsyncSession = Depends(get_db)):
     if not config:
         raise HTTPException(status_code=400, detail="No LLM configured")
     try:
-        import litellm
         api_key = decrypt_value(config.api_key_encrypted) if config.api_key_encrypted else None
-        model = f"{config.provider}/{config.model_name}" if config.provider != "openai" else config.model_name
-        response = await litellm.acompletion(
-            model=model,
+        text = await call_llm(
+            config, api_key,
             messages=[{"role": "user", "content": "Reply with exactly: OK"}],
-            api_key=api_key,
-            api_base=config.api_base_url or None,
             max_tokens=5,
         )
-        return {"success": True, "response": response.choices[0].message.content}
+        return {"success": True, "message": f"LLM responded: {text}"}
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return {"success": False, "message": str(e)}

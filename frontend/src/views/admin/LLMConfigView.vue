@@ -27,7 +27,7 @@
               @change="handleProviderChange"
               class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="openai">OpenAI</option>
+              <option value="openai">OpenAI / OpenAI-compatible</option>
               <option value="anthropic">Anthropic</option>
               <option value="ollama">Ollama</option>
               <option value="custom">Custom</option>
@@ -41,13 +41,16 @@
               placeholder="Enter custom provider name"
             />
           </div>
+          <p v-if="providerSelect === 'openai'" class="mt-1 text-xs text-gray-500">
+            Also works with OpenAI-compatible APIs (e.g. local proxies, LM Studio).
+          </p>
         </div>
 
         <!-- Model Name -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Model Name</label>
           <input
-            v-model="form.model"
+            v-model="form.model_name"
             type="text"
             required
             class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -55,30 +58,31 @@
           />
         </div>
 
-        <!-- API Key -->
-        <div>
+        <!-- API Key (not for Ollama) -->
+        <div v-if="showApiKey">
           <label class="block text-sm font-medium text-gray-700 mb-1">
             API Key
-            <span class="text-gray-400 font-normal">(leave blank to keep current)</span>
+            <span v-if="hasExistingKey" class="text-gray-400 font-normal">(leave blank to keep current)</span>
           </label>
           <input
             v-model="form.api_key"
             type="password"
             autocomplete="new-password"
             class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="sk-..."
+            :placeholder="apiKeyPlaceholder"
           />
         </div>
 
-        <!-- API Base URL -->
-        <div>
+        <!-- API Base URL (not for Anthropic) -->
+        <div v-if="showBaseUrl">
           <label class="block text-sm font-medium text-gray-700 mb-1">
             API Base URL
-            <span class="text-gray-400 font-normal">(for Ollama, custom endpoints)</span>
+            <span v-if="providerSelect === 'openai'" class="text-gray-400 font-normal">(only for custom endpoints)</span>
           </label>
           <input
-            v-model="form.api_base"
+            v-model="form.api_base_url"
             type="url"
+            :required="providerSelect === 'ollama'"
             class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             :placeholder="basePlaceholder"
           />
@@ -128,17 +132,21 @@ const saveError = ref('')
 const saveSuccess = ref(false)
 const testing = ref(false)
 const testResult = ref<{ success: boolean; message: string } | null>(null)
+const hasExistingKey = ref(false)
 
 const providerSelect = ref('openai')
 
 const form = ref({
   provider: 'openai',
-  model: '',
+  model_name: '',
   api_key: '',
-  api_base: '',
+  api_base_url: '',
 })
 
 const knownProviders = ['openai', 'anthropic', 'ollama']
+
+const showApiKey = computed(() => providerSelect.value !== 'ollama')
+const showBaseUrl = computed(() => providerSelect.value !== 'anthropic')
 
 const modelPlaceholder = computed(() => {
   if (providerSelect.value === 'openai') return 'gpt-4o'
@@ -147,8 +155,15 @@ const modelPlaceholder = computed(() => {
   return 'model-name'
 })
 
+const apiKeyPlaceholder = computed(() => {
+  if (providerSelect.value === 'anthropic') return 'sk-ant-api03-...'
+  if (providerSelect.value === 'openai') return 'sk-...'
+  return 'API key'
+})
+
 const basePlaceholder = computed(() => {
   if (providerSelect.value === 'ollama') return 'http://localhost:11434'
+  if (providerSelect.value === 'openai') return 'http://localhost:8082/v1'
   return 'https://api.example.com/v1'
 })
 
@@ -158,6 +173,9 @@ function handleProviderChange() {
   } else {
     form.value.provider = ''
   }
+  // Clear fields that don't apply to the new provider
+  if (!showApiKey.value) form.value.api_key = ''
+  if (!showBaseUrl.value) form.value.api_base_url = ''
 }
 
 async function fetchConfig() {
@@ -165,15 +183,18 @@ async function fetchConfig() {
   loadError.value = ''
   try {
     const res = await api.get('/llm/config')
-    form.value.provider = res.data.provider || 'openai'
-    form.value.model = res.data.model || ''
-    form.value.api_key = ''
-    form.value.api_base = res.data.api_base || ''
+    if (res.data) {
+      form.value.provider = res.data.provider || 'openai'
+      form.value.model_name = res.data.model_name || ''
+      form.value.api_key = ''
+      form.value.api_base_url = res.data.api_base_url || ''
+      hasExistingKey.value = res.data.has_api_key || false
 
-    if (knownProviders.includes(form.value.provider)) {
-      providerSelect.value = form.value.provider
-    } else {
-      providerSelect.value = 'custom'
+      if (knownProviders.includes(form.value.provider)) {
+        providerSelect.value = form.value.provider
+      } else {
+        providerSelect.value = 'custom'
+      }
     }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
@@ -190,16 +211,17 @@ async function handleSave() {
   try {
     const payload: Record<string, string> = {
       provider: form.value.provider,
-      model: form.value.model,
+      model_name: form.value.model_name,
     }
-    if (form.value.api_key) {
+    if (showApiKey.value && form.value.api_key) {
       payload.api_key = form.value.api_key
     }
-    if (form.value.api_base) {
-      payload.api_base = form.value.api_base
+    if (showBaseUrl.value && form.value.api_base_url) {
+      payload.api_base_url = form.value.api_base_url
     }
     await api.put('/llm/config', payload)
     saveSuccess.value = true
+    hasExistingKey.value = hasExistingKey.value || !!form.value.api_key
     form.value.api_key = ''
     setTimeout(() => {
       saveSuccess.value = false

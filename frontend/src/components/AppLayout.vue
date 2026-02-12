@@ -9,8 +9,8 @@
 
     <!-- Sidebar -->
     <aside
-      class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-200 ease-in-out lg:translate-x-0"
-      :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+      class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-200 ease-in-out"
+      :class="sidebarOpen ? 'translate-x-0' : 'max-lg:-translate-x-full'"
     >
       <!-- Logo / Title -->
       <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-200">

@@ -9,6 +9,19 @@ from app.core.encryption import decrypt_value
 from app.models.llm_config import LLMConfig
 
 
+async def call_llm(config: LLMConfig, api_key: str | None, messages: list[dict], **kwargs) -> str:
+    """Call LLM via LiteLLM and return the response text."""
+    model = f"{config.provider}/{config.model_name}" if config.provider != "openai" else config.model_name
+    response = await litellm.acompletion(
+        model=model,
+        messages=messages,
+        api_key=api_key,
+        api_base=config.api_base_url or None,
+        **kwargs,
+    )
+    return response.choices[0].message.content
+
+
 class EmailItem(BaseModel):
     name: str
     quantity: int = 1
@@ -62,24 +75,17 @@ async def analyze_email(subject: str, sender: str, body: str, db: AsyncSession) 
         return None, {"error": "No LLM configured"}
 
     api_key = decrypt_value(config.api_key_encrypted) if config.api_key_encrypted else None
-    model = f"{config.provider}/{config.model_name}" if config.provider != "openai" else config.model_name
 
     user_message = f"Subject: {subject}\nFrom: {sender}\n\n{body}"
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_message},
+    ]
 
     raw_text = None
     for attempt in range(2):
         try:
-            response = await litellm.acompletion(
-                model=model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_message},
-                ],
-                api_key=api_key,
-                api_base=config.api_base_url or None,
-                response_format={"type": "json_object"},
-            )
-            raw_text = response.choices[0].message.content
+            raw_text = await call_llm(config, api_key, messages, max_tokens=2048)
             raw_dict = json.loads(raw_text)
             parsed = EmailAnalysis.model_validate(raw_dict)
             return parsed, raw_dict
