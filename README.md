@@ -20,15 +20,16 @@ A self-hosted application that monitors your email inboxes and automatically tra
 
 - Docker and Docker Compose
 
-### 1. Clone and configure
+### 1. Configure
+
+Create a directory and download the compose file:
 
 ```bash
-git clone <repo-url> package-tracker
-cd package-tracker
-cp .env.example .env
+mkdir package-tracker && cd package-tracker
+curl -O https://raw.githubusercontent.com/Xitee1/package-tracker/main/docker-compose.prod.yaml
 ```
 
-Edit `.env` and set secure values:
+Create a `.env` file with secure values:
 
 ```
 PT_SECRET_KEY=<random-string>
@@ -39,16 +40,6 @@ POSTGRES_PASSWORD=<random-string>
 You can generate random strings with `openssl rand -hex 32`.
 
 ### 2. Start the application
-
-**Development:**
-
-```bash
-docker compose up
-```
-
-The frontend is available at `http://localhost:5173` and the API at `http://localhost:8000`.
-
-**Production:**
 
 ```bash
 docker compose -f docker-compose.prod.yaml up -d

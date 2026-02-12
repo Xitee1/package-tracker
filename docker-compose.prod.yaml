@@ -6,19 +6,11 @@ services:
       - ./data/postgres:/var/lib/postgresql/data
     restart: unless-stopped
 
-  backend:
-    build: ./backend
+  package-tracker:
+    image: ghcr.io/xitee1/package-tracker:latest
     env_file: .env
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
     ports:
       - "80:80"
     depends_on:
-      - backend
+      - db
     restart: unless-stopped
