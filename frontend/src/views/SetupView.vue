@@ -1,56 +1,56 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
     <div class="w-full max-w-md">
-      <div class="bg-white rounded-lg shadow-md p-8">
+      <div class="bg-white dark:bg-gray-900 rounded-lg shadow-md p-8">
         <div class="text-center mb-8">
-          <h1 class="text-2xl font-bold text-gray-900">Package Tracker</h1>
-          <p class="text-gray-500 mt-1">Create Admin Account</p>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Package Tracker</h1>
+          <p class="text-gray-500 dark:text-gray-400 mt-1">Create Admin Account</p>
         </div>
 
         <form @submit.prevent="handleSetup" class="space-y-5">
-          <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+          <div v-if="error" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm">
             {{ error }}
           </div>
 
-          <div v-if="success" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">
+          <div v-if="success" class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm">
             {{ success }}
           </div>
 
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
             <input
               id="username"
               v-model="username"
               type="text"
               required
               autocomplete="username"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Choose a username"
             />
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
             <input
               id="password"
               v-model="password"
               type="password"
               required
               autocomplete="new-password"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Choose a password"
             />
           </div>
 
           <div>
-            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
             <input
               id="confirmPassword"
               v-model="confirmPassword"
               type="password"
               required
               autocomplete="new-password"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Confirm your password"
             />
           </div>
@@ -66,7 +66,7 @@
         </form>
 
         <div class="mt-6 text-center">
-          <router-link to="/login" class="text-sm text-blue-600 hover:text-blue-500">
+          <router-link to="/login" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
             Already have an account? Sign in
           </router-link>
         </div>
