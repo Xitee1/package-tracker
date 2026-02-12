@@ -137,6 +137,3 @@ Tests use an in-memory SQLite database and don't require PostgreSQL.
 | `POSTGRES_PASSWORD` | Production | Database password |
 | `PORT` | No | Frontend port in production (default: `80`) |
 
-## License
-
-See [LICENSE](LICENSE) for details.
