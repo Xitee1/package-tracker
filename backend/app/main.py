@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.database import engine, Base
+from app.database import engine, Base, wait_for_db
 from app.models import *  # noqa: F401, F403
 from app.services.imap_worker import start_all_watchers, stop_all_watchers
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await wait_for_db()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     await start_all_watchers()
