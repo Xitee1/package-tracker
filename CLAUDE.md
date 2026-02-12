@@ -21,7 +21,7 @@ docker compose up                              # Dev: backend:8000, frontend:517
 docker compose -f docker-compose.prod.yaml up  # Prod: frontend on port 80
 ```
 
-### Backend (from `backend/`)
+### Backend (from `backend/`, venv at `backend/.venv`)
 
 ```bash
 pip install -e ".[dev]"                                  # Install with dev deps
