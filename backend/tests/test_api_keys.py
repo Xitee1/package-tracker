@@ -135,3 +135,18 @@ async def test_api_key_rejected_on_api_keys_endpoint(client, db_session):
     _, raw_key = await _setup_user_and_key(client, db_session)
     resp = await client.get("/api/v1/api-keys", headers={"Authorization": f"Bearer {raw_key}"})
     assert resp.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_created_key_authenticates(client, db_session):
+    """End-to-end: create key via API, then use it to auth a request."""
+    setup = await client.post("/api/v1/auth/setup", json={"username": "admin", "password": "pass123"})
+    token = setup.json()["access_token"]
+    create = await client.post(
+        "/api/v1/api-keys",
+        json={"name": "e2e-key"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    raw_key = create.json()["key"]
+    resp = await client.get("/api/v1/orders", headers={"Authorization": f"Bearer {raw_key}"})
+    assert resp.status_code == 200
