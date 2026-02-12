@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 max-w-2xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Settings</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Profile</h1>
 
     <!-- Change Password -->
     <div
