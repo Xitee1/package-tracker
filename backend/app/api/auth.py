@@ -5,10 +5,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.auth import hash_password, verify_password, create_access_token
 from app.database import get_db
 from app.models.user import User
-from app.schemas.auth import SetupRequest, LoginRequest, TokenResponse, UserResponse
+from app.schemas.auth import SetupRequest, LoginRequest, TokenResponse, UserResponse, StatusResponse
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
+
+
+@router.get("/status", response_model=StatusResponse)
+async def get_status(db: AsyncSession = Depends(get_db)):
+    count = await db.scalar(select(func.count()).select_from(User))
+    return StatusResponse(setup_completed=count > 0)
 
 
 @router.post("/setup", response_model=TokenResponse)

@@ -38,3 +38,18 @@ async def test_me(client):
     assert resp.status_code == 200
     assert resp.json()["username"] == "admin"
     assert resp.json()["is_admin"] is True
+
+
+@pytest.mark.asyncio
+async def test_status_no_users(client):
+    resp = await client.get("/api/v1/auth/status")
+    assert resp.status_code == 200
+    assert resp.json() == {"setup_completed": False}
+
+
+@pytest.mark.asyncio
+async def test_status_after_setup(client):
+    await client.post("/api/v1/auth/setup", json={"username": "admin", "password": "pass123"})
+    resp = await client.get("/api/v1/auth/status")
+    assert resp.status_code == 200
+    assert resp.json() == {"setup_completed": True}

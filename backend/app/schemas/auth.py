@@ -16,6 +16,10 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class StatusResponse(BaseModel):
+    setup_completed: bool
+
+
 class UserResponse(BaseModel):
     id: int
     username: str
