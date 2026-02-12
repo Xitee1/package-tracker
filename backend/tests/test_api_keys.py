@@ -60,3 +60,78 @@ async def test_jwt_still_works_on_orders(client, db_session):
     token, _ = await _setup_user_and_key(client, db_session)
     resp = await client.get("/api/v1/orders", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_create_api_key(client, db_session):
+    setup = await client.post("/api/v1/auth/setup", json={"username": "admin", "password": "pass123"})
+    token = setup.json()["access_token"]
+    resp = await client.post(
+        "/api/v1/api-keys",
+        json={"name": "my-key"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["name"] == "my-key"
+    assert data["key"].startswith("pt_")
+    assert "key_prefix" in data
+
+
+@pytest.mark.asyncio
+async def test_list_api_keys(client, db_session):
+    setup = await client.post("/api/v1/auth/setup", json={"username": "admin", "password": "pass123"})
+    token = setup.json()["access_token"]
+    await client.post("/api/v1/api-keys", json={"name": "key-1"}, headers={"Authorization": f"Bearer {token}"})
+    await client.post("/api/v1/api-keys", json={"name": "key-2"}, headers={"Authorization": f"Bearer {token}"})
+    resp = await client.get("/api/v1/api-keys", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert len(resp.json()) == 2
+    assert "key" not in resp.json()[0]  # full key must not appear in list
+
+
+@pytest.mark.asyncio
+async def test_delete_api_key(client, db_session):
+    setup = await client.post("/api/v1/auth/setup", json={"username": "admin", "password": "pass123"})
+    token = setup.json()["access_token"]
+    create = await client.post("/api/v1/api-keys", json={"name": "to-delete"}, headers={"Authorization": f"Bearer {token}"})
+    key_id = create.json()["id"]
+    resp = await client.delete(f"/api/v1/api-keys/{key_id}", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 204
+    list_resp = await client.get("/api/v1/api-keys", headers={"Authorization": f"Bearer {token}"})
+    assert len(list_resp.json()) == 0
+
+
+@pytest.mark.asyncio
+async def test_cannot_delete_other_users_key(client, db_session):
+    setup = await client.post("/api/v1/auth/setup", json={"username": "admin", "password": "pass123"})
+    admin_token = setup.json()["access_token"]
+    await client.post(
+        "/api/v1/users",
+        json={"username": "user2", "password": "pass123"},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    user2_login = await client.post("/api/v1/auth/login", json={"username": "user2", "password": "pass123"})
+    user2_token = user2_login.json()["access_token"]
+    create = await client.post("/api/v1/api-keys", json={"name": "u2-key"}, headers={"Authorization": f"Bearer {user2_token}"})
+    key_id = create.json()["id"]
+    resp = await client.delete(f"/api/v1/api-keys/{key_id}", headers={"Authorization": f"Bearer {admin_token}"})
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_max_25_keys(client, db_session):
+    setup = await client.post("/api/v1/auth/setup", json={"username": "admin", "password": "pass123"})
+    token = setup.json()["access_token"]
+    for i in range(25):
+        resp = await client.post("/api/v1/api-keys", json={"name": f"key-{i}"}, headers={"Authorization": f"Bearer {token}"})
+        assert resp.status_code == 201
+    resp = await client.post("/api/v1/api-keys", json={"name": "key-26"}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_api_key_rejected_on_api_keys_endpoint(client, db_session):
+    _, raw_key = await _setup_user_and_key(client, db_session)
+    resp = await client.get("/api/v1/api-keys", headers={"Authorization": f"Bearer {raw_key}"})
+    assert resp.status_code == 403
