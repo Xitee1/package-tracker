@@ -17,8 +17,8 @@ Package Tracker is a self-hosted app that connects to email inboxes via IMAP, an
 ### Docker (recommended)
 
 ```bash
-docker-compose up                              # Dev: backend:8000, frontend:5173, db:5432
-docker-compose -f docker-compose.prod.yml up   # Prod: frontend on port 80
+docker compose up                              # Dev: backend:8000, frontend:5173, db:5432
+docker compose -f docker-compose.prod.yaml up  # Prod: frontend on port 80
 ```
 
 ### Backend (from `backend/`)

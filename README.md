@@ -40,7 +40,7 @@ You can generate random strings with `openssl rand -hex 32`.
 **Development:**
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 The frontend is available at `http://localhost:5173` and the API at `http://localhost:8000`.
@@ -48,7 +48,7 @@ The frontend is available at `http://localhost:5173` and the API at `http://loca
 **Production:**
 
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yaml up -d
 ```
 
 The application is available at `http://localhost` (port 80, configurable via `PORT` in `.env`).

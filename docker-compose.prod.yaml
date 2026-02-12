@@ -8,6 +8,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
@@ -16,7 +21,8 @@ services:
       PT_SECRET_KEY: ${PT_SECRET_KEY}
       PT_ENCRYPTION_KEY: ${PT_ENCRYPTION_KEY}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
