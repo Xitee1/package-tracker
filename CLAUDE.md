@@ -90,6 +90,3 @@ All configuration lives in `.env` (required — copy `.env.example` to get start
 - `PT_SECRET_KEY` — JWT signing key (required, no default)
 - `PT_ENCRYPTION_KEY` — Fernet key for IMAP password encryption (required, no default)
 - `PT_DATABASE_URL` — PostgreSQL connection string (asyncpg)
-
-**Frontend:**
-- `PORT` — public-facing port for prod nginx (default: `80`)
