@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 max-w-5xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">System Status</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('system.title') }}</h1>
       <button
         @click="fetchStatus"
         :disabled="loading"
@@ -21,7 +21,7 @@
             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
           />
         </svg>
-        Refresh
+        {{ $t('common.refresh') }}
       </button>
     </div>
 
@@ -33,7 +33,7 @@
     </div>
 
     <div v-if="loading && !status" class="text-center py-12 text-gray-500 dark:text-gray-400">
-      Loading system status...
+      {{ $t('system.loadingStatus') }}
     </div>
 
     <template v-if="status">
@@ -42,19 +42,19 @@
         <div
           class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
         >
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Workers</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('system.totalWorkers') }}</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ workers.length }}</p>
         </div>
         <div
           class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
         >
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Running</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('system.running') }}</p>
           <p class="text-2xl font-bold text-green-600 mt-1">{{ runningCount }}</p>
         </div>
         <div
           class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
         >
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Errors</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('system.errors') }}</p>
           <p
             class="text-2xl font-bold mt-1"
             :class="
@@ -71,14 +71,14 @@
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
       >
         <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">IMAP Workers</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('system.imapWorkers') }}</h2>
         </div>
 
         <div
           v-if="workers.length === 0"
           class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm"
         >
-          No IMAP workers are configured. Add email accounts and watched folders to start workers.
+          {{ $t('system.noWorkers') }}
         </div>
 
         <div v-else class="overflow-x-auto">
@@ -87,9 +87,9 @@
               <tr
                 class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
               >
-                <th class="px-5 py-3">Folder ID</th>
-                <th class="px-5 py-3">Status</th>
-                <th class="px-5 py-3">Errors</th>
+                <th class="px-5 py-3">{{ $t('system.folderId') }}</th>
+                <th class="px-5 py-3">{{ $t('system.status') }}</th>
+                <th class="px-5 py-3">{{ $t('system.errors') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -114,12 +114,12 @@
                       class="w-1.5 h-1.5 rounded-full"
                       :class="worker.running ? 'bg-green-500' : 'bg-gray-400'"
                     ></span>
-                    {{ worker.running ? 'Running' : 'Stopped' }}
+                    {{ worker.running ? $t('system.running') : $t('system.stopped') }}
                   </span>
                 </td>
                 <td class="px-5 py-3">
                   <span v-if="!worker.error" class="text-sm text-gray-400 dark:text-gray-500"
-                    >None</span
+                    >{{ $t('common.none') }}</span
                   >
                   <span v-else class="text-sm text-red-600 dark:text-red-400">{{
                     worker.error
@@ -136,7 +136,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+
+const { t } = useI18n()
 
 interface WorkerStatus {
   folder_id: number
@@ -164,7 +167,7 @@ async function fetchStatus() {
     status.value = res.data
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || 'Failed to load system status.'
+    error.value = err.response?.data?.detail || t('system.loadFailed')
   } finally {
     loading.value = false
   }

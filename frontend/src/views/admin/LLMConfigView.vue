@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">LLM Configuration</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ $t('llm.title') }}</h1>
 
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
@@ -13,7 +13,7 @@
       </div>
 
       <div v-if="loading" class="text-center py-8 text-gray-500 dark:text-gray-400">
-        Loading configuration...
+        {{ $t('llm.loadingConfig') }}
       </div>
 
       <form v-else @submit.prevent="handleSave" class="space-y-5">
@@ -21,7 +21,7 @@
           v-if="saveSuccess"
           class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-md text-sm"
         >
-          Configuration saved successfully.
+          {{ $t('llm.configSaved') }}
         </div>
 
         <div
@@ -34,7 +34,7 @@
         <!-- Provider -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Provider</label
+            >{{ $t('llm.provider') }}</label
           >
           <div class="flex gap-2">
             <select
@@ -42,10 +42,10 @@
               @change="handleProviderChange"
               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="openai">OpenAI / OpenAI-compatible</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="ollama">Ollama</option>
-              <option value="custom">Custom</option>
+              <option value="openai">{{ $t('llm.providerOpenai') }}</option>
+              <option value="anthropic">{{ $t('llm.providerAnthropic') }}</option>
+              <option value="ollama">{{ $t('llm.providerOllama') }}</option>
+              <option value="custom">{{ $t('llm.providerCustom') }}</option>
             </select>
             <input
               v-if="providerSelect === 'custom'"
@@ -53,21 +53,21 @@
               type="text"
               required
               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter custom provider name"
+              :placeholder="$t('llm.customProviderPlaceholder')"
             />
           </div>
           <p
             v-if="providerSelect === 'openai'"
             class="mt-1 text-xs text-gray-500 dark:text-gray-400"
           >
-            Also works with OpenAI-compatible APIs (e.g. local proxies, LM Studio).
+            {{ $t('llm.openaiHint') }}
           </p>
         </div>
 
         <!-- Model Name -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Model Name</label
+            >{{ $t('llm.modelName') }}</label
           >
           <input
             v-model="form.model_name"
@@ -81,9 +81,9 @@
         <!-- API Key (not for Ollama) -->
         <div v-if="showApiKey">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            API Key
+            {{ $t('llm.apiKey') }}
             <span v-if="hasExistingKey" class="text-gray-400 dark:text-gray-500 font-normal"
-              >(leave blank to keep current)</span
+              >{{ $t('llm.apiKeyKeepCurrent') }}</span
             >
           </label>
           <input
@@ -98,11 +98,11 @@
         <!-- API Base URL (not for Anthropic) -->
         <div v-if="showBaseUrl">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            API Base URL
+            {{ $t('llm.apiBaseUrl') }}
             <span
               v-if="providerSelect === 'openai'"
               class="text-gray-400 dark:text-gray-500 font-normal"
-              >(only for custom endpoints)</span
+              >{{ $t('llm.apiBaseUrlCustomOnly') }}</span
             >
           </label>
           <input
@@ -121,7 +121,7 @@
             :disabled="saving"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ saving ? 'Saving...' : 'Save Configuration' }}
+            {{ saving ? $t('common.saving') : $t('llm.saveConfiguration') }}
           </button>
           <button
             type="button"
@@ -129,7 +129,7 @@
             :disabled="testing"
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ testing ? 'Testing...' : 'Test Connection' }}
+            {{ testing ? $t('common.testing') : $t('llm.testConnection') }}
           </button>
         </div>
       </form>
@@ -145,7 +145,7 @@
         "
       >
         <p class="font-medium mb-1">
-          {{ testResult.success ? 'Connection Successful' : 'Connection Failed' }}
+          {{ testResult.success ? $t('llm.connectionSuccessful') : $t('llm.connectionFailed') }}
         </p>
         <p>{{ testResult.message }}</p>
       </div>
@@ -155,7 +155,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+
+const { t } = useI18n()
 
 const loading = ref(true)
 const loadError = ref('')
@@ -230,7 +233,7 @@ async function fetchConfig() {
     }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    loadError.value = err.response?.data?.detail || 'Failed to load configuration.'
+    loadError.value = err.response?.data?.detail || t('llm.loadFailed')
   } finally {
     loading.value = false
   }
@@ -260,7 +263,7 @@ async function handleSave() {
     }, 3000)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    saveError.value = err.response?.data?.detail || 'Failed to save configuration.'
+    saveError.value = err.response?.data?.detail || t('llm.saveFailed')
   } finally {
     saving.value = false
   }
@@ -276,7 +279,7 @@ async function handleTest() {
     const err = e as { response?: { data?: { detail?: string } } }
     testResult.value = {
       success: false,
-      message: err.response?.data?.detail || 'Connection test failed.',
+      message: err.response?.data?.detail || t('llm.testFailed'),
     }
   } finally {
     testing.value = false

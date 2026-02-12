@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 max-w-4xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('users.title') }}</h1>
       <button
         v-if="!showForm"
         @click="showForm = true"
@@ -15,7 +15,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-        Add User
+        {{ $t('users.addUser') }}
       </button>
     </div>
 
@@ -24,7 +24,7 @@
       v-if="showForm"
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
     >
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create New User</h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('users.createNewUser') }}</h2>
 
       <div
         v-if="formError"
@@ -37,7 +37,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Username</label
+              >{{ $t('users.username') }}</label
             >
             <input
               v-model="form.username"
@@ -45,12 +45,12 @@
               required
               autocomplete="off"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter username"
+              :placeholder="$t('users.usernamePlaceholder')"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Password</label
+              >{{ $t('users.password') }}</label
             >
             <input
               v-model="form.password"
@@ -58,7 +58,7 @@
               required
               autocomplete="new-password"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter password"
+              :placeholder="$t('users.passwordPlaceholder')"
             />
           </div>
         </div>
@@ -71,7 +71,7 @@
             class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
           />
           <label for="is_admin" class="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Admin privileges</label
+            >{{ $t('users.adminPrivileges') }}</label
           >
         </div>
 
@@ -81,14 +81,14 @@
             :disabled="formSaving"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ formSaving ? 'Creating...' : 'Create User' }}
+            {{ formSaving ? $t('users.creating') : $t('users.createUser') }}
           </button>
           <button
             type="button"
             @click="closeForm"
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </button>
         </div>
       </form>
@@ -99,7 +99,7 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
     >
       <div v-if="loading" class="p-8 text-center text-gray-500 dark:text-gray-400">
-        Loading users...
+        {{ $t('users.loadingUsers') }}
       </div>
 
       <div v-else-if="error" class="p-4">
@@ -116,10 +116,10 @@
             <tr
               class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
             >
-              <th class="px-5 py-3">ID</th>
-              <th class="px-5 py-3">Username</th>
-              <th class="px-5 py-3">Role</th>
-              <th class="px-5 py-3 text-right">Actions</th>
+              <th class="px-5 py-3">{{ $t('users.id') }}</th>
+              <th class="px-5 py-3">{{ $t('users.username') }}</th>
+              <th class="px-5 py-3">{{ $t('users.role') }}</th>
+              <th class="px-5 py-3 text-right">{{ $t('users.actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -138,7 +138,7 @@
                     v-if="auth.user?.id === user.id"
                     class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                   >
-                    You
+                    {{ $t('common.you') }}
                   </span>
                 </div>
               </td>
@@ -151,7 +151,7 @@
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                   "
                 >
-                  {{ user.is_admin ? 'Admin' : 'User' }}
+                  {{ user.is_admin ? $t('common.admin') : $t('common.user') }}
                 </span>
               </td>
               <td class="px-5 py-3 text-right">
@@ -166,14 +166,14 @@
                         : 'text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/50'
                     "
                   >
-                    {{ user.is_admin ? 'Remove Admin' : 'Make Admin' }}
+                    {{ user.is_admin ? $t('users.removeAdmin') : $t('users.makeAdmin') }}
                   </button>
                   <button
                     @click="handleDelete(user)"
                     :disabled="auth.user?.id === user.id"
                     class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Delete
+                    {{ $t('common.delete') }}
                   </button>
                 </div>
               </td>
@@ -187,24 +187,23 @@
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="fixed inset-0 bg-black/50" @click="showDeleteConfirm = false"></div>
       <div class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete User</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ $t('users.deleteUser') }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-          Are you sure you want to delete user "{{ deleteTarget?.username }}"? This action cannot be
-          undone.
+          {{ $t('users.deleteConfirm', { username: deleteTarget?.username }) }}
         </p>
         <div class="flex justify-end gap-2">
           <button
             @click="showDeleteConfirm = false"
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </button>
           <button
             @click="confirmDelete"
             :disabled="deleting"
             class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
           >
-            {{ deleting ? 'Deleting...' : 'Delete' }}
+            {{ deleting ? $t('common.deleting') : $t('common.delete') }}
           </button>
         </div>
       </div>
@@ -214,8 +213,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/client'
+
+const { t } = useI18n()
 
 interface User {
   id: number
@@ -252,7 +254,7 @@ async function fetchUsers() {
     users.value = res.data
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || 'Failed to load users.'
+    error.value = err.response?.data?.detail || t('users.loadFailed')
   } finally {
     loading.value = false
   }
@@ -273,7 +275,7 @@ async function handleCreateUser() {
     closeForm()
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    formError.value = err.response?.data?.detail || 'Failed to create user.'
+    formError.value = err.response?.data?.detail || t('users.createFailed')
   } finally {
     formSaving.value = false
   }
@@ -286,7 +288,7 @@ async function toggleAdmin(user: User) {
     if (idx !== -1) users.value[idx] = res.data
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || 'Failed to update user.'
+    error.value = err.response?.data?.detail || t('users.updateFailed')
   }
 }
 
@@ -305,7 +307,7 @@ async function confirmDelete() {
     deleteTarget.value = null
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || 'Failed to delete user.'
+    error.value = err.response?.data?.detail || t('users.deleteFailed')
     showDeleteConfirm.value = false
   } finally {
     deleting.value = false
