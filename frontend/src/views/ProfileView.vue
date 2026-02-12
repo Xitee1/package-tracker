@@ -1,12 +1,47 @@
 <template>
   <div class="p-6 max-w-2xl mx-auto space-y-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Profile</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('profile.title') }}</h1>
+
+    <!-- Language -->
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+        {{ $t('profile.language') }}
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        {{ $t('profile.languageDescription') }}
+      </p>
+      <select
+        :value="locale"
+        @change="setLocale(($event.target as HTMLSelectElement).value)"
+        class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option value="en">English</option>
+        <option value="de">Deutsch</option>
+      </select>
+    </div>
+
+    <!-- Theme -->
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+        {{ $t('profile.theme') }}
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        {{ $t('profile.themeDescription') }}
+      </p>
+      <ThemeToggle />
+    </div>
 
     <!-- Change Password -->
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Change Password</h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        {{ $t('profile.changePassword') }}
+      </h2>
 
       <div
         v-if="pwSuccess"
@@ -24,44 +59,44 @@
 
       <form @submit.prevent="handleChangePassword" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Current Password</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('profile.currentPassword')
+          }}</label>
           <input
             v-model="pwForm.currentPassword"
             type="password"
             required
             autocomplete="current-password"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter your current password"
+            :placeholder="$t('profile.currentPasswordPlaceholder')"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >New Password</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('profile.newPassword')
+          }}</label>
           <input
             v-model="pwForm.newPassword"
             type="password"
             required
             autocomplete="new-password"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter new password"
+            :placeholder="$t('profile.newPasswordPlaceholder')"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Confirm New Password</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('profile.confirmNewPassword')
+          }}</label>
           <input
             v-model="pwForm.confirmPassword"
             type="password"
             required
             autocomplete="new-password"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Confirm new password"
+            :placeholder="$t('profile.confirmPasswordPlaceholder')"
           />
         </div>
 
@@ -71,7 +106,7 @@
             :disabled="pwSaving"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ pwSaving ? 'Updating...' : 'Update Password' }}
+            {{ pwSaving ? $t('profile.updating') : $t('profile.updatePassword') }}
           </button>
         </div>
       </form>
@@ -82,7 +117,7 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">API Keys</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('profile.apiKeys') }}</h2>
         <span class="text-sm text-gray-500 dark:text-gray-400">{{ apiKeys.length }} / 25</span>
       </div>
 
@@ -92,7 +127,7 @@
         class="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 px-4 py-3 rounded-md text-sm mb-4"
       >
         <p class="font-medium text-amber-800 dark:text-amber-300 mb-2">
-          Copy your API key now. It won't be shown again.
+          {{ $t('profile.copyKeyWarning') }}
         </p>
         <div class="flex items-center gap-2">
           <code
@@ -102,14 +137,14 @@
             @click="copyKey"
             class="shrink-0 px-3 py-1.5 text-xs font-medium rounded border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50"
           >
-            {{ copied ? 'Copied!' : 'Copy' }}
+            {{ copied ? $t('profile.copied') : $t('profile.copy') }}
           </button>
         </div>
         <button
           @click="newlyCreatedKey = ''"
           class="mt-2 text-xs text-amber-600 dark:text-amber-400 hover:underline"
         >
-          Dismiss
+          {{ $t('profile.dismiss') }}
         </button>
       </div>
 
@@ -123,15 +158,15 @@
       <!-- Create key form -->
       <div v-if="showCreateForm" class="flex items-end gap-2 mb-4">
         <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Key Name</label
-          >
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+            $t('profile.keyName')
+          }}</label>
           <input
             v-model="newKeyName"
             type="text"
             maxlength="64"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="e.g. Home Assistant"
+            :placeholder="$t('profile.keyNamePlaceholder')"
             @keyup.enter="handleCreateKey"
           />
         </div>
@@ -140,13 +175,13 @@
           :disabled="!newKeyName.trim() || keyCreating"
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {{ keyCreating ? 'Creating...' : 'Create' }}
+          {{ keyCreating ? $t('profile.creating') : $t('profile.create') }}
         </button>
         <button
           @click="showCreateForm = false; newKeyName = ''"
           class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          Cancel
+          {{ $t('common.cancel') }}
         </button>
       </div>
       <div v-else class="mb-4">
@@ -155,7 +190,7 @@
           :disabled="apiKeys.length >= 25"
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Create API Key
+          {{ $t('profile.createApiKey') }}
         </button>
       </div>
 
@@ -164,10 +199,10 @@
         <table class="w-full text-sm">
           <thead class="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Name</th>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Key</th>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Created</th>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Last Used</th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableName') }}</th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableKey') }}</th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableCreated') }}</th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableLastUsed') }}</th>
               <th class="px-4 py-2"></th>
             </tr>
           </thead>
@@ -178,30 +213,40 @@
                 <code class="text-xs text-gray-500 dark:text-gray-400">{{ k.key_prefix }}...</code>
               </td>
               <td class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ formatDate(k.created_at) }}</td>
-              <td class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ k.last_used_at ? formatDate(k.last_used_at) : 'Never' }}</td>
+              <td class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ k.last_used_at ? formatDate(k.last_used_at) : $t('profile.never') }}</td>
               <td class="px-4 py-2 text-right">
                 <button
                   @click="handleDeleteKey(k.id)"
                   class="text-xs text-red-600 dark:text-red-400 hover:underline"
                 >
-                  {{ confirmDeleteId === k.id ? 'Confirm?' : 'Delete' }}
+                  {{ confirmDeleteId === k.id ? $t('profile.confirm') : $t('common.delete') }}
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p v-else class="text-sm text-gray-500 dark:text-gray-400">No API keys yet.</p>
+      <p v-else class="text-sm text-gray-500 dark:text-gray-400">{{ $t('profile.noApiKeys') }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/client'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
+const { t, locale } = useI18n()
 const auth = useAuthStore()
+
+// --- Language ---
+function setLocale(newLocale: string) {
+  locale.value = newLocale
+  localStorage.setItem('locale', newLocale)
+  document.documentElement.lang = newLocale
+}
 
 // --- Password section ---
 const pwSaving = ref(false)
@@ -213,11 +258,11 @@ async function handleChangePassword() {
   pwError.value = ''
   pwSuccess.value = ''
   if (pwForm.value.newPassword !== pwForm.value.confirmPassword) {
-    pwError.value = 'New passwords do not match.'
+    pwError.value = t('profile.passwordsNoMatch')
     return
   }
   if (pwForm.value.newPassword.length < 6) {
-    pwError.value = 'New password must be at least 6 characters.'
+    pwError.value = t('profile.passwordMinLength')
     return
   }
   pwSaving.value = true
@@ -226,12 +271,12 @@ async function handleChangePassword() {
       password: pwForm.value.newPassword,
       current_password: pwForm.value.currentPassword,
     })
-    pwSuccess.value = 'Password updated successfully.'
+    pwSuccess.value = t('profile.passwordUpdated')
     pwForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
     setTimeout(() => { pwSuccess.value = '' }, 3000)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    pwError.value = err.response?.data?.detail || 'Failed to update password.'
+    pwError.value = err.response?.data?.detail || t('profile.updateFailed')
   } finally {
     pwSaving.value = false
   }
@@ -262,7 +307,7 @@ async function fetchKeys() {
     const { data } = await api.get('/api-keys')
     apiKeys.value = data
   } catch {
-    keyError.value = 'Failed to load API keys.'
+    keyError.value = t('profile.loadKeysFailed')
   }
 }
 
@@ -279,7 +324,7 @@ async function handleCreateKey() {
     await fetchKeys()
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    keyError.value = err.response?.data?.detail || 'Failed to create API key.'
+    keyError.value = err.response?.data?.detail || t('profile.createKeyFailed')
   } finally {
     keyCreating.value = false
   }
@@ -297,7 +342,7 @@ async function handleDeleteKey(id: number) {
     await api.delete(`/api-keys/${id}`)
     await fetchKeys()
   } catch {
-    keyError.value = 'Failed to delete API key.'
+    keyError.value = t('profile.deleteKeyFailed')
   }
 }
 
