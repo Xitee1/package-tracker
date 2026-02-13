@@ -44,6 +44,8 @@ export interface WatchedFolder {
   id: number
   folder_path: string
   last_seen_uid: number
+  max_email_age_days: number | null
+  processing_delay_sec: number | null
 }
 
 export const useAccountsStore = defineStore('accounts', () => {
@@ -102,6 +104,15 @@ export const useAccountsStore = defineStore('accounts', () => {
     await api.delete(`/accounts/${id}/folders/watched/${folderId}`)
   }
 
+  async function updateWatchedFolder(
+    accountId: number,
+    folderId: number,
+    data: { max_email_age_days?: number | null; processing_delay_sec?: number | null },
+  ): Promise<WatchedFolder> {
+    const res = await api.patch(`/accounts/${accountId}/folders/watched/${folderId}`, data)
+    return res.data
+  }
+
   return {
     accounts,
     loading,
@@ -114,5 +125,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     fetchWatchedFolders,
     addWatchedFolder,
     removeWatchedFolder,
+    updateWatchedFolder,
   }
 })

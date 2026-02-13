@@ -407,20 +407,42 @@
                 </svg>
                 {{ folder.name }}
               </span>
-              <button
-                v-if="isWatched(folder.name)"
-                @click="handleUnwatch(account.id, folder.name)"
-                class="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-              >
-                {{ $t('common.remove') }}
-              </button>
-              <button
-                v-else
-                @click="handleAddWatched(account.id, folder.name)"
-                class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
-              >
-                {{ $t('common.watch') }}
-              </button>
+              <div class="flex items-center gap-2">
+                <template v-if="isWatched(folder.name)">
+                  <input
+                    type="number"
+                    min="1"
+                    :value="getWatchedFolder(folder.name)?.max_email_age_days ?? ''"
+                    :placeholder="$t('accounts.ageDaysOverride')"
+                    class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                    @change="handleOverrideChange(account.id, folder.name, 'max_email_age_days', $event)"
+                  />
+                  <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.ageDaysOverride') }}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    :value="getWatchedFolder(folder.name)?.processing_delay_sec ?? ''"
+                    :placeholder="$t('accounts.delaySecOverride')"
+                    class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                    @change="handleOverrideChange(account.id, folder.name, 'processing_delay_sec', $event)"
+                  />
+                  <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.delaySecOverride') }}</span>
+                  <button
+                    @click="handleUnwatch(account.id, folder.name)"
+                    class="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                  >
+                    {{ $t('common.remove') }}
+                  </button>
+                </template>
+                <button
+                  v-else
+                  @click="handleAddWatched(account.id, folder.name)"
+                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
+                >
+                  {{ $t('common.watch') }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -647,6 +669,25 @@ async function loadFolders(id: number) {
 
 function isWatched(folderName: string): boolean {
   return watchedFolders.value.some((wf) => wf.folder_path === folderName)
+}
+
+function getWatchedFolder(folderName: string): WatchedFolder | undefined {
+  return watchedFolders.value.find((wf) => wf.folder_path === folderName)
+}
+
+async function handleOverrideChange(accountId: number, folderName: string, field: string, event: Event) {
+  const wf = getWatchedFolder(folderName)
+  if (!wf) return
+  const input = event.target as HTMLInputElement
+  const value = input.value === '' ? null : Number(input.value)
+  try {
+    const updated = await accountsStore.updateWatchedFolder(accountId, wf.id, { [field]: value })
+    const idx = watchedFolders.value.findIndex((f) => f.id === wf.id)
+    if (idx !== -1) watchedFolders.value[idx] = updated
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { detail?: string } } }
+    folderError.value = err.response?.data?.detail || t('accounts.overrideUpdateFailed')
+  }
 }
 
 async function handleAddWatched(accountId: number, folderName: string) {
