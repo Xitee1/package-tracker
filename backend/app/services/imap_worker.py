@@ -2,6 +2,7 @@ import asyncio
 import email
 import logging
 import re
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email.header import decode_header
 
@@ -19,6 +20,24 @@ h2t = html2text.HTML2Text()
 h2t.ignore_links = False
 
 _running_tasks: dict[int, asyncio.Task] = {}
+
+
+@dataclass
+class WorkerState:
+    folder_id: int
+    account_id: int
+    mode: str = "connecting"  # "idle" | "polling" | "processing" | "connecting" | "error_backoff"
+    last_scan_at: datetime | None = None
+    next_scan_at: datetime | None = None
+    last_activity_at: datetime | None = None
+    queue_total: int = 0
+    queue_position: int = 0
+    current_email_subject: str | None = None
+    current_email_sender: str | None = None
+    error: str | None = None
+
+
+_worker_state: dict[int, WorkerState] = {}
 
 
 def _decode_header_value(value: str) -> str:
@@ -78,6 +97,16 @@ async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, float
 async def _watch_folder(account_id: int, folder_id: int):
     """Watch a single IMAP folder for new messages using IDLE + polling fallback."""
     while True:
+        # Update state: entering connection phase
+        state = _worker_state.get(folder_id)
+        if state:
+            state.mode = "connecting"
+            state.queue_total = 0
+            state.queue_position = 0
+            state.current_email_subject = None
+            state.current_email_sender = None
+            state.error = None
+
         try:
             async with async_session() as db:
                 account = await db.get(EmailAccount, account_id)
@@ -128,6 +157,14 @@ async def _watch_folder(account_id: int, folder_id: int):
                 _, data = await imap.uid_search(search_criteria)
                 uids = data[0].split() if data[0] else []
 
+                # Update state: processing or skip to idle
+                if state:
+                    if uids:
+                        state.mode = "processing"
+                        state.queue_total = len(uids)
+                    else:
+                        state.mode = "idle"
+
                 for uid_bytes in uids:
                     uid = int(uid_bytes)
                     if uid <= folder.last_seen_uid:
@@ -150,6 +187,13 @@ async def _watch_folder(account_id: int, folder_id: int):
                     message_id = msg.get("Message-ID", "")
                     body = _extract_body(msg)
 
+                    # Update state: processing individual email
+                    if state:
+                        state.queue_position = uids.index(uid_bytes) + 1
+                        state.current_email_subject = subject
+                        state.current_email_sender = sender
+                        state.last_activity_at = datetime.now(timezone.utc)
+
                     await process_email(
                         subject=subject,
                         sender=sender,
@@ -168,12 +212,27 @@ async def _watch_folder(account_id: int, folder_id: int):
                     if delay > 0:
                         await asyncio.sleep(delay)
 
+                # Update state: scan complete
+                if state:
+                    state.last_scan_at = datetime.now(timezone.utc)
+                    state.queue_total = 0
+                    state.queue_position = 0
+                    state.current_email_subject = None
+                    state.current_email_sender = None
+
                 # Try IDLE, fall back to polling
                 try:
+                    # Update state: entering IDLE
+                    if state:
+                        state.mode = "idle"
+                        state.last_activity_at = datetime.now(timezone.utc)
                     idle_task = await imap.idle_start(timeout=account.polling_interval_sec)
                     await asyncio.wait_for(idle_task, timeout=account.polling_interval_sec)
                 except (asyncio.TimeoutError, Exception):
-                    pass
+                    # Update state: falling back to polling
+                    if state:
+                        state.mode = "polling"
+                        state.next_scan_at = datetime.now(timezone.utc) + timedelta(seconds=account.polling_interval_sec)
                 finally:
                     try:
                         await imap.idle_done()
@@ -189,6 +248,11 @@ async def _watch_folder(account_id: int, folder_id: int):
             return
         except Exception as e:
             logger.error(f"Error watching folder {folder_id}: {e}")
+            # Update state: error backoff
+            if state:
+                state.mode = "error_backoff"
+                state.error = str(e)
+                state.next_scan_at = datetime.now(timezone.utc) + timedelta(seconds=30)
             await asyncio.sleep(30)
 
 
@@ -204,6 +268,7 @@ async def start_all_watchers():
         for folder in folders:
             key = folder.id
             if key not in _running_tasks:
+                _worker_state[key] = WorkerState(folder_id=folder.id, account_id=folder.account_id)
                 task = asyncio.create_task(_watch_folder(folder.account_id, folder.id))
                 _running_tasks[key] = task
                 logger.info(f"Started watcher for folder {folder.id} (account {folder.account_id})")
@@ -214,6 +279,7 @@ async def stop_all_watchers():
     for key, task in _running_tasks.items():
         task.cancel()
     _running_tasks.clear()
+    _worker_state.clear()
 
 
 async def restart_watchers():
