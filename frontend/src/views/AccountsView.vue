@@ -375,110 +375,52 @@
             {{ folderError }}
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <!-- Watched Folders -->
-            <div>
-              <h5
-                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
-              >
-                {{ $t('accounts.watchedFolders') }}
-              </h5>
-              <div
-                v-if="watchedFolders.length === 0"
-                class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
-              >
-                {{ $t('accounts.noWatchedFolders') }}
-              </div>
-              <div v-else class="space-y-1">
-                <div
-                  v-for="wf in watchedFolders"
-                  :key="wf.id"
-                  class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+          <div
+            v-if="availableFolders.length === 0 && !foldersLoading"
+            class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
+          >
+            {{ $t('accounts.loadFoldersHint') }}
+          </div>
+          <div v-else-if="foldersLoading" class="text-sm text-gray-400 dark:text-gray-500 py-2">
+            {{ $t('accounts.loadingFolders') }}
+          </div>
+          <div v-else class="space-y-1 max-h-72 overflow-y-auto">
+            <div
+              v-for="folder in availableFolders"
+              :key="folder.name"
+              class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+            >
+              <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <svg
+                  class="w-4 h-4 flex-shrink-0"
+                  :class="isWatched(folder.name) ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <svg
-                      class="w-4 h-4 text-blue-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                      />
-                    </svg>
-                    {{ wf.folder_path }}
-                  </span>
-                  <button
-                    @click="handleRemoveWatched(account.id, wf.id)"
-                    class="text-xs text-red-600 hover:text-red-800 font-medium"
-                  >
-                    {{ $t('common.remove') }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Available Folders -->
-            <div>
-              <h5
-                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                  />
+                </svg>
+                {{ folder.name }}
+              </span>
+              <button
+                v-if="isWatched(folder.name)"
+                @click="handleUnwatch(account.id, folder.name)"
+                class="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
               >
-                {{ $t('accounts.availableFolders') }}
-              </h5>
-              <div
-                v-if="availableFolders.length === 0 && !foldersLoading"
-                class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
+                {{ $t('common.remove') }}
+              </button>
+              <button
+                v-else
+                @click="handleAddWatched(account.id, folder.name)"
+                class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
               >
-                {{ $t('accounts.loadFoldersHint') }}
-              </div>
-              <div v-else-if="foldersLoading" class="text-sm text-gray-400 dark:text-gray-500 py-2">
-                {{ $t('accounts.loadingFolders') }}
-              </div>
-              <div v-else class="space-y-1 max-h-64 overflow-y-auto">
-                <div
-                  v-for="folder in availableFolders"
-                  :key="folder.name"
-                  class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
-                >
-                  <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <svg
-                      class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                      />
-                    </svg>
-                    {{ folder.name }}
-                  </span>
-                  <button
-                    v-if="!isWatched(folder.name)"
-                    @click="handleAddWatched(account.id, folder.name)"
-                    class="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    {{ $t('common.watch') }}
-                  </button>
-                  <span v-else class="text-xs text-green-600 font-medium flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {{ $t('common.watched') }}
-                  </span>
-                </div>
-              </div>
+                {{ $t('common.watch') }}
+              </button>
             </div>
           </div>
         </div>
@@ -680,13 +622,9 @@ async function toggleExpand(id: number) {
   }
   expandedId.value = id
   availableFolders.value = []
+  watchedFolders.value = []
   folderError.value = ''
-  // Load watched folders automatically
-  try {
-    watchedFolders.value = await accountsStore.fetchWatchedFolders(id)
-  } catch {
-    watchedFolders.value = []
-  }
+  await loadFolders(id)
 }
 
 async function loadFolders(id: number) {
@@ -728,6 +666,13 @@ async function handleRemoveWatched(accountId: number, folderId: number) {
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
     folderError.value = err.response?.data?.detail || t('accounts.removeWatchedFailed')
+  }
+}
+
+async function handleUnwatch(accountId: number, folderName: string) {
+  const wf = watchedFolders.value.find((w) => w.folder_path === folderName)
+  if (wf) {
+    await handleRemoveWatched(accountId, wf.id)
   }
 }
 

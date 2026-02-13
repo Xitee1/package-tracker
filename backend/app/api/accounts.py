@@ -78,9 +78,9 @@ async def test_connection(account_id: int, user: User = Depends(get_current_user
             mail = imaplib.IMAP4(account.imap_host, account.imap_port)
         mail.login(account.imap_user, password)
         mail.logout()
-        return {"success": True}
+        return {"success": True, "message": "Connection successful"}
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return {"success": False, "message": str(e)}
 
 
 @router.get("/{account_id}/folders", response_model=list[str])

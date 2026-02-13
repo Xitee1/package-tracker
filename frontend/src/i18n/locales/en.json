@@ -161,6 +161,7 @@
     "deleteConfirm": "Are you sure you want to delete \"{name}\"? This will also remove all watched folder settings.",
     "saveFailed": "Failed to save account.",
     "deleteFailed": "Failed to delete account.",
+    "connectionTestSuccess": "Connection successful.",
     "connectionTestFailed": "Connection test failed.",
     "folderManagement": "Folder Management",
     "loadFolders": "Load Folders",

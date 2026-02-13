@@ -161,6 +161,7 @@
     "deleteConfirm": "Sind Sie sicher, dass Sie \"{name}\" löschen möchten? Damit werden auch alle überwachten Ordnereinstellungen entfernt.",
     "saveFailed": "Konto konnte nicht gespeichert werden.",
     "deleteFailed": "Konto konnte nicht gelöscht werden.",
+    "connectionTestSuccess": "Verbindung erfolgreich.",
     "connectionTestFailed": "Verbindungstest fehlgeschlagen.",
     "folderManagement": "Ordnerverwaltung",
     "loadFolders": "Ordner laden",
