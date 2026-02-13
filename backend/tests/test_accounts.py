@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 
@@ -230,6 +232,24 @@ async def test_scan_folder_on_nonexistent_account(client, admin_token):
         headers=auth(admin_token),
     )
     assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_scan_folder_already_scanning(client, admin_token):
+    create = await client.post("/api/v1/accounts", json=ACCOUNT_DATA, headers=auth(admin_token))
+    account_id = create.json()["id"]
+    folder_resp = await client.post(
+        f"/api/v1/accounts/{account_id}/folders/watched",
+        json={"folder_path": "INBOX"},
+        headers=auth(admin_token),
+    )
+    folder_id = folder_resp.json()["id"]
+    with patch("app.api.accounts.is_folder_scanning", return_value=True):
+        resp = await client.post(
+            f"/api/v1/accounts/{account_id}/folders/watched/{folder_id}/scan",
+            headers=auth(admin_token),
+        )
+        assert resp.status_code == 409
 
 
 @pytest.mark.asyncio

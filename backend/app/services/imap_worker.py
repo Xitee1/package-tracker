@@ -330,8 +330,12 @@ async def restart_watchers():
 async def restart_single_watcher(folder_id: int):
     """Restart watcher for a single folder to trigger immediate scan."""
     if folder_id in _running_tasks:
-        _running_tasks[folder_id].cancel()
-        del _running_tasks[folder_id]
+        task = _running_tasks.pop(folder_id)
+        task.cancel()
+        try:
+            await task
+        except (asyncio.CancelledError, Exception):
+            pass
         _worker_state.pop(folder_id, None)
 
     async with async_session() as db:
