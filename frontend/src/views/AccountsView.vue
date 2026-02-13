@@ -409,10 +409,10 @@
                         d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
                       />
                     </svg>
-                    {{ wf.folder_name }}
+                    {{ wf.folder_path }}
                   </span>
                   <button
-                    @click="handleRemoveWatched(account.id, wf.folder_name)"
+                    @click="handleRemoveWatched(account.id, wf.id)"
                     class="text-xs text-red-600 hover:text-red-800 font-medium"
                   >
                     {{ $t('common.remove') }}
@@ -633,7 +633,12 @@ async function handleTest(id: number) {
   delete testResults.value[id]
   try {
     const result = await accountsStore.testConnection(id)
-    testResults.value[id] = result
+    testResults.value[id] = {
+      success: result.success,
+      message: result.success
+        ? t('accounts.connectionTestSuccess')
+        : t('accounts.connectionTestFailed'),
+    }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
     testResults.value[id] = {
@@ -703,7 +708,7 @@ async function loadFolders(id: number) {
 }
 
 function isWatched(folderName: string): boolean {
-  return watchedFolders.value.some((wf) => wf.folder_name === folderName)
+  return watchedFolders.value.some((wf) => wf.folder_path === folderName)
 }
 
 async function handleAddWatched(accountId: number, folderName: string) {
@@ -716,10 +721,10 @@ async function handleAddWatched(accountId: number, folderName: string) {
   }
 }
 
-async function handleRemoveWatched(accountId: number, folderName: string) {
+async function handleRemoveWatched(accountId: number, folderId: number) {
   try {
-    await accountsStore.removeWatchedFolder(accountId, folderName)
-    watchedFolders.value = watchedFolders.value.filter((wf) => wf.folder_name !== folderName)
+    await accountsStore.removeWatchedFolder(accountId, folderId)
+    watchedFolders.value = watchedFolders.value.filter((wf) => wf.id !== folderId)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
     folderError.value = err.response?.data?.detail || t('accounts.removeWatchedFailed')
