@@ -1,15 +1,24 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.database import engine, Base, wait_for_db
+from alembic.config import Config
+from alembic import command
+from app.database import engine, wait_for_db
 from app.models import *  # noqa: F401, F403
 from app.services.imap_worker import start_all_watchers, stop_all_watchers
+
+
+def _run_migrations(connection) -> None:
+    """Run Alembic migrations using the given sync connection."""
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.attributes["connection"] = connection
+    command.upgrade(alembic_cfg, "head")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await wait_for_db()
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(_run_migrations)
     await start_all_watchers()
     yield
     await stop_all_watchers()
