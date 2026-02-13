@@ -650,13 +650,6 @@ async function fetchStatus() {
     const res = await api.get<SystemStatus>('/system/status')
     status.value = res.data
 
-    // Default: expand all users
-    if (expandedUsers.value.size === 0 && res.data.users.length > 0) {
-      for (const user of res.data.users) {
-        expandedUsers.value.add(user.user_id)
-      }
-    }
-
     lastRefreshedAt.value = new Date()
     secondsSinceRefresh.value = 0
   } catch (e: unknown) {
