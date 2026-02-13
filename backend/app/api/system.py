@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy import select
+from datetime import datetime, timedelta, timezone
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -7,6 +9,7 @@ from app.api.deps import get_admin_user
 from app.database import get_db
 from app.models.email_account import EmailAccount, WatchedFolder
 from app.models.user import User
+from app.models.worker_stats import WorkerStats
 from app.services.imap_worker import _running_tasks, _worker_state
 
 router = APIRouter(prefix="/api/v1/system", tags=["system"], dependencies=[Depends(get_admin_user)])
@@ -118,3 +121,52 @@ async def system_status(db: AsyncSession = Depends(get_db)):
         },
         "users": users_out,
     }
+
+
+@router.get("/stats")
+async def system_stats(
+    period: str = "hourly",
+    db: AsyncSession = Depends(get_db),
+):
+    now = datetime.now(timezone.utc)
+    cutoff_4w = now - timedelta(weeks=4)
+
+    # Cleanup rows older than 4 weeks
+    await db.execute(delete(WorkerStats).where(WorkerStats.hour_bucket < cutoff_4w))
+    await db.commit()
+
+    if period == "hourly":
+        since = now - timedelta(hours=24)
+        group_expr = WorkerStats.hour_bucket
+    elif period == "daily":
+        since = now - timedelta(days=7)
+        group_expr = func.date_trunc("day", WorkerStats.hour_bucket)
+    elif period == "weekly":
+        since = now - timedelta(weeks=4)
+        group_expr = func.date_trunc("week", WorkerStats.hour_bucket)
+    else:
+        raise HTTPException(status_code=400, detail=f"Invalid period: {period}. Must be hourly, daily, or weekly.")
+
+    stmt = (
+        select(
+            group_expr.label("bucket"),
+            func.sum(WorkerStats.emails_processed).label("emails_processed"),
+            func.sum(WorkerStats.errors_count).label("errors_count"),
+        )
+        .where(WorkerStats.hour_bucket >= since)
+        .group_by("bucket")
+        .order_by("bucket")
+    )
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    buckets = [
+        {
+            "timestamp": row.bucket.isoformat() if isinstance(row.bucket, datetime) else str(row.bucket),
+            "emails_processed": int(row.emails_processed or 0),
+            "errors_count": int(row.errors_count or 0),
+        }
+        for row in rows
+    ]
+
+    return {"period": period, "buckets": buckets}
