@@ -447,6 +447,18 @@
                     <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.delaySecOverride') }}</span>
                   </label>
                   <button
+                    @click="handleScan(account.id, getWatchedFolder(folder.name)!.id)"
+                    :disabled="scanningFolderId === getWatchedFolder(folder.name)?.id"
+                    class="text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 transition-colors"
+                    :title="$t('accounts.scanNow')"
+                  >
+                    {{
+                      scanningFolderId === getWatchedFolder(folder.name)?.id
+                        ? $t('accounts.scanning')
+                        : $t('accounts.scanNow')
+                    }}
+                  </button>
+                  <button
                     @click="handleUnwatch(account.id, folder.name)"
                     class="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
                   >
@@ -541,6 +553,7 @@ const availableFolders = ref<IMAPFolder[]>([])
 const watchedFolders = ref<WatchedFolder[]>([])
 const foldersLoading = ref(false)
 const folderError = ref('')
+const scanningFolderId = ref<number | null>(null)
 
 function resetForm() {
   form.value = {
@@ -737,6 +750,23 @@ async function handleUnwatch(accountId: number, folderName: string) {
   const wf = watchedFolders.value.find((w) => w.folder_path === folderName)
   if (wf) {
     await handleRemoveWatched(accountId, wf.id)
+  }
+}
+
+async function handleScan(accountId: number, folderId: number) {
+  scanningFolderId.value = folderId
+  try {
+    await accountsStore.scanFolder(accountId, folderId)
+    folderError.value = ''
+  } catch (e: unknown) {
+    const err = e as { response?: { status?: number; data?: { detail?: string } } }
+    if (err.response?.status === 409) {
+      folderError.value = t('accounts.scanAlreadyRunning')
+    } else {
+      folderError.value = err.response?.data?.detail || t('accounts.scanTriggered')
+    }
+  } finally {
+    scanningFolderId.value = null
   }
 }
 
