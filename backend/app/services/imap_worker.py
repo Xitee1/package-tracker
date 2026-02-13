@@ -10,10 +10,12 @@ from enum import StrEnum
 import html2text
 from aioimaplib import IMAP4_SSL
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.database import async_session
 from app.models.email_account import EmailAccount, WatchedFolder
 from app.models.imap_settings import ImapSettings
+from app.models.worker_stats import WorkerStats
 from app.services.email_processor import process_email
 
 logger = logging.getLogger(__name__)
@@ -107,6 +109,25 @@ async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, float
     check_uid = global_settings.check_uidvalidity if global_settings else True
 
     return max_age, delay, check_uid
+
+
+async def _record_stat(db, folder_id: int, *, processed: int = 0, errors: int = 0):
+    """Increment hourly stats for a folder using upsert."""
+    bucket = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    stmt = pg_insert(WorkerStats).values(
+        folder_id=folder_id,
+        hour_bucket=bucket,
+        emails_processed=processed,
+        errors_count=errors,
+    ).on_conflict_do_update(
+        constraint="uq_worker_stats_folder_hour",
+        set_={
+            "emails_processed": WorkerStats.emails_processed + processed,
+            "errors_count": WorkerStats.errors_count + errors,
+        },
+    )
+    await db.execute(stmt)
+    await db.commit()
 
 
 async def _watch_folder(account_id: int, folder_id: int):
@@ -218,6 +239,7 @@ async def _watch_folder(account_id: int, folder_id: int):
                         user_id=account.user_id,
                         db=db,
                     )
+                    await _record_stat(db, folder_id, processed=1)
 
                     folder.last_seen_uid = uid
                     await db.commit()
@@ -258,6 +280,12 @@ async def _watch_folder(account_id: int, folder_id: int):
             return
         except Exception as e:
             logger.error(f"Error watching folder {folder_id}: {e}")
+            # Record error stat
+            try:
+                async with async_session() as err_db:
+                    await _record_stat(err_db, folder_id, errors=1)
+            except Exception:
+                pass  # Don't break error recovery
             # Update state: error backoff
             state = _worker_state.get(folder_id)
             if state:
