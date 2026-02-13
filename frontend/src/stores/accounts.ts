@@ -113,6 +113,10 @@ export const useAccountsStore = defineStore('accounts', () => {
     return res.data
   }
 
+  async function scanFolder(accountId: number, folderId: number): Promise<void> {
+    await api.post(`/accounts/${accountId}/folders/watched/${folderId}/scan`)
+  }
+
   return {
     accounts,
     loading,
@@ -126,5 +130,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     addWatchedFolder,
     removeWatchedFolder,
     updateWatchedFolder,
+    scanFolder,
   }
 })

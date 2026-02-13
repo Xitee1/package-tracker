@@ -181,7 +181,11 @@
     "delaySecOverride": "sec",
     "delaySecLabel": "Delay",
     "delaySecTooltip": "Seconds to wait between processing each email",
-    "overrideUpdateFailed": "Failed to update folder settings."
+    "overrideUpdateFailed": "Failed to update folder settings.",
+    "scanNow": "Scan now",
+    "scanning": "Scanning...",
+    "scanTriggered": "Scan triggered",
+    "scanAlreadyRunning": "Folder is already being scanned"
   },
   "profile": {
     "title": "Profile",

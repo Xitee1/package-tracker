@@ -181,7 +181,11 @@
     "delaySecOverride": "Sek",
     "delaySecLabel": "Verzögerung",
     "delaySecTooltip": "Sekunden Wartezeit zwischen der Verarbeitung jeder E-Mail",
-    "overrideUpdateFailed": "Ordnereinstellungen konnten nicht aktualisiert werden."
+    "overrideUpdateFailed": "Ordnereinstellungen konnten nicht aktualisiert werden.",
+    "scanNow": "Jetzt scannen",
+    "scanning": "Scanne...",
+    "scanTriggered": "Scan gestartet",
+    "scanAlreadyRunning": "Ordner wird bereits gescannt"
   },
   "profile": {
     "title": "Profil",
