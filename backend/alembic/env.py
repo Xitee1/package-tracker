@@ -11,14 +11,9 @@ from app.database import Base
 from app.models import *  # noqa: F401, F403
 from app.config import settings
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
-
-# Use the app's database URL instead of alembic.ini value
 config.set_main_option("sqlalchemy.url", settings.database_url)
 
-# Interpret the config file for Python logging.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -26,7 +21,7 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
+    """Run migrations in 'offline' mode for SQL script generation."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -62,10 +57,8 @@ async def run_async_migrations() -> None:
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
-    Supports two modes:
-    - With a pre-existing connection (passed via config.attributes["connection"])
-      for running inside the app lifespan without conflicting with the event loop.
-    - Standalone from CLI, using asyncio.run().
+    Supports a pre-existing connection (passed via config.attributes)
+    for running inside the app lifespan, or standalone from CLI.
     """
     connection = config.attributes.get("connection", None)
 
