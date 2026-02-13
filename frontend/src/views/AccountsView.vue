@@ -393,7 +393,9 @@
               <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <svg
                   class="w-4 h-4 flex-shrink-0"
-                  :class="isWatched(folder.name) ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'"
+                  :class="
+                    isWatched(folder.name) ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'
+                  "
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -415,9 +417,13 @@
                     :value="getWatchedFolder(folder.name)?.max_email_age_days ?? ''"
                     :placeholder="$t('accounts.ageDaysOverride')"
                     class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
-                    @change="handleOverrideChange(account.id, folder.name, 'max_email_age_days', $event)"
+                    @change="
+                      handleOverrideChange(account.id, folder.name, 'max_email_age_days', $event)
+                    "
                   />
-                  <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.ageDaysOverride') }}</span>
+                  <span class="text-xs text-gray-400 dark:text-gray-500">{{
+                    $t('accounts.ageDaysOverride')
+                  }}</span>
                   <input
                     type="number"
                     min="0"
@@ -425,9 +431,13 @@
                     :value="getWatchedFolder(folder.name)?.processing_delay_sec ?? ''"
                     :placeholder="$t('accounts.delaySecOverride')"
                     class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
-                    @change="handleOverrideChange(account.id, folder.name, 'processing_delay_sec', $event)"
+                    @change="
+                      handleOverrideChange(account.id, folder.name, 'processing_delay_sec', $event)
+                    "
                   />
-                  <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.delaySecOverride') }}</span>
+                  <span class="text-xs text-gray-400 dark:text-gray-500">{{
+                    $t('accounts.delaySecOverride')
+                  }}</span>
                   <button
                     @click="handleUnwatch(account.id, folder.name)"
                     class="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
@@ -675,7 +685,12 @@ function getWatchedFolder(folderName: string): WatchedFolder | undefined {
   return watchedFolders.value.find((wf) => wf.folder_path === folderName)
 }
 
-async function handleOverrideChange(accountId: number, folderName: string, field: string, event: Event) {
+async function handleOverrideChange(
+  accountId: number,
+  folderName: string,
+  field: string,
+  event: Event,
+) {
   const wf = getWatchedFolder(folderName)
   if (!wf) return
   const input = event.target as HTMLInputElement

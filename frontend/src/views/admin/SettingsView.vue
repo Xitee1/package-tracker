@@ -1,6 +1,8 @@
 <template>
   <div class="p-6 max-w-5xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ $t('settings.title') }}</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+      {{ $t('settings.title') }}
+    </h1>
 
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Vertical Tab Nav -->
