@@ -13,7 +13,7 @@ from app.schemas.email_account import (
     WatchFolderRequest, UpdateWatchedFolderRequest, WatchedFolderResponse,
 )
 from app.api.deps import get_current_user
-from app.services.imap_worker import restart_watchers
+from app.services.imap_worker import restart_watchers, restart_single_watcher, is_folder_scanning
 
 router = APIRouter(prefix="/api/v1/accounts", tags=["accounts"])
 
@@ -165,3 +165,20 @@ async def update_watched(
     await db.commit()
     await db.refresh(folder)
     return folder
+
+
+@router.post("/{account_id}/folders/watched/{folder_id}/scan")
+async def scan_folder(
+    account_id: int, folder_id: int,
+    user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db),
+):
+    account = await db.get(EmailAccount, account_id)
+    if not account or account.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Account not found")
+    folder = await db.get(WatchedFolder, folder_id)
+    if not folder or folder.account_id != account_id:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    if is_folder_scanning(folder_id):
+        raise HTTPException(status_code=409, detail="Folder is already being scanned")
+    await restart_single_watcher(folder_id)
+    return {"status": "scan_triggered"}

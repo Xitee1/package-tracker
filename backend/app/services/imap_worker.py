@@ -325,3 +325,29 @@ async def restart_watchers():
     """Restart all watchers (call after account/folder changes)."""
     await stop_all_watchers()
     await start_all_watchers()
+
+
+async def restart_single_watcher(folder_id: int):
+    """Restart watcher for a single folder to trigger immediate scan."""
+    if folder_id in _running_tasks:
+        _running_tasks[folder_id].cancel()
+        del _running_tasks[folder_id]
+        _worker_state.pop(folder_id, None)
+
+    async with async_session() as db:
+        folder = await db.get(WatchedFolder, folder_id)
+        if not folder:
+            return
+        account = await db.get(EmailAccount, folder.account_id)
+        if not account or not account.is_active:
+            return
+        _worker_state[folder_id] = WorkerState(folder_id=folder_id, account_id=folder.account_id)
+        task = asyncio.create_task(_watch_folder(folder.account_id, folder_id))
+        _running_tasks[folder_id] = task
+        logger.info(f"Restarted watcher for folder {folder_id} (manual scan)")
+
+
+def is_folder_scanning(folder_id: int) -> bool:
+    """Check if a folder is currently mid-scan (processing emails)."""
+    state = _worker_state.get(folder_id)
+    return state is not None and state.mode == WorkerMode.PROCESSING

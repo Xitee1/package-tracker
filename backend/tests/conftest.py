@@ -31,7 +31,11 @@ async def client(db_session: AsyncSession):
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
-    with patch("app.api.accounts.restart_watchers", new_callable=AsyncMock):
+    with (
+        patch("app.api.accounts.restart_watchers", new_callable=AsyncMock),
+        patch("app.api.accounts.restart_single_watcher", new_callable=AsyncMock),
+        patch("app.api.accounts.is_folder_scanning", return_value=False),
+    ):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             yield c
     app.dependency_overrides.clear()
