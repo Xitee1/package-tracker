@@ -10,7 +10,7 @@ from app.models.user import User
 from app.models.email_account import EmailAccount, WatchedFolder
 from app.schemas.email_account import (
     CreateAccountRequest, UpdateAccountRequest, AccountResponse,
-    WatchFolderRequest, WatchedFolderResponse,
+    WatchFolderRequest, UpdateWatchedFolderRequest, WatchedFolderResponse,
 )
 from app.api.deps import get_current_user
 
@@ -144,3 +144,21 @@ async def remove_watched(account_id: int, folder_id: int, user: User = Depends(g
         raise HTTPException(status_code=404, detail="Folder not found")
     await db.delete(folder)
     await db.commit()
+
+
+@router.patch("/{account_id}/folders/watched/{folder_id}", response_model=WatchedFolderResponse)
+async def update_watched(
+    account_id: int, folder_id: int, req: UpdateWatchedFolderRequest,
+    user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db),
+):
+    account = await db.get(EmailAccount, account_id)
+    if not account or account.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Account not found")
+    folder = await db.get(WatchedFolder, folder_id)
+    if not folder or folder.account_id != account_id:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    for field, value in req.model_dump(exclude_unset=True).items():
+        setattr(folder, field, value)
+    await db.commit()
+    await db.refresh(folder)
+    return folder
