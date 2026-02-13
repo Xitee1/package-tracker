@@ -26,6 +26,7 @@ def _run_migrations(connection) -> None:
         command.stamp(alembic_cfg, "9299dae441a6")
 
     command.upgrade(alembic_cfg, "head")
+    logger.info("Database migrations complete.")
 
 
 @asynccontextmanager
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(_run_migrations)
     await start_all_watchers()
+    logger.info("Package Tracker is ready.")
     yield
     await stop_all_watchers()
 
