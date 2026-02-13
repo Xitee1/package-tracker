@@ -82,7 +82,7 @@
               $t('accounts.username')
             }}</label>
             <input
-              v-model="form.username"
+              v-model="form.imap_user"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -98,7 +98,7 @@
               }}</span>
             </label>
             <input
-              v-model="form.password"
+              v-model="form.imap_password"
               type="password"
               :required="!editingId"
               autocomplete="new-password"
@@ -112,7 +112,7 @@
               $t('accounts.pollingInterval')
             }}</label>
             <input
-              v-model.number="form.polling_interval"
+              v-model.number="form.polling_interval_sec"
               type="number"
               required
               min="30"
@@ -262,7 +262,7 @@
                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                     />
                   </svg>
-                  {{ account.username }}
+                  {{ account.imap_user }}
                 </span>
                 <span v-if="account.use_ssl" class="flex items-center gap-1">
                   <svg
@@ -538,10 +538,10 @@ const form = ref({
   name: '',
   imap_host: '',
   imap_port: 993,
-  username: '',
-  password: '',
+  imap_user: '',
+  imap_password: '',
   use_ssl: true,
-  polling_interval: 300,
+  polling_interval_sec: 300,
 })
 
 // Test connection state
@@ -565,10 +565,10 @@ function resetForm() {
     name: '',
     imap_host: '',
     imap_port: 993,
-    username: '',
-    password: '',
+    imap_user: '',
+    imap_password: '',
     use_ssl: true,
-    polling_interval: 300,
+    polling_interval_sec: 300,
   }
   formError.value = ''
   editingId.value = null
@@ -585,10 +585,10 @@ function openEditForm(account: EmailAccount) {
     name: account.name,
     imap_host: account.imap_host,
     imap_port: account.imap_port,
-    username: account.username,
-    password: '',
+    imap_user: account.imap_user,
+    imap_password: '',
     use_ssl: account.use_ssl,
-    polling_interval: account.polling_interval,
+    polling_interval_sec: account.polling_interval_sec,
   }
   formError.value = ''
   showForm.value = true
@@ -608,12 +608,12 @@ async function handleSubmit() {
         name: form.value.name,
         imap_host: form.value.imap_host,
         imap_port: form.value.imap_port,
-        username: form.value.username,
+        imap_user: form.value.imap_user,
         use_ssl: form.value.use_ssl,
-        polling_interval: form.value.polling_interval,
+        polling_interval_sec: form.value.polling_interval_sec,
       }
-      if (form.value.password) {
-        data.password = form.value.password
+      if (form.value.imap_password) {
+        data.imap_password = form.value.imap_password
       }
       await accountsStore.updateAccount(editingId.value, data)
     } else {

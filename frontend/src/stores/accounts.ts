@@ -7,9 +7,9 @@ export interface EmailAccount {
   name: string
   imap_host: string
   imap_port: number
-  username: string
+  imap_user: string
   use_ssl: boolean
-  polling_interval: number
+  polling_interval_sec: number
   is_active: boolean
   created_at: string
   updated_at: string
@@ -19,20 +19,20 @@ export interface CreateAccountPayload {
   name: string
   imap_host: string
   imap_port: number
-  username: string
-  password: string
+  imap_user: string
+  imap_password: string
   use_ssl: boolean
-  polling_interval: number
+  polling_interval_sec: number
 }
 
 export interface UpdateAccountPayload {
   name?: string
   imap_host?: string
   imap_port?: number
-  username?: string
-  password?: string
+  imap_user?: string
+  imap_password?: string
   use_ssl?: boolean
-  polling_interval?: number
+  polling_interval_sec?: number
   is_active?: boolean
 }
 

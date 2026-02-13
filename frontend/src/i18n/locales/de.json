@@ -146,7 +146,7 @@
     "imapHostPlaceholder": "imap.gmail.com",
     "imapPort": "IMAP-Port",
     "username": "Benutzername",
-    "usernamePlaceholder": "benutzer@gmail.com",
+    "usernamePlaceholder": "benutzer{'@'}gmail.com",
     "password": "Passwort",
     "passwordKeepCurrent": "(leer lassen, um aktuelles beizubehalten)",
     "passwordPlaceholder": "App-Passwort oder IMAP-Passwort",
