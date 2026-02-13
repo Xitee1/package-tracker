@@ -34,6 +34,7 @@
     "users": "Benutzer",
     "llmConfig": "LLM-Konfiguration",
     "system": "System",
+    "settings": "Einstellungen",
     "logout": "Abmelden"
   },
   "app": {
@@ -173,7 +174,10 @@
     "loadFoldersFailed": "Ordner konnten nicht geladen werden. Überprüfen Sie die Kontoverbindung.",
     "addWatchedFailed": "Überwachter Ordner konnte nicht hinzugefügt werden.",
     "removeWatchedFailed": "Überwachter Ordner konnte nicht entfernt werden.",
-    "manageFolders": "Ordner verwalten"
+    "manageFolders": "Ordner verwalten",
+    "ageDaysOverride": "Tage",
+    "delaySecOverride": "Sek",
+    "overrideUpdateFailed": "Ordnereinstellungen konnten nicht aktualisiert werden."
   },
   "profile": {
     "title": "Profil",
@@ -277,5 +281,23 @@
     "folderId": "Ordner-ID",
     "status": "Status",
     "loadFailed": "Systemstatus konnte nicht geladen werden."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "llmConfig": "LLM-Konfiguration",
+    "imap": "IMAP"
+  },
+  "imap": {
+    "title": "IMAP-Einstellungen",
+    "maxEmailAgeDays": "Max. E-Mail-Alter (Tage)",
+    "maxEmailAgeDaysHint": "Nur E-Mails verarbeiten, die neuer als diese Anzahl Tage sind.",
+    "processingDelaySec": "Verarbeitungsverzögerung (Sekunden)",
+    "processingDelaySecHint": "Verzögerung zwischen der Verarbeitung jeder E-Mail, um API-Ratenlimits zu vermeiden.",
+    "checkUidvalidity": "UIDVALIDITY prüfen",
+    "checkUidvalidityHint": "Erkennt, wenn der Mailserver Nachrichten-IDs neu zuweist und scannt mit einem strengen Zeitfenster erneut.",
+    "saveSettings": "Einstellungen speichern",
+    "configSaved": "IMAP-Einstellungen erfolgreich gespeichert.",
+    "loadFailed": "IMAP-Einstellungen konnten nicht geladen werden.",
+    "saveFailed": "IMAP-Einstellungen konnten nicht gespeichert werden."
   }
 }

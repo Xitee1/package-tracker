@@ -34,6 +34,7 @@
     "users": "Users",
     "llmConfig": "LLM Config",
     "system": "System",
+    "settings": "Settings",
     "logout": "Logout"
   },
   "app": {
@@ -173,7 +174,10 @@
     "loadFoldersFailed": "Failed to load folders. Check account connection.",
     "addWatchedFailed": "Failed to add watched folder.",
     "removeWatchedFailed": "Failed to remove watched folder.",
-    "manageFolders": "Manage folders"
+    "manageFolders": "Manage folders",
+    "ageDaysOverride": "days",
+    "delaySecOverride": "sec",
+    "overrideUpdateFailed": "Failed to update folder settings."
   },
   "profile": {
     "title": "Profile",
@@ -277,5 +281,23 @@
     "folderId": "Folder ID",
     "status": "Status",
     "loadFailed": "Failed to load system status."
+  },
+  "settings": {
+    "title": "Settings",
+    "llmConfig": "LLM Config",
+    "imap": "IMAP"
+  },
+  "imap": {
+    "title": "IMAP Settings",
+    "maxEmailAgeDays": "Max Email Age (days)",
+    "maxEmailAgeDaysHint": "Only process emails newer than this when scanning folders.",
+    "processingDelaySec": "Processing Delay (seconds)",
+    "processingDelaySecHint": "Delay between processing each email to avoid API rate limits.",
+    "checkUidvalidity": "Check UIDVALIDITY",
+    "checkUidvalidityHint": "Detect when the mail server reassigns message IDs and re-scan with a strict lookback window.",
+    "saveSettings": "Save Settings",
+    "configSaved": "IMAP settings saved successfully.",
+    "loadFailed": "Failed to load IMAP settings.",
+    "saveFailed": "Failed to save IMAP settings."
   }
 }
