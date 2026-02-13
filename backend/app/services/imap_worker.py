@@ -1,6 +1,8 @@
 import asyncio
 import email
 import logging
+import re
+from datetime import datetime, timedelta, timezone
 from email.header import decode_header
 
 import html2text
@@ -9,6 +11,7 @@ from sqlalchemy import select
 
 from app.database import async_session
 from app.models.email_account import EmailAccount, WatchedFolder
+from app.models.imap_settings import ImapSettings
 from app.services.email_processor import process_email
 
 logger = logging.getLogger(__name__)
@@ -54,6 +57,24 @@ def _extract_body(msg: email.message.Message) -> str:
     return ""
 
 
+async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, float, bool]:
+    """Return (max_email_age_days, processing_delay_sec, check_uidvalidity) for a folder."""
+    result = await db.execute(select(ImapSettings))
+    global_settings = result.scalar_one_or_none()
+
+    max_age = folder.max_email_age_days
+    if max_age is None:
+        max_age = global_settings.max_email_age_days if global_settings else 7
+
+    delay = folder.processing_delay_sec
+    if delay is None:
+        delay = global_settings.processing_delay_sec if global_settings else 2.0
+
+    check_uid = global_settings.check_uidvalidity if global_settings else True
+
+    return max_age, delay, check_uid
+
+
 async def _watch_folder(account_id: int, folder_id: int):
     """Watch a single IMAP folder for new messages using IDLE + polling fallback."""
     while True:
@@ -71,10 +92,39 @@ async def _watch_folder(account_id: int, folder_id: int):
                 imap = IMAP4_SSL(host=account.imap_host, port=account.imap_port)
                 await imap.wait_hello_from_server()
                 await imap.login(account.imap_user, password)
-                await imap.select(folder.folder_path)
+                select_response = await imap.select(folder.folder_path)
 
-                # Fetch new messages since last seen UID
-                search_criteria = f"UID {folder.last_seen_uid + 1}:*"
+                max_age, delay, check_uid = await _get_effective_settings(db, folder)
+
+                # UIDVALIDITY check — parse from SELECT response
+                if check_uid:
+                    current_uidvalidity = None
+                    if select_response and len(select_response) > 1:
+                        for line in select_response[1]:
+                            line_str = line.decode() if isinstance(line, bytes) else str(line)
+                            match = re.search(r"UIDVALIDITY\s+(\d+)", line_str)
+                            if match:
+                                current_uidvalidity = int(match.group(1))
+                                break
+
+                    if current_uidvalidity is not None:
+                        if folder.uidvalidity is None:
+                            folder.uidvalidity = current_uidvalidity
+                            await db.commit()
+                        elif folder.uidvalidity != current_uidvalidity:
+                            logger.warning(
+                                f"UIDVALIDITY changed for folder {folder_id}: "
+                                f"{folder.uidvalidity} -> {current_uidvalidity}. Resetting."
+                            )
+                            folder.uidvalidity = current_uidvalidity
+                            folder.last_seen_uid = 0
+                            strict_age_sec = account.polling_interval_sec + 30
+                            max_age = max(1, strict_age_sec // 86400) if strict_age_sec >= 86400 else 1
+                            await db.commit()
+
+                # Fetch new messages with age filter
+                since_date = (datetime.now(timezone.utc) - timedelta(days=max_age)).strftime("%d-%b-%Y")
+                search_criteria = f"UID {folder.last_seen_uid + 1}:* SINCE {since_date}"
                 _, data = await imap.uid_search(search_criteria)
                 uids = data[0].split() if data[0] else []
 
@@ -114,6 +164,9 @@ async def _watch_folder(account_id: int, folder_id: int):
 
                     folder.last_seen_uid = uid
                     await db.commit()
+
+                    if delay > 0:
+                        await asyncio.sleep(delay)
 
                 # Try IDLE, fall back to polling
                 try:
