@@ -13,6 +13,7 @@ from app.schemas.email_account import (
     WatchFolderRequest, UpdateWatchedFolderRequest, WatchedFolderResponse,
 )
 from app.api.deps import get_current_user
+from app.services.imap_worker import restart_watchers
 
 router = APIRouter(prefix="/api/v1/accounts", tags=["accounts"])
 
@@ -131,6 +132,7 @@ async def add_watched(account_id: int, req: WatchFolderRequest, user: User = Dep
     db.add(folder)
     await db.commit()
     await db.refresh(folder)
+    await restart_watchers()
     return folder
 
 
@@ -144,6 +146,7 @@ async def remove_watched(account_id: int, folder_id: int, user: User = Depends(g
         raise HTTPException(status_code=404, detail="Folder not found")
     await db.delete(folder)
     await db.commit()
+    await restart_watchers()
 
 
 @router.patch("/{account_id}/folders/watched/{folder_id}", response_model=WatchedFolderResponse)
