@@ -176,7 +176,11 @@
     "removeWatchedFailed": "Überwachter Ordner konnte nicht entfernt werden.",
     "manageFolders": "Ordner verwalten",
     "ageDaysOverride": "Tage",
+    "ageDaysLabel": "Max. Alter",
+    "ageDaysTooltip": "Nur E-Mails verarbeiten, die neuer als diese Anzahl Tage sind",
     "delaySecOverride": "Sek",
+    "delaySecLabel": "Verzögerung",
+    "delaySecTooltip": "Sekunden Wartezeit zwischen der Verarbeitung jeder E-Mail",
     "overrideUpdateFailed": "Ordnereinstellungen konnten nicht aktualisiert werden."
   },
   "profile": {

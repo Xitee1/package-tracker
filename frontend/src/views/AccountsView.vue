@@ -411,33 +411,41 @@
               </span>
               <div class="flex items-center gap-2">
                 <template v-if="isWatched(folder.name)">
-                  <input
-                    type="number"
-                    min="1"
-                    :value="getWatchedFolder(folder.name)?.max_email_age_days ?? ''"
-                    :placeholder="$t('accounts.ageDaysOverride')"
-                    class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
-                    @change="
-                      handleOverrideChange(account.id, folder.name, 'max_email_age_days', $event)
-                    "
-                  />
-                  <span class="text-xs text-gray-400 dark:text-gray-500">{{
-                    $t('accounts.ageDaysOverride')
-                  }}</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    :value="getWatchedFolder(folder.name)?.processing_delay_sec ?? ''"
-                    :placeholder="$t('accounts.delaySecOverride')"
-                    class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
-                    @change="
-                      handleOverrideChange(account.id, folder.name, 'processing_delay_sec', $event)
-                    "
-                  />
-                  <span class="text-xs text-gray-400 dark:text-gray-500">{{
-                    $t('accounts.delaySecOverride')
-                  }}</span>
+                  <label
+                    class="flex items-center gap-1"
+                    :title="$t('accounts.ageDaysTooltip')"
+                  >
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('accounts.ageDaysLabel') }}</span>
+                    <input
+                      type="number"
+                      min="1"
+                      :value="getWatchedFolder(folder.name)?.max_email_age_days ?? ''"
+                      :placeholder="'—'"
+                      class="w-14 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                      @change="
+                        handleOverrideChange(account.id, folder.name, 'max_email_age_days', $event)
+                      "
+                    />
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.ageDaysOverride') }}</span>
+                  </label>
+                  <label
+                    class="flex items-center gap-1"
+                    :title="$t('accounts.delaySecTooltip')"
+                  >
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('accounts.delaySecLabel') }}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      :value="getWatchedFolder(folder.name)?.processing_delay_sec ?? ''"
+                      :placeholder="'—'"
+                      class="w-14 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                      @change="
+                        handleOverrideChange(account.id, folder.name, 'processing_delay_sec', $event)
+                      "
+                    />
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.delaySecOverride') }}</span>
+                  </label>
                   <button
                     @click="handleUnwatch(account.id, folder.name)"
                     class="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"

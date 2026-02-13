@@ -176,7 +176,11 @@
     "removeWatchedFailed": "Failed to remove watched folder.",
     "manageFolders": "Manage folders",
     "ageDaysOverride": "days",
+    "ageDaysLabel": "Max age",
+    "ageDaysTooltip": "Only process emails newer than this many days",
     "delaySecOverride": "sec",
+    "delaySecLabel": "Delay",
+    "delaySecTooltip": "Seconds to wait between processing each email",
     "overrideUpdateFailed": "Failed to update folder settings."
   },
   "profile": {
