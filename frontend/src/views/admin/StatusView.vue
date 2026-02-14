@@ -218,7 +218,9 @@
               <template v-else-if="mod.key === 'email-user'">
                 <div class="space-y-3">
                   <!-- Summary line -->
-                  <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 dark:text-gray-400">
+                  <div
+                    class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 dark:text-gray-400"
+                  >
                     <span>
                       {{
                         t('system.watchedFoldersValue', {
@@ -248,10 +250,7 @@
                   </div>
 
                   <div v-else class="divide-y divide-gray-200 dark:divide-gray-700 -mx-5">
-                    <div
-                      v-for="user in (mod.status as EmailUserStatus).users"
-                      :key="user.user_id"
-                    >
+                    <div v-for="user in (mod.status as EmailUserStatus).users" :key="user.user_id">
                       <!-- User Header -->
                       <button
                         @click="toggleUser(user.user_id)"
@@ -291,7 +290,11 @@
 
                       <!-- Expanded User Content -->
                       <div v-if="expandedUsers.has(user.user_id)" class="pb-2">
-                        <div v-for="account in user.accounts" :key="account.account_id" class="px-5">
+                        <div
+                          v-for="account in user.accounts"
+                          :key="account.account_id"
+                          class="px-5"
+                        >
                           <!-- Account Sub-header -->
                           <div class="flex items-center gap-2 py-2 pl-7">
                             <svg
@@ -475,18 +478,14 @@
                     <span v-if="(mod.status as EmailGlobalStatus).last_activity_at">
                       {{
                         t('system.lastActivity', {
-                          time: formatTimeAgo(
-                            (mod.status as EmailGlobalStatus).last_activity_at,
-                          ),
+                          time: formatTimeAgo((mod.status as EmailGlobalStatus).last_activity_at),
                         })
                       }}
                     </span>
                     <span v-if="(mod.status as EmailGlobalStatus).last_scan_at">
                       {{
                         t('system.lastScan', {
-                          time: formatTimeAgo(
-                            (mod.status as EmailGlobalStatus).last_scan_at,
-                          ),
+                          time: formatTimeAgo((mod.status as EmailGlobalStatus).last_scan_at),
                         })
                       }}
                     </span>
@@ -498,9 +497,7 @@
                     >
                       {{
                         t('system.nextCheck', {
-                          time: formatTimeUntil(
-                            (mod.status as EmailGlobalStatus).next_scan_at,
-                          ),
+                          time: formatTimeUntil((mod.status as EmailGlobalStatus).next_scan_at),
                         })
                       }}
                     </span>
@@ -793,9 +790,7 @@ onMounted(() => {
   // Tick the "last refreshed" counter every second
   tickInterval = setInterval(() => {
     if (lastRefreshedAt.value) {
-      secondsSinceRefresh.value = Math.floor(
-        (Date.now() - lastRefreshedAt.value.getTime()) / 1000,
-      )
+      secondsSinceRefresh.value = Math.floor((Date.now() - lastRefreshedAt.value.getTime()) / 1000)
     }
   }, 1000)
 })
