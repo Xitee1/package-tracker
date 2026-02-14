@@ -256,3 +256,43 @@ async def test_scan_folder_already_scanning(client, admin_token):
 async def test_scan_unauthenticated(client):
     resp = await client.post("/api/v1/accounts/1/folders/watched/1/scan")
     assert resp.status_code in (401, 403)
+
+
+@pytest.mark.asyncio
+async def test_create_account_has_idle_fields(client, admin_token):
+    resp = await client.post("/api/v1/accounts", json=ACCOUNT_DATA, headers=auth(admin_token))
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["use_polling"] is False
+    assert data["idle_supported"] is None
+
+
+@pytest.mark.asyncio
+async def test_update_use_polling(client, admin_token):
+    create = await client.post("/api/v1/accounts", json=ACCOUNT_DATA, headers=auth(admin_token))
+    account_id = create.json()["id"]
+    resp = await client.patch(
+        f"/api/v1/accounts/{account_id}",
+        json={"use_polling": True},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["use_polling"] is True
+
+
+@pytest.mark.asyncio
+async def test_reject_disable_polling_when_idle_unsupported(client, admin_token, db_session):
+    create = await client.post("/api/v1/accounts", json=ACCOUNT_DATA, headers=auth(admin_token))
+    account_id = create.json()["id"]
+    from app.models.email_account import EmailAccount
+    account = await db_session.get(EmailAccount, account_id)
+    account.idle_supported = False
+    account.use_polling = True
+    await db_session.commit()
+    resp = await client.patch(
+        f"/api/v1/accounts/{account_id}",
+        json={"use_polling": False},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 400
+    assert "IMAP IDLE" in resp.json()["detail"]
