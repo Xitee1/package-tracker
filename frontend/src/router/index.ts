@@ -82,15 +82,14 @@ const router = createRouter({
           name: 'queue-settings',
           component: () => import('@/views/admin/QueueSettingsView.vue'),
         },
+        {
+          path: 'analysers',
+          name: 'analysers-settings',
+          component: () => import('@/views/admin/AnalysersView.vue'),
+        },
         // Module admin routes (dynamically from modules)
         ...getAdminRoutes(),
       ],
-    },
-    {
-      path: '/admin/analysers',
-      name: 'admin-analysers',
-      component: () => import('@/views/admin/AnalysersView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/admin/status',

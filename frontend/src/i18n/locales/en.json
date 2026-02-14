@@ -454,7 +454,8 @@
     "llmConfig": "LLM Config",
     "imap": "IMAP",
     "queue": "Queue",
-    "email": "Email"
+    "email": "Email",
+    "analysers": "Analysers"
   },
   "imap": {
     "title": "IMAP Settings",

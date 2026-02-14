@@ -1,10 +1,7 @@
 <template>
   <div>
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('analysers.title') }}</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ t('analysers.description') }}</p>
-    </div>
+    <!-- Description -->
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ t('analysers.description') }}</p>
 
     <!-- Loading -->
     <div v-if="loading" class="text-center py-12 text-gray-500 dark:text-gray-400">

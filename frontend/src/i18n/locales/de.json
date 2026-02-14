@@ -454,7 +454,8 @@
     "llmConfig": "LLM-Konfiguration",
     "imap": "IMAP",
     "queue": "Warteschlange",
-    "email": "E-Mail"
+    "email": "E-Mail",
+    "analysers": "Analyser"
   },
   "imap": {
     "title": "IMAP-Einstellungen",

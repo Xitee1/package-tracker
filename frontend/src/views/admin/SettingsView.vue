@@ -21,6 +21,19 @@
             {{ $t('settings.queue') }}
           </router-link>
 
+          <!-- Analysers (core, always visible) -->
+          <router-link
+            to="/admin/settings/analysers"
+            class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
+            :class="
+              isActive('/admin/settings/analysers')
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            "
+          >
+            {{ $t('settings.analysers') }}
+          </router-link>
+
           <!-- Module Groups -->
           <template v-for="group in sidebarGroups" :key="group.group">
             <button

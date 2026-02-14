@@ -121,7 +121,7 @@
               }}
             </p>
             <router-link
-              to="/admin/analysers"
+              to="/admin/settings/analysers"
               class="inline-flex items-center gap-1 mt-2 text-sm font-medium text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-300"
             >
               {{ t('system.configureAnalysers') }}
