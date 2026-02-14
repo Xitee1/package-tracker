@@ -57,6 +57,7 @@ from app.api.orders import router as orders_router
 from app.api.api_keys import router as api_keys_router
 from app.api.system import router as system_router
 from app.api.imap_settings import router as imap_settings_router
+from app.api.scan_history import router as scan_history_router
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(accounts_router)
@@ -65,6 +66,7 @@ app.include_router(orders_router)
 app.include_router(api_keys_router)
 app.include_router(system_router)
 app.include_router(imap_settings_router)
+app.include_router(scan_history_router)
 
 
 @app.get("/api/v1/health")
