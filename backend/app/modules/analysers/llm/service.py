@@ -9,7 +9,7 @@ from app.core.encryption import decrypt_value
 from app.modules.analysers.llm.models import LLMConfig
 
 
-async def get_status(db) -> dict | None:
+async def get_status(db: AsyncSession) -> dict | None:
     """Status hook: return current LLM configuration summary."""
     result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
     config = result.scalar_one_or_none()

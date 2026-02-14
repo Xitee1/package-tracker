@@ -4,7 +4,8 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from aioimaplib import IMAP4_SSL, STOP_WAIT_SERVER_PUSH
-from sqlalchemy import select
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import async_session
 from app.models.imap_settings import ImapSettings
@@ -323,7 +324,7 @@ async def stop_global_watcher():
     _global_state = None
 
 
-async def get_status(db) -> dict | None:
+async def get_status(db: AsyncSession) -> dict | None:
     """Status hook: return global mail watcher state."""
     result = await db.execute(select(GlobalMailConfig))
     config = result.scalar_one_or_none()
@@ -342,7 +343,6 @@ async def get_status(db) -> dict | None:
     else:
         mode = "unknown"
 
-    from sqlalchemy import func
     sender_result = await db.execute(
         select(func.count()).select_from(UserSenderAddress)
     )

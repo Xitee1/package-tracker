@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from aioimaplib import IMAP4_SSL, STOP_WAIT_SERVER_PUSH
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import async_session
@@ -360,7 +361,7 @@ async def restart_single_watcher(folder_id: int):
         logger.info(f"Restarted watcher for folder {folder_id} (manual scan)")
 
 
-async def get_status(db) -> dict:
+async def get_status(db: AsyncSession) -> dict:
     """Status hook: return per-user/account/folder worker state."""
     from app.models.user import User
 

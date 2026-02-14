@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Callable, Awaitable, Any
 from fastapi import APIRouter
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass
@@ -17,4 +18,4 @@ class ModuleInfo:
     startup: Callable[[], Awaitable[None]] | None = None
     shutdown: Callable[[], Awaitable[None]] | None = None
     is_configured: Callable[[], Awaitable[bool]] | None = None
-    status: Callable[..., Awaitable[dict | None]] | None = None
+    status: Callable[[AsyncSession], Awaitable[dict | None]] | None = None
