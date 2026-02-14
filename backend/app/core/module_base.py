@@ -17,3 +17,4 @@ class ModuleInfo:
     startup: Callable[[], Awaitable[None]] | None = None
     shutdown: Callable[[], Awaitable[None]] | None = None
     is_configured: Callable[[], Awaitable[bool]] | None = None
+    status: Callable[..., Awaitable[dict | None]] | None = None
