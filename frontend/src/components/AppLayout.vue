@@ -55,9 +55,16 @@
             <svg
               class="w-3.5 h-3.5 transition-transform duration-200"
               :class="{ 'rotate-180': !providersExpanded }"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </button>
           <template v-if="providersExpanded">
@@ -66,9 +73,11 @@
               :key="item.to"
               :to="item.to"
               class="flex items-center gap-3 px-3 py-2.5 pl-6 text-sm font-medium rounded-lg transition-colors"
-              :class="isActive(item.to)
-                ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              :class="
+                isActive(item.to)
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              "
               @click="sidebarOpen = false"
             >
               {{ item.label }}
@@ -199,9 +208,7 @@ const modulesStore = useModulesStore()
 const sidebarOpen = ref(false)
 
 const providerItems = computed(() => {
-  return getUserSidebarItems().filter(item =>
-    modulesStore.isEnabled(item.moduleKey)
-  )
+  return getUserSidebarItems().filter((item) => modulesStore.isEnabled(item.moduleKey))
 })
 
 const providersExpanded = ref(true)

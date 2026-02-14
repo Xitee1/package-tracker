@@ -12,9 +12,11 @@
           <router-link
             to="/admin/settings/queue"
             class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-            :class="isActive('/admin/settings/queue')
-              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            :class="
+              isActive('/admin/settings/queue')
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            "
           >
             {{ $t('settings.queue') }}
           </router-link>
@@ -29,9 +31,16 @@
               <svg
                 class="w-3.5 h-3.5 transition-transform duration-200"
                 :class="{ 'rotate-180': !collapsedGroups[group.group] }"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
             <template v-if="!collapsedGroups[group.group]">
@@ -40,9 +49,11 @@
                 :key="item.to"
                 :to="item.to"
                 class="px-3 py-2 pl-5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap block"
-                :class="isActive(item.to)
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+                :class="
+                  isActive(item.to)
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                "
               >
                 {{ item.label }}
               </router-link>
@@ -62,10 +73,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 import { getAdminSidebarItems } from '@/core/moduleRegistry'
 
-const { t } = useI18n()
 const route = useRoute()
 
 const sidebarGroups = getAdminSidebarItems()

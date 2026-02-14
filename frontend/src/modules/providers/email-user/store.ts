@@ -99,7 +99,9 @@ export const useAccountsStore = defineStore('accounts', () => {
   }
 
   async function addWatchedFolder(id: number, folderPath: string): Promise<WatchedFolder> {
-    const res = await api.post(`/providers/email-user/accounts/${id}/folders/watched`, { folder_path: folderPath })
+    const res = await api.post(`/providers/email-user/accounts/${id}/folders/watched`, {
+      folder_path: folderPath,
+    })
     return res.data
   }
 
@@ -112,7 +114,10 @@ export const useAccountsStore = defineStore('accounts', () => {
     folderId: number,
     data: { max_email_age_days?: number | null },
   ): Promise<WatchedFolder> {
-    const res = await api.patch(`/providers/email-user/accounts/${accountId}/folders/watched/${folderId}`, data)
+    const res = await api.patch(
+      `/providers/email-user/accounts/${accountId}/folders/watched/${folderId}`,
+      data,
+    )
     return res.data
   }
 

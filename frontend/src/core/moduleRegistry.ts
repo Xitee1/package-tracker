@@ -4,8 +4,8 @@ export interface ModuleManifest {
   key: string
   name: string
   type: 'analyser' | 'provider'
-  adminRoutes: { path: string; component: () => Promise<any>; label?: string }[]
-  userRoutes?: { path: string; component: () => Promise<any>; label: string }[]
+  adminRoutes: { path: string; component: () => Promise<unknown>; label?: string }[]
+  userRoutes?: { path: string; component: () => Promise<unknown>; label: string }[]
 }
 
 const modules: ModuleManifest[] = []
@@ -28,7 +28,7 @@ export function getAdminRoutes(): RouteRecordRaw[] {
       path: r.path,
       component: r.component,
       meta: { moduleKey: m.key },
-    }))
+    })),
   )
 }
 
@@ -38,11 +38,14 @@ export function getUserRoutes(): RouteRecordRaw[] {
       path: r.path,
       component: r.component,
       meta: { moduleKey: m.key },
-    }))
+    })),
   )
 }
 
-export function getAdminSidebarItems(): { group: string; items: { to: string; label: string; moduleKey: string }[] }[] {
+export function getAdminSidebarItems(): {
+  group: string
+  items: { to: string; label: string; moduleKey: string }[]
+}[] {
   const analysers = getModulesByType('analyser')
   const providers = getModulesByType('provider')
 
@@ -56,7 +59,7 @@ export function getAdminSidebarItems(): { group: string; items: { to: string; la
           to: `/admin/settings/${r.path}`,
           label: r.label || m.name,
           moduleKey: m.key,
-        }))
+        })),
       ),
     })
   }
@@ -69,7 +72,7 @@ export function getAdminSidebarItems(): { group: string; items: { to: string; la
           to: `/admin/settings/${r.path}`,
           label: r.label || m.name,
           moduleKey: m.key,
-        }))
+        })),
       ),
     })
   }
@@ -83,6 +86,6 @@ export function getUserSidebarItems(): { to: string; label: string; moduleKey: s
       to: `/providers/${r.path}`,
       label: r.label,
       moduleKey: m.key,
-    }))
+    })),
   )
 }
