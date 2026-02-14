@@ -24,7 +24,7 @@ def _run_migrations(connection) -> None:
         # Pre-Alembic database: tables exist but Alembic hasn't been initialized.
         # Stamp the baseline (initial schema) as already applied.
         logger.info("Detected pre-Alembic database, stamping baseline revision.")
-        command.stamp(alembic_cfg, "9299dae441a6")
+        command.stamp(alembic_cfg, "9cc36a87ec5f")
 
     command.upgrade(alembic_cfg, "head")
     logger.info("Database migrations complete.")
