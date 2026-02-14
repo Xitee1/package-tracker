@@ -7,14 +7,26 @@ from app.models.queue_item import QueueItem
 from app.services.queue.queue_processor import process_raw_data
 from app.services.orders.order_matcher import DefaultOrderMatcher
 from app.services.orders.order_service import create_or_update_order
+from app.core.module_registry import has_available_analyser
 
 logger = logging.getLogger(__name__)
 
 _matcher = DefaultOrderMatcher()
+_no_analyser_warned = False
 
 
 async def process_next_item() -> None:
     """Pick one queued item and process it. Called by the scheduler every 5s."""
+    global _no_analyser_warned
+
+    if not await has_available_analyser():
+        if not _no_analyser_warned:
+            logger.warning("No analyser module is enabled and configured — queue processing paused")
+            _no_analyser_warned = True
+        return
+
+    _no_analyser_warned = False
+
     async with async_session() as db:
         # Pick the oldest queued item
         result = await db.execute(
@@ -60,7 +72,6 @@ async def process_next_item() -> None:
 
         except Exception as e:
             logger.error(f"Failed to process queue item {item.id}: {e}")
-            # Refresh session state in case of partial failures
             await db.rollback()
             async with async_session() as err_db:
                 err_item = await err_db.get(QueueItem, item.id)
