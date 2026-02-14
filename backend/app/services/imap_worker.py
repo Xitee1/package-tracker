@@ -8,7 +8,7 @@ from email.header import decode_header
 from enum import StrEnum
 
 import html2text
-from aioimaplib import IMAP4_SSL
+from aioimaplib import IMAP4_SSL, STOP_WAIT_SERVER_PUSH
 from sqlalchemy import select
 
 from app.database import async_session
@@ -20,6 +20,9 @@ from app.models.queue_item import QueueItem
 logger = logging.getLogger(__name__)
 h2t = html2text.HTML2Text()
 h2t.ignore_links = False
+
+IDLE_TIMEOUT_SEC = 24 * 60  # 24 minutes, safely under RFC 2177's 29-minute limit
+MAX_BACKOFF_SEC = 300  # 5 minutes max backoff
 
 _running_tasks: dict[int, asyncio.Task] = {}
 
@@ -108,6 +111,166 @@ async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, float
     check_uid = global_settings.check_uidvalidity if global_settings else True
 
     return max_age, delay, check_uid
+
+
+async def _connect_and_select(
+    account, folder, db,
+) -> tuple[IMAP4_SSL, bool]:
+    """Connect, login, check IDLE capability, select folder.
+
+    Returns (imap_client, idle_supported). Updates account.idle_supported in DB.
+    If IDLE not supported, forces account.use_polling = True.
+    """
+    from app.core.encryption import decrypt_value
+
+    password = decrypt_value(account.imap_password_encrypted)
+    imap = IMAP4_SSL(host=account.imap_host, port=account.imap_port)
+    await imap.wait_hello_from_server()
+    await imap.login(account.imap_user, password)
+
+    # Check IDLE capability (must check after login — some servers only advertise post-auth)
+    idle_supported = imap.has_capability("IDLE")
+
+    # Update idle_supported in DB; force use_polling if IDLE not supported
+    if account.idle_supported != idle_supported:
+        account.idle_supported = idle_supported
+        if not idle_supported and not account.use_polling:
+            account.use_polling = True
+            logger.info(
+                f"Account {account.id}: IDLE not supported, forcing polling mode"
+            )
+        await db.commit()
+        await db.refresh(account)
+
+    select_response = await imap.select(folder.folder_path)
+
+    # UIDVALIDITY check
+    max_age, delay, check_uid = await _get_effective_settings(db, folder)
+    if check_uid:
+        current_uidvalidity = None
+        if select_response and len(select_response) > 1:
+            for line in select_response[1]:
+                line_str = line.decode() if isinstance(line, bytes) else str(line)
+                match = re.search(r"UIDVALIDITY\s+(\d+)", line_str)
+                if match:
+                    current_uidvalidity = int(match.group(1))
+                    break
+
+        if current_uidvalidity is not None:
+            if folder.uidvalidity is None:
+                folder.uidvalidity = current_uidvalidity
+                await db.commit()
+            elif folder.uidvalidity != current_uidvalidity:
+                logger.warning(
+                    f"UIDVALIDITY changed for folder {folder.id}: "
+                    f"{folder.uidvalidity} -> {current_uidvalidity}. Resetting."
+                )
+                folder.uidvalidity = current_uidvalidity
+                folder.last_seen_uid = 0
+                await db.commit()
+
+    return imap, idle_supported
+
+
+async def _fetch_new_emails(
+    imap: IMAP4_SSL, account, folder, db, state: WorkerState | None,
+) -> None:
+    """UID search for new emails, process and enqueue them."""
+    max_age, delay, _ = await _get_effective_settings(db, folder)
+    since_date = (datetime.now(timezone.utc) - timedelta(days=max_age)).strftime("%d-%b-%Y")
+    search_criteria = f"UID {folder.last_seen_uid + 1}:* SINCE {since_date}"
+    _, data = await imap.uid_search(search_criteria)
+    uids = data[0].split() if data[0] else []
+
+    if state:
+        if uids:
+            state.mode = WorkerMode.PROCESSING
+            state.queue_total = len(uids)
+        state.last_activity_at = datetime.now(timezone.utc)
+
+    for i, uid_bytes in enumerate(uids):
+        uid = int(uid_bytes)
+        if uid <= folder.last_seen_uid:
+            continue
+
+        _, msg_data = await imap.uid("fetch", str(uid), "(RFC822)")
+        if not msg_data or not msg_data[0]:
+            continue
+
+        # aioimaplib returns a flat list: [b'header', bytearray(email_bytes), b')']
+        raw_email = None
+        for part in msg_data:
+            if isinstance(part, bytearray):
+                raw_email = bytes(part)
+                break
+        if raw_email is None:
+            continue
+        msg = email.message_from_bytes(raw_email)
+
+        subject = _decode_header_value(msg.get("Subject", ""))
+        sender = _decode_header_value(msg.get("From", ""))
+        message_id = msg.get("Message-ID", "")
+        body = _extract_body(msg)
+
+        email_date = None
+        try:
+            date_str = msg.get("Date", "")
+            if date_str:
+                from email.utils import parsedate_to_datetime
+                email_date = parsedate_to_datetime(date_str)
+        except Exception:
+            pass
+
+        if state:
+            state.queue_position = i + 1
+            state.current_email_subject = subject
+            state.current_email_sender = sender
+            state.last_activity_at = datetime.now(timezone.utc)
+
+        # Dedup check
+        existing = await db.execute(
+            select(ProcessedEmail).where(ProcessedEmail.message_id == message_id)
+        )
+        if existing.scalar_one_or_none():
+            folder.last_seen_uid = uid
+            await db.commit()
+            continue
+
+        queue_item = QueueItem(
+            user_id=account.user_id,
+            status="queued",
+            source_type="email",
+            source_info=f"{account.imap_user} / {folder.folder_path}",
+            raw_data={
+                "subject": subject,
+                "sender": sender,
+                "body": body,
+                "message_id": message_id,
+                "email_uid": uid,
+                "email_date": email_date.isoformat() if email_date else None,
+            },
+        )
+        db.add(queue_item)
+        await db.flush()
+
+        processed = ProcessedEmail(
+            account_id=account.id,
+            folder_path=folder.folder_path,
+            email_uid=uid,
+            message_id=message_id,
+            queue_item_id=queue_item.id,
+        )
+        db.add(processed)
+
+        folder.last_seen_uid = uid
+        await db.commit()
+
+        if delay > 0:
+            await asyncio.sleep(delay)
+
+    if state:
+        state.last_scan_at = datetime.now(timezone.utc)
+        state.clear_queue()
 
 
 async def _watch_folder(account_id: int, folder_id: int):
