@@ -106,6 +106,7 @@
     "title": "Warteschlange",
     "allStatuses": "Alle Status",
     "allSourceTypes": "Alle Quelltypen",
+    "sourceEmail": "E-Mail",
     "sourceManual": "Manuell",
     "statusQueued": "Wartend",
     "statusProcessing": "In Verarbeitung",

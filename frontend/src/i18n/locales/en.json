@@ -106,6 +106,7 @@
     "title": "Queue",
     "allStatuses": "All Statuses",
     "allSourceTypes": "All Source Types",
+    "sourceEmail": "Email",
     "sourceManual": "Manual",
     "statusQueued": "Queued",
     "statusProcessing": "Processing",

@@ -34,7 +34,7 @@
               class="w-full px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">{{ t('queue.allSourceTypes') }}</option>
-              <option value="email">IMAP</option>
+              <option value="email">{{ t('queue.sourceEmail') }}</option>
               <option value="manual">{{ t('queue.sourceManual') }}</option>
               <option value="api">API</option>
             </select>
