@@ -227,7 +227,16 @@
     "scanNow": "Jetzt scannen",
     "scanning": "Scanne...",
     "scanTriggered": "Scan gestartet",
-    "scanAlreadyRunning": "Ordner wird bereits gescannt"
+    "scanAlreadyRunning": "Ordner wird bereits gescannt",
+    "usePolling": "Polling verwenden",
+    "usePollingTooltip": "Erzwingt periodisches Scannen anstelle von Push-Benachrichtigungen",
+    "idleNotSupported": "Dieser E-Mail-Anbieter unterstützt keine Push-Benachrichtigungen (IMAP IDLE)",
+    "idleDetecting": "Wird bei der ersten Verbindung erkannt",
+    "folderLimitWarning": "Die Überwachung vieler Ordner erfordert eine Verbindung pro Ordner. Einige Anbieter begrenzen die gleichzeitigen Verbindungen.",
+    "idleNotSupportedReject": "Dieser E-Mail-Anbieter unterstützt kein IMAP IDLE",
+    "modeIdle": "IDLE",
+    "modePolling": "Polling",
+    "modeDetecting": "Erkennung..."
   },
   "profile": {
     "title": "Profil",
