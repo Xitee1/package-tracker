@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import date, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.email_scan import EmailScan
 from app.models.order import Order, OrderEvent
 from app.services.llm_service import analyze_email, EmailAnalysis
 from app.services.order_matcher import find_matching_order
@@ -28,19 +29,39 @@ async def process_email(
     account_id: int,
     user_id: int,
     db: AsyncSession,
+    email_date: datetime | None = None,
 ) -> Order | None:
     """Process a single email: analyze with LLM, match/create order, log event."""
 
-    # Dedup: check if this message_id was already processed
+    # Dedup: check if this message_id was already scanned
     existing = await db.execute(
-        select(OrderEvent).where(OrderEvent.source_email_message_id == message_id)
+        select(EmailScan).where(EmailScan.message_id == message_id)
     )
     if existing.scalar_one_or_none():
         return None
 
     # Analyze with LLM
     analysis, raw_response = await analyze_email(subject, sender, body, db)
-    if analysis is None or not analysis.is_relevant:
+
+    # Determine relevance
+    is_relevant = analysis is not None and analysis.is_relevant
+
+    # Create EmailScan row for every email (relevant or not)
+    scan = EmailScan(
+        account_id=account_id,
+        folder_path=folder_path,
+        email_uid=email_uid,
+        message_id=message_id,
+        subject=subject,
+        sender=sender,
+        email_date=email_date,
+        is_relevant=is_relevant,
+        llm_raw_response=raw_response,
+    )
+    db.add(scan)
+
+    if not is_relevant:
+        await db.commit()
         return None
 
     # Find matching order or create new one
@@ -78,6 +99,9 @@ async def process_email(
         )
         db.add(order)
         await db.flush()
+
+    # Link the scan to the matched/created order
+    scan.order_id = order.id
 
     # Log event
     event = OrderEvent(
