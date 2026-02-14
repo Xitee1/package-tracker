@@ -6,7 +6,8 @@ from typing import Optional
 
 from app.database import get_db
 from app.models.user import User
-from app.models.order import Order, OrderEvent
+from app.models.order import Order
+from app.models.order_state import OrderState
 from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest
 from app.api.deps import get_current_user
 
@@ -36,7 +37,7 @@ async def list_orders(
 @router.get("/{order_id}", response_model=OrderDetailResponse)
 async def get_order(order_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Order).where(Order.id == order_id, Order.user_id == user.id).options(selectinload(Order.events))
+        select(Order).where(Order.id == order_id, Order.user_id == user.id).options(selectinload(Order.states))
     )
     order = result.scalar_one_or_none()
     if not order:
@@ -49,8 +50,19 @@ async def update_order(order_id: int, req: UpdateOrderRequest, user: User = Depe
     order = await db.get(Order, order_id)
     if not order or order.user_id != user.id:
         raise HTTPException(status_code=404, detail="Order not found")
+    old_status = order.status
     for field, value in req.model_dump(exclude_unset=True).items():
         setattr(order, field, value)
+
+    # Create OrderState if status changed
+    if req.status and req.status != old_status:
+        state = OrderState(
+            order_id=order.id,
+            status=req.status,
+            source_type="manual",
+        )
+        db.add(state)
+
     await db.commit()
     await db.refresh(order)
     return order
@@ -68,10 +80,10 @@ async def link_orders(order_id: int, req: LinkOrderRequest, user: User = Depends
         source.carrier = target.carrier
     if target.status and target.status != "ordered":
         source.status = target.status
-    # Move events from target to source
-    result = await db.execute(select(OrderEvent).where(OrderEvent.order_id == target.id))
-    for event in result.scalars().all():
-        event.order_id = source.id
+    # Move states from target to source
+    result = await db.execute(select(OrderState).where(OrderState.order_id == target.id))
+    for state in result.scalars().all():
+        state.order_id = source.id
     await db.delete(target)
     await db.commit()
     await db.refresh(source)
