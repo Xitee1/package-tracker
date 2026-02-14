@@ -73,6 +73,17 @@ All API routes are under `/api/v1/`. Routers live in `api/`, each included in `m
 
 In dev, Vite proxies `/api` requests to `http://backend:8000` (Docker service name). When running outside Docker, update `vite.config.ts` proxy target to `http://localhost:8000`.
 
+## Database Migrations
+
+**Always use Alembic for schema changes. Never execute DDL directly against the database.** Migrations are applied automatically on application startup.
+
+```bash
+# From backend/
+alembic revision --autogenerate -m "description of change"  # Generate migration
+```
+
+When modifying SQLAlchemy models, generate an Alembic migration and commit it. Do not use `CREATE TABLE`, `ALTER TABLE`, or similar SQL directly.
+
 ## Testing
 
 Backend uses pytest with `pytest-asyncio` (`asyncio_mode = "auto"` in pyproject.toml). Tests use in-memory SQLite via aiosqlite. Fixtures in `tests/conftest.py` provide `db_session` and `client` (httpx AsyncClient with ASGI transport). FastAPI dependency overrides swap the real DB for the test DB.
