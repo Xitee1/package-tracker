@@ -18,7 +18,6 @@ class GlobalMailConfig(Base):
     polling_interval_sec: Mapped[int] = mapped_column(Integer, default=300)
     use_polling: Mapped[bool] = mapped_column(Boolean, default=False)
     idle_supported: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True, default=None)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     watched_folder_path: Mapped[str] = mapped_column(String(512), default="INBOX")
     last_seen_uid: Mapped[int] = mapped_column(Integer, default=0)
     uidvalidity: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=None)

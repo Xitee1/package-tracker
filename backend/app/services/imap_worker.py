@@ -596,9 +596,18 @@ async def _global_poll_loop(
 
         try:
             async with async_session() as db:
+                # Check module is still enabled
+                mod_result = await db.execute(
+                    select(ModuleConfig).where(ModuleConfig.module_key == "email-global")
+                )
+                module = mod_result.scalar_one_or_none()
+                if not module or not module.enabled:
+                    logger.info("Stopping global poll loop: module disabled")
+                    return
+
                 result = await db.execute(select(GlobalMailConfig))
                 config = result.scalar_one_or_none()
-                if not config or not config.is_active:
+                if not config:
                     return
 
                 password = decrypt_value(config.imap_password_encrypted)
@@ -639,10 +648,19 @@ async def _watch_global_folder(config: GlobalMailConfig) -> None:
 
         try:
             async with async_session() as db:
+                # Check module is still enabled
+                mod_result = await db.execute(
+                    select(ModuleConfig).where(ModuleConfig.module_key == "email-global")
+                )
+                module = mod_result.scalar_one_or_none()
+                if not module or not module.enabled:
+                    logger.info("Stopping global mail watcher: module disabled")
+                    return
+
                 # Re-fetch config from DB to pick up changes
                 result = await db.execute(select(GlobalMailConfig))
                 config = result.scalar_one_or_none()
-                if not config or not config.is_active:
+                if not config:
                     logger.info("Stopping global mail watcher: inactive or removed")
                     return
 
@@ -729,7 +747,7 @@ async def start_all_watchers():
         if module and module.enabled:
             result = await db.execute(select(GlobalMailConfig))
             config = result.scalar_one_or_none()
-            if config and config.is_active:
+            if config:
                 _start_global_watcher(config)
                 logger.info("Global mail watcher started")
 

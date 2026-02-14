@@ -6,6 +6,7 @@ from app.api.deps import get_admin_user, get_current_user
 from app.core.encryption import encrypt_value
 from app.database import get_db
 from app.models.global_mail_config import GlobalMailConfig
+from app.models.module_config import ModuleConfig
 from app.schemas.global_mail_config import (
     GlobalMailConfigRequest,
     GlobalMailConfigResponse,
@@ -44,7 +45,6 @@ async def update_global_mail_config(
             use_ssl=req.use_ssl,
             polling_interval_sec=req.polling_interval_sec,
             use_polling=req.use_polling,
-            is_active=req.is_active,
             watched_folder_path=req.watched_folder_path,
         )
         db.add(config)
@@ -57,7 +57,6 @@ async def update_global_mail_config(
         config.use_ssl = req.use_ssl
         config.polling_interval_sec = req.polling_interval_sec
         config.use_polling = req.use_polling
-        config.is_active = req.is_active
         config.watched_folder_path = req.watched_folder_path
     await db.commit()
     await db.refresh(config)
@@ -69,7 +68,15 @@ async def get_global_mail_info(
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    # Check if module is enabled
+    result = await db.execute(
+        select(ModuleConfig).where(ModuleConfig.module_key == "email-global")
+    )
+    module = result.scalar_one_or_none()
+    if not module or not module.enabled:
+        return GlobalMailInfoResponse(configured=False)
+
     config = await _get_config(db)
-    if not config or not config.is_active:
+    if not config:
         return GlobalMailInfoResponse(configured=False)
     return GlobalMailInfoResponse(configured=True, email_address=config.imap_user)

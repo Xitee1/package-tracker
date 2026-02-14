@@ -37,7 +37,6 @@ async def test_put_creates_config(client, admin_token):
         "imap_user": "global@example.com",
         "imap_password": "secret",
         "use_ssl": True,
-        "is_active": True,
         "watched_folder_path": "INBOX",
     }
     resp = await client.put("/api/v1/settings/global-mail", json=payload, headers=auth(admin_token))
@@ -45,7 +44,6 @@ async def test_put_creates_config(client, admin_token):
     data = resp.json()
     assert data["imap_host"] == "imap.example.com"
     assert data["imap_user"] == "global@example.com"
-    assert data["is_active"] is True
     assert "imap_password" not in data  # password should not be returned
 
 
@@ -80,6 +78,13 @@ async def test_info_endpoint_as_user(client, admin_token, user_token):
     assert resp.status_code == 200
     assert resp.json()["configured"] is False
 
+    # Enable email-global module
+    await client.put(
+        "/api/v1/modules/email-global",
+        json={"enabled": True},
+        headers=auth(admin_token),
+    )
+
     # Create config
     await client.put(
         "/api/v1/settings/global-mail",
@@ -87,14 +92,31 @@ async def test_info_endpoint_as_user(client, admin_token, user_token):
             "imap_host": "imap.example.com",
             "imap_user": "global@example.com",
             "imap_password": "secret",
-            "is_active": True,
         },
         headers=auth(admin_token),
     )
 
-    # After config: configured with email
+    # After config + module enabled: configured with email
     resp = await client.get("/api/v1/settings/global-mail/info", headers=auth(user_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["configured"] is True
     assert data["email_address"] == "global@example.com"
+
+
+@pytest.mark.asyncio
+async def test_info_returns_unconfigured_when_module_disabled(client, admin_token, user_token):
+    # Create config (module not enabled by default)
+    await client.put(
+        "/api/v1/settings/global-mail",
+        json={
+            "imap_host": "imap.example.com",
+            "imap_user": "global@example.com",
+            "imap_password": "secret",
+        },
+        headers=auth(admin_token),
+    )
+    # Module not enabled — info should show not configured
+    resp = await client.get("/api/v1/settings/global-mail/info", headers=auth(user_token))
+    assert resp.status_code == 200
+    assert resp.json()["configured"] is False
