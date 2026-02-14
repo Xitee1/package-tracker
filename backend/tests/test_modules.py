@@ -85,3 +85,30 @@ async def test_update_unknown_module(client, admin_token):
         headers=auth(admin_token),
     )
     assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_reorder_module_priority(client, admin_token):
+    """PATCH /modules/priority should update priority values."""
+    resp = await client.patch(
+        "/api/v1/modules/priority",
+        json={"module_keys": ["email-global", "llm", "email-user"]},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 200
+
+    # Verify ordering
+    resp = await client.get("/api/v1/modules", headers=auth(admin_token))
+    modules = resp.json()
+    keys_in_order = [m["module_key"] for m in modules]
+    assert keys_in_order == ["email-global", "llm", "email-user"]
+
+
+@pytest.mark.asyncio
+async def test_reorder_module_priority_requires_admin(client, user_token):
+    resp = await client.patch(
+        "/api/v1/modules/priority",
+        json={"module_keys": ["llm", "email-user", "email-global"]},
+        headers=auth(user_token),
+    )
+    assert resp.status_code == 403

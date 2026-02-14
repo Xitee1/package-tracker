@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, get_admin_user
 from app.database import get_db
 from app.models.module_config import ModuleConfig
-from app.schemas.module_config import ModuleResponse, UpdateModuleRequest
+from app.schemas.module_config import ModuleResponse, UpdateModuleRequest, ReorderModulesRequest
 from app.core.module_registry import (
     get_all_modules, enable_module, disable_module,
 )
@@ -40,6 +40,23 @@ async def list_modules(
             description=info.description if info else None,
         ))
     return response
+
+
+@router.patch("/priority")
+async def reorder_modules(
+    req: ReorderModulesRequest,
+    user=Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(ModuleConfig))
+    configs = {c.module_key: c for c in result.scalars().all()}
+
+    for i, key in enumerate(req.module_keys):
+        if key in configs:
+            configs[key].priority = i
+
+    await db.commit()
+    return {"status": "ok"}
 
 
 @router.put("/{module_key}", response_model=ModuleResponse)

@@ -15,3 +15,7 @@ class ModuleResponse(BaseModel):
 
 class UpdateModuleRequest(BaseModel):
     enabled: bool
+
+
+class ReorderModulesRequest(BaseModel):
+    module_keys: list[str]
