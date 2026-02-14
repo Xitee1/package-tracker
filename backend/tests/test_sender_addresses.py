@@ -29,6 +29,16 @@ async def user2_token(client, admin_token):
     return login.json()["access_token"]
 
 
+@pytest.fixture(autouse=True)
+async def enable_global_module(client, admin_token):
+    """Enable the email-global module so sender-address endpoints are accessible."""
+    await client.put(
+        "/api/v1/modules/email-global",
+        json={"enabled": True},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+
 def auth(token):
     return {"Authorization": f"Bearer {token}"}
 

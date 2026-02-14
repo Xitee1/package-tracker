@@ -13,9 +13,14 @@ from app.schemas.email_account import (
     WatchFolderRequest, UpdateWatchedFolderRequest, WatchedFolderResponse,
 )
 from app.api.deps import get_current_user
+from app.api.module_deps import require_email_imap
 from app.services.imap_worker import restart_watchers, restart_single_watcher, is_folder_scanning
 
-router = APIRouter(prefix="/api/v1/accounts", tags=["accounts"])
+router = APIRouter(
+    prefix="/api/v1/accounts",
+    tags=["accounts"],
+    dependencies=[Depends(require_email_imap)],
+)
 
 
 @router.get("", response_model=list[AccountResponse])

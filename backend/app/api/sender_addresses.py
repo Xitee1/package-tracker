@@ -3,11 +3,16 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
+from app.api.module_deps import require_email_global
 from app.database import get_db
 from app.models.user_sender_address import UserSenderAddress
 from app.schemas.sender_address import CreateSenderAddressRequest, SenderAddressResponse
 
-router = APIRouter(prefix="/api/v1/sender-addresses", tags=["sender-addresses"])
+router = APIRouter(
+    prefix="/api/v1/sender-addresses",
+    tags=["sender-addresses"],
+    dependencies=[Depends(require_email_global)],
+)
 
 
 @router.get("", response_model=list[SenderAddressResponse])

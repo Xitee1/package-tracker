@@ -50,9 +50,25 @@ const router = createRouter({
     },
     {
       path: '/accounts',
-      name: 'accounts',
       component: () => import('@/views/AccountsView.vue'),
       meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          name: 'accounts',
+          redirect: '/accounts/imap',
+        },
+        {
+          path: 'imap',
+          name: 'accounts-imap',
+          component: () => import('@/views/AccountsImapView.vue'),
+        },
+        {
+          path: 'forwarding',
+          name: 'accounts-forwarding',
+          component: () => import('@/views/AccountsForwardingView.vue'),
+        },
+      ],
     },
     {
       path: '/profile',
