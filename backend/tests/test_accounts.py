@@ -244,7 +244,7 @@ async def test_scan_folder_already_scanning(client, admin_token):
         headers=auth(admin_token),
     )
     folder_id = folder_resp.json()["id"]
-    with patch("app.api.accounts.is_folder_scanning", return_value=True):
+    with patch("app.modules.providers.email_user.user_router.is_folder_scanning", return_value=True):
         resp = await client.post(
             f"/api/v1/accounts/{account_id}/folders/watched/{folder_id}/scan",
             headers=auth(admin_token),
@@ -284,7 +284,7 @@ async def test_update_use_polling(client, admin_token):
 async def test_reject_disable_polling_when_idle_unsupported(client, admin_token, db_session):
     create = await client.post("/api/v1/accounts", json=ACCOUNT_DATA, headers=auth(admin_token))
     account_id = create.json()["id"]
-    from app.models.email_account import EmailAccount
+    from app.modules.providers.email_user.models import EmailAccount
     account = await db_session.get(EmailAccount, account_id)
     account.idle_supported = False
     account.use_polling = True

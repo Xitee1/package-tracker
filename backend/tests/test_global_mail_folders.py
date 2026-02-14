@@ -37,7 +37,7 @@ async def test_folders_returns_list(client, admin_token):
     mock_mail.list.return_value = ("OK", [b'(\\HasNoChildren) "/" "INBOX"', b'(\\HasNoChildren) "/" "Sent"'])
     mock_mail.logout.return_value = ("BYE", [])
 
-    with patch("app.api.global_mail.imaplib") as mock_imaplib:
+    with patch("app.modules.providers.email_global.router.imaplib") as mock_imaplib:
         mock_imaplib.IMAP4_SSL.return_value = mock_mail
         resp = await client.get("/api/v1/settings/global-mail/folders", headers=auth(admin_token))
 
@@ -59,7 +59,7 @@ async def test_folders_connection_failure(client, admin_token):
         headers=auth(admin_token),
     )
 
-    with patch("app.api.global_mail.imaplib") as mock_imaplib:
+    with patch("app.modules.providers.email_global.router.imaplib") as mock_imaplib:
         mock_imaplib.IMAP4_SSL.side_effect = Exception("Connection refused")
         resp = await client.get("/api/v1/settings/global-mail/folders", headers=auth(admin_token))
 

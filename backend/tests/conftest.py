@@ -32,9 +32,9 @@ async def client(db_session: AsyncSession):
 
     app.dependency_overrides[get_db] = override_get_db
     with (
-        patch("app.api.accounts.restart_watchers", new_callable=AsyncMock),
-        patch("app.api.accounts.restart_single_watcher", new_callable=AsyncMock),
-        patch("app.api.accounts.is_folder_scanning", return_value=False),
+        patch("app.modules.providers.email_user.user_router.restart_watchers", new_callable=AsyncMock),
+        patch("app.modules.providers.email_user.user_router.restart_single_watcher", new_callable=AsyncMock),
+        patch("app.modules.providers.email_user.user_router.is_folder_scanning", return_value=False),
     ):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             yield c

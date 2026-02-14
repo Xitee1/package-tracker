@@ -3,7 +3,7 @@
 import pytest
 
 from app.core.encryption import encrypt_value
-from app.models.email_account import EmailAccount
+from app.modules.providers.email_user.models import EmailAccount
 from app.models.queue_item import QueueItem
 
 

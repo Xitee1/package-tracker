@@ -4,10 +4,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.models.email_account import EmailAccount, WatchedFolder
+from app.modules.providers.email_user.models import EmailAccount, WatchedFolder
 from app.models.user import User
 from app.core.auth import hash_password, create_access_token
-from app.services.imap_worker import WorkerState, WorkerMode
+from app.modules._shared.email.imap_watcher import WorkerState, WorkerMode
 
 
 # ---------------------------------------------------------------------------

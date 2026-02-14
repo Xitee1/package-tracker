@@ -9,12 +9,12 @@ from sqlalchemy import select
 
 from app.core.auth import hash_password
 from app.core.encryption import encrypt_value
-from app.models.email_account import EmailAccount
+from app.modules.providers.email_user.models import EmailAccount
 from app.models.order import Order
 from app.models.order_state import OrderState
 from app.models.queue_item import QueueItem
 from app.models.user import User
-from app.services.llm_service import EmailAnalysis, EmailItem
+from app.modules.analysers.llm.service import EmailAnalysis, EmailItem
 from app.services.orders.order_service import create_or_update_order
 from app.services.orders.order_matcher import DefaultOrderMatcher
 
