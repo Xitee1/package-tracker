@@ -29,8 +29,14 @@ async def test_list_modules_as_user(client, user_token):
     data = resp.json()
     assert isinstance(data, list)
     keys = {m["module_key"] for m in data}
-    assert "email-imap" in keys
+    assert "llm" in keys
+    assert "email-user" in keys
     assert "email-global" in keys
+    # Verify new response fields are present
+    for m in data:
+        assert "name" in m
+        assert "type" in m
+        assert "description" in m
 
 
 @pytest.mark.asyncio

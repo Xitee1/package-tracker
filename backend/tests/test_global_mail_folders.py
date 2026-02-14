@@ -14,7 +14,7 @@ def auth(token):
 
 @pytest.mark.asyncio
 async def test_folders_returns_404_when_not_configured(client, admin_token):
-    resp = await client.get("/api/v1/settings/global-mail/folders", headers=auth(admin_token))
+    resp = await client.get("/api/v1/modules/providers/email-global/folders", headers=auth(admin_token))
     assert resp.status_code == 404
 
 
@@ -22,7 +22,7 @@ async def test_folders_returns_404_when_not_configured(client, admin_token):
 async def test_folders_returns_list(client, admin_token):
     # Create config first
     await client.put(
-        "/api/v1/settings/global-mail",
+        "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "imap.example.com",
             "imap_user": "global@example.com",
@@ -39,7 +39,7 @@ async def test_folders_returns_list(client, admin_token):
 
     with patch("app.modules.providers.email_global.router.imaplib") as mock_imaplib:
         mock_imaplib.IMAP4_SSL.return_value = mock_mail
-        resp = await client.get("/api/v1/settings/global-mail/folders", headers=auth(admin_token))
+        resp = await client.get("/api/v1/modules/providers/email-global/folders", headers=auth(admin_token))
 
     assert resp.status_code == 200
     data = resp.json()
@@ -50,7 +50,7 @@ async def test_folders_returns_list(client, admin_token):
 @pytest.mark.asyncio
 async def test_folders_connection_failure(client, admin_token):
     await client.put(
-        "/api/v1/settings/global-mail",
+        "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "bad.host",
             "imap_user": "user@example.com",
@@ -61,7 +61,7 @@ async def test_folders_connection_failure(client, admin_token):
 
     with patch("app.modules.providers.email_global.router.imaplib") as mock_imaplib:
         mock_imaplib.IMAP4_SSL.side_effect = Exception("Connection refused")
-        resp = await client.get("/api/v1/settings/global-mail/folders", headers=auth(admin_token))
+        resp = await client.get("/api/v1/modules/providers/email-global/folders", headers=auth(admin_token))
 
     assert resp.status_code == 400
     assert "Failed to connect" in resp.json()["detail"]

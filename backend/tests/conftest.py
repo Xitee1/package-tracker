@@ -12,6 +12,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 
 from app.database import Base, get_db
 from app.main import app
+from app.models.module_config import ModuleConfig
+from app.core.module_registry import get_all_modules
 
 
 @pytest_asyncio.fixture
@@ -21,6 +23,10 @@ async def db_session():
         await conn.run_sync(Base.metadata.create_all)
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
     async with session_factory() as session:
+        # Seed ModuleConfig rows for all discovered modules
+        for key in get_all_modules():
+            session.add(ModuleConfig(module_key=key, enabled=False))
+        await session.commit()
         yield session
     await engine.dispose()
 
@@ -35,6 +41,8 @@ async def client(db_session: AsyncSession):
         patch("app.modules.providers.email_user.user_router.restart_watchers", new_callable=AsyncMock),
         patch("app.modules.providers.email_user.user_router.restart_single_watcher", new_callable=AsyncMock),
         patch("app.modules.providers.email_user.user_router.is_folder_scanning", return_value=False),
+        patch("app.api.modules.enable_module", new_callable=AsyncMock),
+        patch("app.api.modules.disable_module", new_callable=AsyncMock),
     ):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
             yield c

@@ -32,14 +32,14 @@ LLM_CONFIG = {
 
 @pytest.mark.asyncio
 async def test_get_config_returns_null_when_none(client, admin_token):
-    resp = await client.get("/api/v1/llm/config", headers=auth(admin_token))
+    resp = await client.get("/api/v1/modules/analysers/llm/config", headers=auth(admin_token))
     assert resp.status_code == 200
     assert resp.json() is None
 
 
 @pytest.mark.asyncio
 async def test_put_config_creates_new(client, admin_token):
-    resp = await client.put("/api/v1/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
+    resp = await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["provider"] == "openai"
@@ -54,26 +54,25 @@ async def test_put_config_creates_new(client, admin_token):
 
 @pytest.mark.asyncio
 async def test_put_config_updates_existing(client, admin_token):
-    await client.put("/api/v1/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
+    await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
     updated = {
         "provider": "anthropic",
         "model_name": "claude-3-haiku",
-        "api_base_url": "https://api.anthropic.com",
     }
-    resp = await client.put("/api/v1/llm/config", json=updated, headers=auth(admin_token))
+    resp = await client.put("/api/v1/modules/analysers/llm/config", json=updated, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["provider"] == "anthropic"
     assert data["model_name"] == "claude-3-haiku"
-    assert data["api_base_url"] == "https://api.anthropic.com"
+    assert data["api_base_url"] == "https://api.openai.com/v1"  # retained from first PUT
     # API key should still be present from first PUT
     assert data["has_api_key"] is True
 
 
 @pytest.mark.asyncio
 async def test_get_config_after_put(client, admin_token):
-    await client.put("/api/v1/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
-    resp = await client.get("/api/v1/llm/config", headers=auth(admin_token))
+    await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
+    resp = await client.get("/api/v1/modules/analysers/llm/config", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["provider"] == "openai"
@@ -83,17 +82,17 @@ async def test_get_config_after_put(client, admin_token):
 
 @pytest.mark.asyncio
 async def test_non_admin_access_denied(client, user_token):
-    resp = await client.get("/api/v1/llm/config", headers=auth(user_token))
+    resp = await client.get("/api/v1/modules/analysers/llm/config", headers=auth(user_token))
     assert resp.status_code == 403
 
 
 @pytest.mark.asyncio
 async def test_non_admin_cannot_put_config(client, user_token):
-    resp = await client.put("/api/v1/llm/config", json=LLM_CONFIG, headers=auth(user_token))
+    resp = await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(user_token))
     assert resp.status_code == 403
 
 
 @pytest.mark.asyncio
 async def test_unauthenticated_access_denied(client):
-    resp = await client.get("/api/v1/llm/config")
+    resp = await client.get("/api/v1/modules/analysers/llm/config")
     assert resp.status_code in (401, 403)

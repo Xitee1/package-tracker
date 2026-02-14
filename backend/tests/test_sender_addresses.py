@@ -45,7 +45,7 @@ def auth(token):
 
 @pytest.mark.asyncio
 async def test_list_empty(client, user_token):
-    resp = await client.get("/api/v1/sender-addresses", headers=auth(user_token))
+    resp = await client.get("/api/v1/providers/email-global/sender-addresses", headers=auth(user_token))
     assert resp.status_code == 200
     assert resp.json() == []
 
@@ -53,7 +53,7 @@ async def test_list_empty(client, user_token):
 @pytest.mark.asyncio
 async def test_create_and_list(client, user_token):
     resp = await client.post(
-        "/api/v1/sender-addresses",
+        "/api/v1/providers/email-global/sender-addresses",
         json={"email_address": "me@example.com"},
         headers=auth(user_token),
     )
@@ -61,19 +61,19 @@ async def test_create_and_list(client, user_token):
     data = resp.json()
     assert data["email_address"] == "me@example.com"
 
-    resp = await client.get("/api/v1/sender-addresses", headers=auth(user_token))
+    resp = await client.get("/api/v1/providers/email-global/sender-addresses", headers=auth(user_token))
     assert len(resp.json()) == 1
 
 
 @pytest.mark.asyncio
 async def test_duplicate_same_user(client, user_token):
     await client.post(
-        "/api/v1/sender-addresses",
+        "/api/v1/providers/email-global/sender-addresses",
         json={"email_address": "me@example.com"},
         headers=auth(user_token),
     )
     resp = await client.post(
-        "/api/v1/sender-addresses",
+        "/api/v1/providers/email-global/sender-addresses",
         json={"email_address": "me@example.com"},
         headers=auth(user_token),
     )
@@ -83,12 +83,12 @@ async def test_duplicate_same_user(client, user_token):
 @pytest.mark.asyncio
 async def test_duplicate_different_user(client, user_token, user2_token):
     await client.post(
-        "/api/v1/sender-addresses",
+        "/api/v1/providers/email-global/sender-addresses",
         json={"email_address": "shared@example.com"},
         headers=auth(user_token),
     )
     resp = await client.post(
-        "/api/v1/sender-addresses",
+        "/api/v1/providers/email-global/sender-addresses",
         json={"email_address": "shared@example.com"},
         headers=auth(user2_token),
     )
@@ -98,31 +98,31 @@ async def test_duplicate_different_user(client, user_token, user2_token):
 @pytest.mark.asyncio
 async def test_delete(client, user_token):
     resp = await client.post(
-        "/api/v1/sender-addresses",
+        "/api/v1/providers/email-global/sender-addresses",
         json={"email_address": "del@example.com"},
         headers=auth(user_token),
     )
     addr_id = resp.json()["id"]
-    resp = await client.delete(f"/api/v1/sender-addresses/{addr_id}", headers=auth(user_token))
+    resp = await client.delete(f"/api/v1/providers/email-global/sender-addresses/{addr_id}", headers=auth(user_token))
     assert resp.status_code == 204
 
-    resp = await client.get("/api/v1/sender-addresses", headers=auth(user_token))
+    resp = await client.get("/api/v1/providers/email-global/sender-addresses", headers=auth(user_token))
     assert len(resp.json()) == 0
 
 
 @pytest.mark.asyncio
 async def test_delete_other_users_address(client, user_token, user2_token):
     resp = await client.post(
-        "/api/v1/sender-addresses",
+        "/api/v1/providers/email-global/sender-addresses",
         json={"email_address": "other@example.com"},
         headers=auth(user_token),
     )
     addr_id = resp.json()["id"]
-    resp = await client.delete(f"/api/v1/sender-addresses/{addr_id}", headers=auth(user2_token))
+    resp = await client.delete(f"/api/v1/providers/email-global/sender-addresses/{addr_id}", headers=auth(user2_token))
     assert resp.status_code == 404
 
 
 @pytest.mark.asyncio
 async def test_unauthenticated_denied(client):
-    resp = await client.get("/api/v1/sender-addresses")
+    resp = await client.get("/api/v1/providers/email-global/sender-addresses")
     assert resp.status_code in (401, 403)

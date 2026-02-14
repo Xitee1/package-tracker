@@ -24,7 +24,7 @@ def auth(token):
 
 @pytest.mark.asyncio
 async def test_get_returns_empty_when_not_configured(client, admin_token):
-    resp = await client.get("/api/v1/settings/global-mail", headers=auth(admin_token))
+    resp = await client.get("/api/v1/modules/providers/email-global/config", headers=auth(admin_token))
     assert resp.status_code == 200
     assert resp.json() is None
 
@@ -39,7 +39,7 @@ async def test_put_creates_config(client, admin_token):
         "use_ssl": True,
         "watched_folder_path": "INBOX",
     }
-    resp = await client.put("/api/v1/settings/global-mail", json=payload, headers=auth(admin_token))
+    resp = await client.put("/api/v1/modules/providers/email-global/config", json=payload, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["imap_host"] == "imap.example.com"
@@ -54,27 +54,27 @@ async def test_put_updates_existing(client, admin_token):
         "imap_user": "global@example.com",
         "imap_password": "secret",
     }
-    await client.put("/api/v1/settings/global-mail", json=payload, headers=auth(admin_token))
+    await client.put("/api/v1/modules/providers/email-global/config", json=payload, headers=auth(admin_token))
     # Update without password
     payload2 = {
         "imap_host": "imap2.example.com",
         "imap_user": "global@example.com",
     }
-    resp = await client.put("/api/v1/settings/global-mail", json=payload2, headers=auth(admin_token))
+    resp = await client.put("/api/v1/modules/providers/email-global/config", json=payload2, headers=auth(admin_token))
     assert resp.status_code == 200
     assert resp.json()["imap_host"] == "imap2.example.com"
 
 
 @pytest.mark.asyncio
 async def test_non_admin_denied(client, user_token):
-    resp = await client.get("/api/v1/settings/global-mail", headers=auth(user_token))
+    resp = await client.get("/api/v1/modules/providers/email-global/config", headers=auth(user_token))
     assert resp.status_code == 403
 
 
 @pytest.mark.asyncio
 async def test_info_endpoint_as_user(client, admin_token, user_token):
     # Before config: not configured
-    resp = await client.get("/api/v1/settings/global-mail/info", headers=auth(user_token))
+    resp = await client.get("/api/v1/providers/email-global/info", headers=auth(user_token))
     assert resp.status_code == 200
     assert resp.json()["configured"] is False
 
@@ -87,7 +87,7 @@ async def test_info_endpoint_as_user(client, admin_token, user_token):
 
     # Create config
     await client.put(
-        "/api/v1/settings/global-mail",
+        "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "imap.example.com",
             "imap_user": "global@example.com",
@@ -97,7 +97,7 @@ async def test_info_endpoint_as_user(client, admin_token, user_token):
     )
 
     # After config + module enabled: configured with email
-    resp = await client.get("/api/v1/settings/global-mail/info", headers=auth(user_token))
+    resp = await client.get("/api/v1/providers/email-global/info", headers=auth(user_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["configured"] is True
@@ -108,7 +108,7 @@ async def test_info_endpoint_as_user(client, admin_token, user_token):
 async def test_info_returns_unconfigured_when_module_disabled(client, admin_token, user_token):
     # Create config (module not enabled by default)
     await client.put(
-        "/api/v1/settings/global-mail",
+        "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "imap.example.com",
             "imap_user": "global@example.com",
@@ -117,6 +117,6 @@ async def test_info_returns_unconfigured_when_module_disabled(client, admin_toke
         headers=auth(admin_token),
     )
     # Module not enabled — info should show not configured
-    resp = await client.get("/api/v1/settings/global-mail/info", headers=auth(user_token))
+    resp = await client.get("/api/v1/providers/email-global/info", headers=auth(user_token))
     assert resp.status_code == 200
     assert resp.json()["configured"] is False
