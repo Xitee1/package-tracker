@@ -11,6 +11,14 @@ from app.modules.analysers.llm.models import LLMConfig
 _active_requests: int = 0
 
 
+async def check_configured() -> bool:
+    """Return True if at least one active LLMConfig exists."""
+    from app.database import async_session
+    async with async_session() as db:
+        result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True).limit(1))
+        return result.scalar_one_or_none() is not None
+
+
 async def get_status(db: AsyncSession) -> dict | None:
     """Status hook: return current LLM configuration summary."""
     result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))

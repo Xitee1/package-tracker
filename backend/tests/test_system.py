@@ -244,6 +244,17 @@ async def test_status_requires_admin(client, user_token):
 
 
 @pytest.mark.asyncio
+async def test_llm_module_not_configured_by_default(client, admin_token):
+    """LLM module should report configured=False when no LLMConfig exists."""
+    resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    llm_mod = next((m for m in data["modules"] if m["key"] == "llm"), None)
+    assert llm_mod is not None
+    assert llm_mod["configured"] is False
+
+
+@pytest.mark.asyncio
 async def test_status_unauthenticated(client):
     """Unauthenticated requests should be rejected."""
     resp = await client.get("/api/v1/system/status")
