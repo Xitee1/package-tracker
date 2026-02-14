@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from aioimaplib import IMAP4_SSL, STOP_WAIT_SERVER_PUSH
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.database import async_session
 from app.models.imap_settings import ImapSettings
@@ -357,3 +358,101 @@ async def restart_single_watcher(folder_id: int):
         task = asyncio.create_task(_watch_folder(folder.account_id, folder_id))
         _running_tasks[folder_id] = task
         logger.info(f"Restarted watcher for folder {folder_id} (manual scan)")
+
+
+async def get_status(db) -> dict:
+    """Status hook: return per-user/account/folder worker state."""
+    from app.models.user import User
+
+    result = await db.execute(
+        select(User)
+        .options(
+            selectinload(User.email_accounts)
+            .selectinload(EmailAccount.watched_folders)
+        )
+    )
+    all_users = result.scalars().all()
+
+    total_folders = 0
+    running_count = 0
+    error_count = 0
+
+    users_out = []
+    for user in all_users:
+        if not user.email_accounts:
+            continue
+
+        accounts_out = []
+        for account in user.email_accounts:
+            folders_out = []
+            for folder in account.watched_folders:
+                fid = folder.id
+                task = _running_tasks.get(fid)
+                state = _worker_state.get(fid)
+
+                is_running = task is not None and not task.done()
+                task_error = None
+                if task is not None and task.done():
+                    try:
+                        exc = task.exception()
+                        if exc:
+                            task_error = str(exc)
+                    except Exception:
+                        pass
+
+                if state:
+                    mode = state.mode
+                elif not is_running:
+                    mode = "stopped"
+                else:
+                    mode = "unknown"
+
+                last_scan_at = state.last_scan_at.isoformat() if state and state.last_scan_at else None
+                next_scan_at = state.next_scan_at.isoformat() if state and state.next_scan_at else None
+                last_activity_at = state.last_activity_at.isoformat() if state and state.last_activity_at else None
+                q_total = state.queue_total if state else 0
+                q_position = state.queue_position if state else 0
+                current_subject = state.current_email_subject if state else None
+                current_sender = state.current_email_sender if state else None
+                error = state.error if state else task_error
+
+                total_folders += 1
+                if is_running:
+                    running_count += 1
+                if error:
+                    error_count += 1
+
+                folders_out.append({
+                    "folder_id": fid,
+                    "folder_path": folder.folder_path,
+                    "running": is_running,
+                    "mode": mode,
+                    "last_scan_at": last_scan_at,
+                    "next_scan_at": next_scan_at,
+                    "last_activity_at": last_activity_at,
+                    "queue_total": q_total,
+                    "queue_position": q_position,
+                    "current_email_subject": current_subject,
+                    "current_email_sender": current_sender,
+                    "error": error,
+                })
+
+            accounts_out.append({
+                "account_id": account.id,
+                "account_name": account.name,
+                "is_active": account.is_active,
+                "folders": folders_out,
+            })
+
+        users_out.append({
+            "user_id": user.id,
+            "username": user.username,
+            "accounts": accounts_out,
+        })
+
+    return {
+        "total_folders": total_folders,
+        "running": running_count,
+        "errors": error_count,
+        "users": users_out,
+    }

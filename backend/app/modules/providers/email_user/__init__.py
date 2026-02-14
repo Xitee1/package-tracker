@@ -2,7 +2,7 @@ from app.core.module_base import ModuleInfo
 from app.modules.providers.email_user.router import router
 from app.modules.providers.email_user.user_router import user_router
 from app.modules.providers.email_user.models import EmailAccount, WatchedFolder
-from app.modules.providers.email_user.service import start_all_watchers, stop_all_watchers
+from app.modules.providers.email_user.service import start_all_watchers, stop_all_watchers, get_status
 
 MODULE_INFO = ModuleInfo(
     key="email-user",
@@ -15,4 +15,5 @@ MODULE_INFO = ModuleInfo(
     models=[EmailAccount, WatchedFolder],
     startup=start_all_watchers,
     shutdown=stop_all_watchers,
+    status=get_status,
 )
