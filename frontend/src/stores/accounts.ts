@@ -11,6 +11,8 @@ export interface EmailAccount {
   use_ssl: boolean
   polling_interval_sec: number
   is_active: boolean
+  use_polling: boolean
+  idle_supported: boolean | null
   created_at: string
   updated_at: string
 }
@@ -23,6 +25,7 @@ export interface CreateAccountPayload {
   imap_password: string
   use_ssl: boolean
   polling_interval_sec: number
+  use_polling?: boolean
 }
 
 export interface UpdateAccountPayload {
@@ -33,6 +36,7 @@ export interface UpdateAccountPayload {
   imap_password?: string
   use_ssl?: boolean
   polling_interval_sec?: number
+  use_polling?: boolean
   is_active?: boolean
 }
 
