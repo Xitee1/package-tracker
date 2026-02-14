@@ -82,7 +82,7 @@
               $t('accounts.username')
             }}</label>
             <input
-              v-model="form.username"
+              v-model="form.imap_user"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -98,7 +98,7 @@
               }}</span>
             </label>
             <input
-              v-model="form.password"
+              v-model="form.imap_password"
               type="password"
               :required="!editingId"
               autocomplete="new-password"
@@ -112,7 +112,7 @@
               $t('accounts.pollingInterval')
             }}</label>
             <input
-              v-model.number="form.polling_interval"
+              v-model.number="form.polling_interval_sec"
               type="number"
               required
               min="30"
@@ -262,7 +262,7 @@
                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                     />
                   </svg>
-                  {{ account.username }}
+                  {{ account.imap_user }}
                 </span>
                 <span v-if="account.use_ssl" class="flex items-center gap-1">
                   <svg
@@ -375,109 +375,83 @@
             {{ folderError }}
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <!-- Watched Folders -->
-            <div>
-              <h5
-                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
-              >
-                {{ $t('accounts.watchedFolders') }}
-              </h5>
-              <div
-                v-if="watchedFolders.length === 0"
-                class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
-              >
-                {{ $t('accounts.noWatchedFolders') }}
-              </div>
-              <div v-else class="space-y-1">
-                <div
-                  v-for="wf in watchedFolders"
-                  :key="wf.id"
-                  class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+          <div
+            v-if="availableFolders.length === 0 && !foldersLoading"
+            class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
+          >
+            {{ $t('accounts.loadFoldersHint') }}
+          </div>
+          <div v-else-if="foldersLoading" class="text-sm text-gray-400 dark:text-gray-500 py-2">
+            {{ $t('accounts.loadingFolders') }}
+          </div>
+          <div v-else class="space-y-1 max-h-72 overflow-y-auto">
+            <div
+              v-for="folder in availableFolders"
+              :key="folder.name"
+              class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+            >
+              <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <svg
+                  class="w-4 h-4 flex-shrink-0"
+                  :class="
+                    isWatched(folder.name) ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'
+                  "
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <svg
-                      class="w-4 h-4 text-blue-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                      />
-                    </svg>
-                    {{ wf.folder_name }}
-                  </span>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                  />
+                </svg>
+                {{ folder.name }}
+              </span>
+              <div class="flex items-center gap-2">
+                <template v-if="isWatched(folder.name)">
+                  <input
+                    type="number"
+                    min="1"
+                    :value="getWatchedFolder(folder.name)?.max_email_age_days ?? ''"
+                    :placeholder="$t('accounts.ageDaysOverride')"
+                    class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                    @change="
+                      handleOverrideChange(account.id, folder.name, 'max_email_age_days', $event)
+                    "
+                  />
+                  <span class="text-xs text-gray-400 dark:text-gray-500">{{
+                    $t('accounts.ageDaysOverride')
+                  }}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    :value="getWatchedFolder(folder.name)?.processing_delay_sec ?? ''"
+                    :placeholder="$t('accounts.delaySecOverride')"
+                    class="w-16 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                    @change="
+                      handleOverrideChange(account.id, folder.name, 'processing_delay_sec', $event)
+                    "
+                  />
+                  <span class="text-xs text-gray-400 dark:text-gray-500">{{
+                    $t('accounts.delaySecOverride')
+                  }}</span>
                   <button
-                    @click="handleRemoveWatched(account.id, wf.folder_name)"
-                    class="text-xs text-red-600 hover:text-red-800 font-medium"
+                    @click="handleUnwatch(account.id, folder.name)"
+                    class="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
                   >
                     {{ $t('common.remove') }}
                   </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Available Folders -->
-            <div>
-              <h5
-                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
-              >
-                {{ $t('accounts.availableFolders') }}
-              </h5>
-              <div
-                v-if="availableFolders.length === 0 && !foldersLoading"
-                class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
-              >
-                {{ $t('accounts.loadFoldersHint') }}
-              </div>
-              <div v-else-if="foldersLoading" class="text-sm text-gray-400 dark:text-gray-500 py-2">
-                {{ $t('accounts.loadingFolders') }}
-              </div>
-              <div v-else class="space-y-1 max-h-64 overflow-y-auto">
-                <div
-                  v-for="folder in availableFolders"
-                  :key="folder.name"
-                  class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+                </template>
+                <button
+                  v-else
+                  @click="handleAddWatched(account.id, folder.name)"
+                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
                 >
-                  <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <svg
-                      class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                      />
-                    </svg>
-                    {{ folder.name }}
-                  </span>
-                  <button
-                    v-if="!isWatched(folder.name)"
-                    @click="handleAddWatched(account.id, folder.name)"
-                    class="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    {{ $t('common.watch') }}
-                  </button>
-                  <span v-else class="text-xs text-green-600 font-medium flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {{ $t('common.watched') }}
-                  </span>
-                </div>
+                  {{ $t('common.watch') }}
+                </button>
               </div>
             </div>
           </div>
@@ -538,10 +512,10 @@ const form = ref({
   name: '',
   imap_host: '',
   imap_port: 993,
-  username: '',
-  password: '',
+  imap_user: '',
+  imap_password: '',
   use_ssl: true,
-  polling_interval: 300,
+  polling_interval_sec: 300,
 })
 
 // Test connection state
@@ -565,10 +539,10 @@ function resetForm() {
     name: '',
     imap_host: '',
     imap_port: 993,
-    username: '',
-    password: '',
+    imap_user: '',
+    imap_password: '',
     use_ssl: true,
-    polling_interval: 300,
+    polling_interval_sec: 300,
   }
   formError.value = ''
   editingId.value = null
@@ -585,10 +559,10 @@ function openEditForm(account: EmailAccount) {
     name: account.name,
     imap_host: account.imap_host,
     imap_port: account.imap_port,
-    username: account.username,
-    password: '',
+    imap_user: account.imap_user,
+    imap_password: '',
     use_ssl: account.use_ssl,
-    polling_interval: account.polling_interval,
+    polling_interval_sec: account.polling_interval_sec,
   }
   formError.value = ''
   showForm.value = true
@@ -608,12 +582,12 @@ async function handleSubmit() {
         name: form.value.name,
         imap_host: form.value.imap_host,
         imap_port: form.value.imap_port,
-        username: form.value.username,
+        imap_user: form.value.imap_user,
         use_ssl: form.value.use_ssl,
-        polling_interval: form.value.polling_interval,
+        polling_interval_sec: form.value.polling_interval_sec,
       }
-      if (form.value.password) {
-        data.password = form.value.password
+      if (form.value.imap_password) {
+        data.imap_password = form.value.imap_password
       }
       await accountsStore.updateAccount(editingId.value, data)
     } else {
@@ -633,7 +607,12 @@ async function handleTest(id: number) {
   delete testResults.value[id]
   try {
     const result = await accountsStore.testConnection(id)
-    testResults.value[id] = result
+    testResults.value[id] = {
+      success: result.success,
+      message: result.success
+        ? t('accounts.connectionTestSuccess')
+        : t('accounts.connectionTestFailed'),
+    }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
     testResults.value[id] = {
@@ -675,13 +654,9 @@ async function toggleExpand(id: number) {
   }
   expandedId.value = id
   availableFolders.value = []
+  watchedFolders.value = []
   folderError.value = ''
-  // Load watched folders automatically
-  try {
-    watchedFolders.value = await accountsStore.fetchWatchedFolders(id)
-  } catch {
-    watchedFolders.value = []
-  }
+  await loadFolders(id)
 }
 
 async function loadFolders(id: number) {
@@ -703,7 +678,31 @@ async function loadFolders(id: number) {
 }
 
 function isWatched(folderName: string): boolean {
-  return watchedFolders.value.some((wf) => wf.folder_name === folderName)
+  return watchedFolders.value.some((wf) => wf.folder_path === folderName)
+}
+
+function getWatchedFolder(folderName: string): WatchedFolder | undefined {
+  return watchedFolders.value.find((wf) => wf.folder_path === folderName)
+}
+
+async function handleOverrideChange(
+  accountId: number,
+  folderName: string,
+  field: string,
+  event: Event,
+) {
+  const wf = getWatchedFolder(folderName)
+  if (!wf) return
+  const input = event.target as HTMLInputElement
+  const value = input.value === '' ? null : Number(input.value)
+  try {
+    const updated = await accountsStore.updateWatchedFolder(accountId, wf.id, { [field]: value })
+    const idx = watchedFolders.value.findIndex((f) => f.id === wf.id)
+    if (idx !== -1) watchedFolders.value[idx] = updated
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { detail?: string } } }
+    folderError.value = err.response?.data?.detail || t('accounts.overrideUpdateFailed')
+  }
 }
 
 async function handleAddWatched(accountId: number, folderName: string) {
@@ -716,13 +715,20 @@ async function handleAddWatched(accountId: number, folderName: string) {
   }
 }
 
-async function handleRemoveWatched(accountId: number, folderName: string) {
+async function handleRemoveWatched(accountId: number, folderId: number) {
   try {
-    await accountsStore.removeWatchedFolder(accountId, folderName)
-    watchedFolders.value = watchedFolders.value.filter((wf) => wf.folder_name !== folderName)
+    await accountsStore.removeWatchedFolder(accountId, folderId)
+    watchedFolders.value = watchedFolders.value.filter((wf) => wf.id !== folderId)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
     folderError.value = err.response?.data?.detail || t('accounts.removeWatchedFailed')
+  }
+}
+
+async function handleUnwatch(accountId: number, folderName: string) {
+  const wf = watchedFolders.value.find((w) => w.folder_path === folderName)
+  if (wf) {
+    await handleRemoveWatched(accountId, wf.id)
   }
 }
 

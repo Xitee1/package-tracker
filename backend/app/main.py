@@ -1,16 +1,41 @@
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.database import engine, Base, wait_for_db
+from alembic.config import Config
+from alembic import command
+import sqlalchemy as sa
+from app.database import engine, wait_for_db
 from app.models import *  # noqa: F401, F403
 from app.services.imap_worker import start_all_watchers, stop_all_watchers
+
+logger = logging.getLogger(__name__)
+
+
+def _run_migrations(connection) -> None:
+    """Run Alembic migrations, auto-detecting pre-Alembic databases."""
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.attributes["connection"] = connection
+
+    inspector = sa.inspect(connection)
+    tables = inspector.get_table_names()
+
+    if "alembic_version" not in tables and len(tables) > 0:
+        # Pre-Alembic database: tables exist but Alembic hasn't been initialized.
+        # Stamp the baseline (initial schema) as already applied.
+        logger.info("Detected pre-Alembic database, stamping baseline revision.")
+        command.stamp(alembic_cfg, "9299dae441a6")
+
+    command.upgrade(alembic_cfg, "head")
+    logger.info("Database migrations complete.")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await wait_for_db()
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(_run_migrations)
     await start_all_watchers()
+    logger.info("Package Tracker is ready.")
     yield
     await stop_all_watchers()
 
@@ -31,6 +56,7 @@ from app.api.llm import router as llm_router
 from app.api.orders import router as orders_router
 from app.api.api_keys import router as api_keys_router
 from app.api.system import router as system_router
+from app.api.imap_settings import router as imap_settings_router
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(accounts_router)
@@ -38,6 +64,7 @@ app.include_router(llm_router)
 app.include_router(orders_router)
 app.include_router(api_keys_router)
 app.include_router(system_router)
+app.include_router(imap_settings_router)
 
 
 @app.get("/api/v1/health")

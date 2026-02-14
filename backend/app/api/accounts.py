@@ -10,9 +10,10 @@ from app.models.user import User
 from app.models.email_account import EmailAccount, WatchedFolder
 from app.schemas.email_account import (
     CreateAccountRequest, UpdateAccountRequest, AccountResponse,
-    WatchFolderRequest, WatchedFolderResponse,
+    WatchFolderRequest, UpdateWatchedFolderRequest, WatchedFolderResponse,
 )
 from app.api.deps import get_current_user
+from app.services.imap_worker import restart_watchers
 
 router = APIRouter(prefix="/api/v1/accounts", tags=["accounts"])
 
@@ -78,9 +79,9 @@ async def test_connection(account_id: int, user: User = Depends(get_current_user
             mail = imaplib.IMAP4(account.imap_host, account.imap_port)
         mail.login(account.imap_user, password)
         mail.logout()
-        return {"success": True}
+        return {"success": True, "message": "Connection successful"}
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return {"success": False, "message": str(e)}
 
 
 @router.get("/{account_id}/folders", response_model=list[str])
@@ -131,6 +132,7 @@ async def add_watched(account_id: int, req: WatchFolderRequest, user: User = Dep
     db.add(folder)
     await db.commit()
     await db.refresh(folder)
+    await restart_watchers()
     return folder
 
 
@@ -144,3 +146,22 @@ async def remove_watched(account_id: int, folder_id: int, user: User = Depends(g
         raise HTTPException(status_code=404, detail="Folder not found")
     await db.delete(folder)
     await db.commit()
+    await restart_watchers()
+
+
+@router.patch("/{account_id}/folders/watched/{folder_id}", response_model=WatchedFolderResponse)
+async def update_watched(
+    account_id: int, folder_id: int, req: UpdateWatchedFolderRequest,
+    user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db),
+):
+    account = await db.get(EmailAccount, account_id)
+    if not account or account.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Account not found")
+    folder = await db.get(WatchedFolder, folder_id)
+    if not folder or folder.account_id != account_id:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    for field, value in req.model_dump(exclude_unset=True).items():
+        setattr(folder, field, value)
+    await db.commit()
+    await db.refresh(folder)
+    return folder

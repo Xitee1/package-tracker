@@ -7,9 +7,9 @@ export interface EmailAccount {
   name: string
   imap_host: string
   imap_port: number
-  username: string
+  imap_user: string
   use_ssl: boolean
-  polling_interval: number
+  polling_interval_sec: number
   is_active: boolean
   created_at: string
   updated_at: string
@@ -19,20 +19,20 @@ export interface CreateAccountPayload {
   name: string
   imap_host: string
   imap_port: number
-  username: string
-  password: string
+  imap_user: string
+  imap_password: string
   use_ssl: boolean
-  polling_interval: number
+  polling_interval_sec: number
 }
 
 export interface UpdateAccountPayload {
   name?: string
   imap_host?: string
   imap_port?: number
-  username?: string
-  password?: string
+  imap_user?: string
+  imap_password?: string
   use_ssl?: boolean
-  polling_interval?: number
+  polling_interval_sec?: number
   is_active?: boolean
 }
 
@@ -42,9 +42,10 @@ export interface IMAPFolder {
 
 export interface WatchedFolder {
   id: number
-  account_id: number
-  folder_name: string
-  created_at: string
+  folder_path: string
+  last_seen_uid: number
+  max_email_age_days: number | null
+  processing_delay_sec: number | null
 }
 
 export const useAccountsStore = defineStore('accounts', () => {
@@ -86,7 +87,7 @@ export const useAccountsStore = defineStore('accounts', () => {
 
   async function fetchFolders(id: number): Promise<IMAPFolder[]> {
     const res = await api.get(`/accounts/${id}/folders`)
-    return res.data
+    return (res.data as string[]).map((name) => ({ name }))
   }
 
   async function fetchWatchedFolders(id: number): Promise<WatchedFolder[]> {
@@ -94,13 +95,22 @@ export const useAccountsStore = defineStore('accounts', () => {
     return res.data
   }
 
-  async function addWatchedFolder(id: number, folderName: string): Promise<WatchedFolder> {
-    const res = await api.post(`/accounts/${id}/folders/watched`, { folder_name: folderName })
+  async function addWatchedFolder(id: number, folderPath: string): Promise<WatchedFolder> {
+    const res = await api.post(`/accounts/${id}/folders/watched`, { folder_path: folderPath })
     return res.data
   }
 
-  async function removeWatchedFolder(id: number, folderName: string): Promise<void> {
-    await api.delete(`/accounts/${id}/folders/watched`, { data: { folder_name: folderName } })
+  async function removeWatchedFolder(id: number, folderId: number): Promise<void> {
+    await api.delete(`/accounts/${id}/folders/watched/${folderId}`)
+  }
+
+  async function updateWatchedFolder(
+    accountId: number,
+    folderId: number,
+    data: { max_email_age_days?: number | null; processing_delay_sec?: number | null },
+  ): Promise<WatchedFolder> {
+    const res = await api.patch(`/accounts/${accountId}/folders/watched/${folderId}`, data)
+    return res.data
   }
 
   return {
@@ -115,5 +125,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     fetchWatchedFolders,
     addWatchedFolder,
     removeWatchedFolder,
+    updateWatchedFolder,
   }
 })

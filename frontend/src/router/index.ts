@@ -62,9 +62,28 @@ const router = createRouter({
     },
     {
       path: '/admin/llm',
-      name: 'admin-llm',
-      component: () => import('@/views/admin/LLMConfigView.vue'),
+      redirect: '/admin/settings/llm',
+    },
+    {
+      path: '/admin/settings',
+      component: () => import('@/views/admin/SettingsView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        {
+          path: '',
+          redirect: '/admin/settings/llm',
+        },
+        {
+          path: 'llm',
+          name: 'settings-llm',
+          component: () => import('@/views/admin/LLMConfigView.vue'),
+        },
+        {
+          path: 'imap',
+          name: 'settings-imap',
+          component: () => import('@/views/admin/ImapSettingsView.vue'),
+        },
+      ],
     },
     {
       path: '/admin/system',

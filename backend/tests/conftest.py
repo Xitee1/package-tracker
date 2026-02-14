@@ -1,4 +1,5 @@
 import os
+from unittest.mock import AsyncMock, patch
 
 os.environ.setdefault("PT_DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 os.environ.setdefault("PT_SECRET_KEY", "test-secret-key")
@@ -30,6 +31,7 @@ async def client(db_session: AsyncSession):
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-        yield c
+    with patch("app.api.accounts.restart_watchers", new_callable=AsyncMock):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
+            yield c
     app.dependency_overrides.clear()

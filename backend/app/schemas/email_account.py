@@ -40,9 +40,16 @@ class WatchFolderRequest(BaseModel):
     folder_path: str
 
 
+class UpdateWatchedFolderRequest(BaseModel):
+    max_email_age_days: Optional[int] = None
+    processing_delay_sec: Optional[float] = None
+
+
 class WatchedFolderResponse(BaseModel):
     id: int
     folder_path: str
     last_seen_uid: int
+    max_email_age_days: Optional[int] = None
+    processing_delay_sec: Optional[float] = None
 
     model_config = {"from_attributes": True}
