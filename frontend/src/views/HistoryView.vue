@@ -48,10 +48,7 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
     >
       <!-- Loading -->
-      <div
-        v-if="queueStore.loading"
-        class="p-8 text-center text-gray-500 dark:text-gray-400"
-      >
+      <div v-if="queueStore.loading" class="p-8 text-center text-gray-500 dark:text-gray-400">
         {{ t('common.loading') }}
       </div>
 
@@ -140,11 +137,7 @@
 
         <!-- Mobile Cards -->
         <div class="lg:hidden divide-y divide-gray-200 dark:divide-gray-700">
-          <div
-            v-for="item in queueStore.items.items"
-            :key="item.id"
-            class="p-4 space-y-2"
-          >
+          <div v-for="item in queueStore.items.items" :key="item.id" class="p-4 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm font-medium text-gray-900 dark:text-white truncate flex-1 mr-2">
                 {{ item.source_info }}
@@ -192,10 +185,7 @@
     </div>
 
     <!-- Pagination -->
-    <div
-      v-if="totalPages > 1"
-      class="flex items-center justify-between mt-4"
-    >
+    <div v-if="totalPages > 1" class="flex items-center justify-between mt-4">
       <p class="text-sm text-gray-600 dark:text-gray-400">
         {{ t('queue.page', { page: currentPage, total: totalPages }) }}
       </p>
@@ -218,10 +208,7 @@
     </div>
 
     <!-- Detail Modal -->
-    <div
-      v-if="detailItem"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
-    >
+    <div v-if="detailItem" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/50" @click="closeDetail"></div>
 
@@ -229,7 +216,9 @@
       <div
         class="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div
+          class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
+        >
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
             {{ t('queue.detail') }}
           </h2>
@@ -238,7 +227,12 @@
             class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -305,7 +299,10 @@
 
           <!-- Tabs: Raw Data / Extracted Data / Error -->
           <div>
-            <nav class="flex space-x-4 border-b border-gray-200 dark:border-gray-700 -mb-px" aria-label="Detail tabs">
+            <nav
+              class="flex space-x-4 border-b border-gray-200 dark:border-gray-700 -mb-px"
+              aria-label="Detail tabs"
+            >
               <button
                 @click="detailTab = 'raw'"
                 class="py-2 px-1 border-b-2 text-sm font-medium whitespace-nowrap"
@@ -347,7 +344,8 @@
               <div v-if="detailTab === 'raw'">
                 <pre
                   class="text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-x-auto max-h-64 overflow-y-auto text-gray-800 dark:text-gray-200"
-                >{{ JSON.stringify(detailItem.raw_data, null, 2) }}</pre>
+                  >{{ JSON.stringify(detailItem.raw_data, null, 2) }}</pre
+                >
               </div>
 
               <!-- Extracted Data Tab -->
@@ -355,7 +353,8 @@
                 <div v-if="detailItem.extracted_data">
                   <pre
                     class="text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-x-auto max-h-64 overflow-y-auto text-gray-800 dark:text-gray-200"
-                  >{{ JSON.stringify(detailItem.extracted_data, null, 2) }}</pre>
+                    >{{ JSON.stringify(detailItem.extracted_data, null, 2) }}</pre
+                  >
                 </div>
                 <p v-else class="text-sm text-gray-400 dark:text-gray-500">
                   {{ t('queue.noExtractedData') }}
