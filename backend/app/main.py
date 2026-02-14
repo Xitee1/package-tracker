@@ -9,6 +9,7 @@ from app.models import *  # noqa: F401, F403
 from app.services.imap_worker import start_all_watchers, stop_all_watchers
 from app.services.scheduler import create_scheduler, register_schedules
 
+logging.basicConfig(level=logging.INFO, format="%(levelname)-5s [%(name)s] %(message)s")
 logger = logging.getLogger(__name__)
 
 
