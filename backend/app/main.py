@@ -7,6 +7,7 @@ import sqlalchemy as sa
 from app.database import engine, wait_for_db
 from app.models import *  # noqa: F401, F403
 from app.services.imap_worker import start_all_watchers, stop_all_watchers
+from app.services.scheduler import create_scheduler, register_schedules
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +35,16 @@ async def lifespan(app: FastAPI):
     await wait_for_db()
     async with engine.begin() as conn:
         await conn.run_sync(_run_migrations)
-    await start_all_watchers()
-    logger.info("Package Tracker is ready.")
-    yield
-    await stop_all_watchers()
+
+    scheduler = await create_scheduler()
+    async with scheduler:
+        await register_schedules(scheduler)
+        await scheduler.start_in_background()
+        app.state.scheduler = scheduler
+        await start_all_watchers()
+        logger.info("Package Tracker is ready.")
+        yield
+        await stop_all_watchers()
 
 
 app = FastAPI(
