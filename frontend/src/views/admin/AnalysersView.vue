@@ -95,19 +95,6 @@
             >
               {{ t('analysers.configure') }}
             </router-link>
-
-            <!-- Enable/Disable toggle -->
-            <button
-              @click="toggleModule(mod)"
-              :disabled="toggling === mod.module_key"
-              class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-              :class="mod.enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'"
-            >
-              <span
-                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                :class="mod.enabled ? 'translate-x-5' : 'translate-x-0'"
-              />
-            </button>
           </div>
         </div>
       </div>
@@ -137,7 +124,6 @@ const analysers = ref<AnalyserModule[]>([])
 const loading = ref(false)
 const error = ref('')
 const reordering = ref(false)
-const toggling = ref<string | null>(null)
 
 function configPath(moduleKey: string): string | null {
   const manifests = getModulesByType('analyser')
@@ -160,18 +146,6 @@ async function fetchAnalysers() {
     error.value = 'Failed to load analyser modules.'
   } finally {
     loading.value = false
-  }
-}
-
-async function toggleModule(mod: AnalyserModule) {
-  toggling.value = mod.module_key
-  try {
-    await api.put(`/modules/${mod.module_key}`, { enabled: !mod.enabled })
-    mod.enabled = !mod.enabled
-  } catch {
-    error.value = 'Failed to update module.'
-  } finally {
-    toggling.value = null
   }
 }
 
