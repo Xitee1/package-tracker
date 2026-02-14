@@ -183,6 +183,8 @@ async def test_processed_email_dedup_with_fallback_id(db_session, test_account, 
 @pytest.mark.asyncio
 async def test_deduplication_prevents_duplicate_fallback_ids(db_session, test_account, test_folder):
     """Test that duplicate fallback message_ids are rejected (unique constraint)."""
+    from sqlalchemy.exc import IntegrityError
+    
     account_id = test_account.id
     folder_path = test_folder.folder_path
     uidvalidity = test_folder.uidvalidity
@@ -211,6 +213,6 @@ async def test_deduplication_prevents_duplicate_fallback_ids(db_session, test_ac
     )
     db_session.add(processed2)
     
-    # Should raise an integrity error due to unique constraint on message_id
-    with pytest.raises(Exception):  # SQLAlchemy will raise an IntegrityError
+    # Should raise an IntegrityError due to unique constraint on message_id
+    with pytest.raises(IntegrityError):
         await db_session.commit()
