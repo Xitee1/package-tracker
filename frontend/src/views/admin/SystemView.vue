@@ -46,7 +46,7 @@
 
     <template v-if="status">
       <!-- Global Summary Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <!-- Watched Folders -->
         <div
           class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
@@ -111,58 +111,50 @@
             {{ status.global.errors }}
           </p>
         </div>
-
-        <!-- Today's Activity -->
-        <div
-          class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
-        >
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {{ t('system.todayActivity') }}
-          </p>
-          <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
-            {{ t('system.todayEmails', { count: todayEmailCount }) }}
-          </p>
-        </div>
       </div>
 
-      <!-- Stats Chart -->
+      <!-- Queue Stats Card -->
       <div
+        v-if="queueStats"
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6"
       >
-        <div
-          class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
-        >
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ t('system.statsTitle') }}
+            {{ t('system.queueStats') }}
           </h2>
-          <div class="flex rounded-md shadow-sm">
-            <button
-              v-for="period in periods"
-              :key="period.value"
-              @click="selectedPeriod = period.value"
-              class="px-3 py-1.5 text-xs font-medium border first:rounded-l-md last:rounded-r-md focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              :class="
-                selectedPeriod === period.value
-                  ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-              "
-            >
-              {{ period.label }}
-            </button>
-          </div>
         </div>
-        <div class="p-5">
-          <div v-if="statsLoading" class="text-center py-8 text-gray-500 dark:text-gray-400">
-            {{ t('system.loadingStatus') }}
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5">
+          <div class="text-center">
+            <p class="text-2xl font-bold text-gray-500 dark:text-gray-400">
+              {{ queueStats.queued }}
+            </p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
+              {{ t('queue.statusQueued') }}
+            </p>
           </div>
-          <div
-            v-else-if="!stats || stats.buckets.length === 0"
-            class="text-center py-8 text-gray-500 dark:text-gray-400"
-          >
-            {{ t('system.noStats') }}
+          <div class="text-center">
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {{ queueStats.processing }}
+            </p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
+              {{ t('queue.statusProcessing') }}
+            </p>
           </div>
-          <div v-else class="h-64">
-            <Bar :data="chartData" :options="chartOptions" />
+          <div class="text-center">
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400">
+              {{ queueStats.completed }}
+            </p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
+              {{ t('queue.statusCompleted') }}
+            </p>
+          </div>
+          <div class="text-center">
+            <p class="text-2xl font-bold text-red-600 dark:text-red-400">
+              {{ queueStats.failed }}
+            </p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
+              {{ t('queue.statusFailed') }}
+            </p>
           </div>
         </div>
       </div>
@@ -188,10 +180,23 @@
                 {{ job.description }}
               </p>
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ t('system.jobInterval', { hours: job.interval_hours }) }}
+                {{ t('system.jobInterval', { seconds: job.interval_seconds }) }}
               </p>
             </div>
             <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+              <span v-if="job.last_status">
+                {{ t('system.jobLastStatus') }}:
+                <span
+                  class="font-medium"
+                  :class="
+                    job.last_status === 'error'
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-green-600 dark:text-green-400'
+                  "
+                >
+                  {{ job.last_status }}
+                </span>
+              </span>
               <span>
                 {{ t('system.jobLastRun') }}:
                 {{ job.last_run_at ? formatTimeAgo(job.last_run_at) : t('system.jobNever') }}
@@ -378,23 +383,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
-import { Bar } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js'
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+import { useQueueStore, type QueueStats } from '@/stores/queue'
 
 const { t } = useI18n()
+const queueStore = useQueueStore()
 
 // --- Type Definitions ---
 
@@ -437,9 +432,10 @@ interface GlobalSummary {
 interface ScheduledJob {
   id: string
   description: string
-  interval_hours: number
+  interval_seconds: number
   last_run_at: string | null
   next_run_at: string | null
+  last_status: string | null
 }
 
 interface SystemStatus {
@@ -448,37 +444,18 @@ interface SystemStatus {
   scheduled_jobs?: ScheduledJob[]
 }
 
-interface StatsBucket {
-  timestamp: string
-  emails_processed: number
-  errors_count: number
-}
-
-interface StatsResponse {
-  period: string
-  buckets: StatsBucket[]
-}
-
 // --- State ---
 
 const status = ref<SystemStatus | null>(null)
-const stats = ref<StatsResponse | null>(null)
+const queueStats = ref<QueueStats | null>(null)
 const loading = ref(false)
-const statsLoading = ref(false)
 const error = ref('')
 const lastRefreshedAt = ref<Date | null>(null)
 const secondsSinceRefresh = ref(0)
-const selectedPeriod = ref<'hourly' | 'daily' | 'weekly'>('hourly')
 const expandedUsers = ref<Set<number>>(new Set())
 
 let pollInterval: ReturnType<typeof setInterval> | null = null
 let tickInterval: ReturnType<typeof setInterval> | null = null
-
-const periods = computed(() => [
-  { value: 'hourly' as const, label: t('system.statsHour') },
-  { value: 'daily' as const, label: t('system.statsDay') },
-  { value: 'weekly' as const, label: t('system.statsWeek') },
-])
 
 // --- Computed ---
 
@@ -489,92 +466,6 @@ const allFoldersCount = computed(() => {
     0,
   )
 })
-
-const todayEmailCount = computed(() => {
-  if (!stats.value || selectedPeriod.value !== 'hourly') {
-    return todayCountFromHourlyStats.value
-  }
-  return todayCountFromHourlyStats.value
-})
-
-const todayCountFromHourlyStats = computed(() => {
-  if (!stats.value) return 0
-  const now = new Date()
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return stats.value.buckets
-    .filter((b) => new Date(b.timestamp) >= startOfDay)
-    .reduce((sum, b) => sum + b.emails_processed, 0)
-})
-
-const isDark = computed(() => document.documentElement.classList.contains('dark'))
-
-const chartData = computed(() => {
-  if (!stats.value) {
-    return { labels: [] as string[], datasets: [] }
-  }
-
-  return {
-    labels: stats.value.buckets.map((b) => formatChartLabel(b.timestamp, stats.value!.period)),
-    datasets: [
-      {
-        label: t('system.emailsProcessed'),
-        data: stats.value.buckets.map((b) => b.emails_processed),
-        backgroundColor: isDark.value ? 'rgba(129, 140, 248, 0.7)' : 'rgba(79, 70, 229, 0.7)',
-        borderColor: isDark.value ? 'rgb(129, 140, 248)' : 'rgb(79, 70, 229)',
-        borderWidth: 1,
-        borderRadius: 3,
-      },
-      {
-        label: t('system.errorsCount'),
-        data: stats.value.buckets.map((b) => b.errors_count),
-        backgroundColor: isDark.value ? 'rgba(248, 113, 113, 0.7)' : 'rgba(220, 38, 38, 0.7)',
-        borderColor: isDark.value ? 'rgb(248, 113, 113)' : 'rgb(220, 38, 38)',
-        borderWidth: 1,
-        borderRadius: 3,
-      },
-    ],
-  }
-})
-
-const chartOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-      labels: {
-        color: isDark.value ? '#9ca3af' : '#6b7280',
-        usePointStyle: true,
-        pointStyle: 'rectRounded',
-      },
-    },
-    tooltip: {
-      mode: 'index' as const,
-      intersect: false,
-    },
-  },
-  scales: {
-    x: {
-      grid: {
-        color: isDark.value ? 'rgba(75, 85, 99, 0.3)' : 'rgba(229, 231, 235, 0.8)',
-      },
-      ticks: {
-        color: isDark.value ? '#9ca3af' : '#6b7280',
-        maxRotation: 45,
-      },
-    },
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: isDark.value ? 'rgba(75, 85, 99, 0.3)' : 'rgba(229, 231, 235, 0.8)',
-      },
-      ticks: {
-        color: isDark.value ? '#9ca3af' : '#6b7280',
-        stepSize: 1,
-      },
-    },
-  },
-}))
 
 // --- Helper Functions ---
 
@@ -657,18 +548,6 @@ function modeDotColor(mode: string): string {
   return colors[mode] || 'bg-gray-400'
 }
 
-function formatChartLabel(isoString: string, period: string): string {
-  const date = new Date(isoString)
-  if (period === 'hourly') {
-    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-  }
-  if (period === 'daily') {
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-  }
-  // weekly
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-}
-
 function userFolderCount(user: UserStatus): number {
   return user.accounts.reduce((sum, account) => sum + account.folders.length, 0)
 }
@@ -707,30 +586,18 @@ async function fetchStatus() {
   }
 }
 
-async function fetchStats() {
-  statsLoading.value = true
+async function fetchQueueStats() {
   try {
-    const res = await api.get<StatsResponse>('/system/stats', {
-      params: { period: selectedPeriod.value },
-    })
-    stats.value = res.data
+    queueStats.value = await queueStore.fetchStats()
   } catch {
-    // Stats are non-critical; silently ignore
-    stats.value = null
-  } finally {
-    statsLoading.value = false
+    // Queue stats are non-critical; silently ignore
+    queueStats.value = null
   }
 }
 
 async function refresh() {
-  await Promise.all([fetchStatus(), fetchStats()])
+  await Promise.all([fetchStatus(), fetchQueueStats()])
 }
-
-// --- Watchers ---
-
-watch(selectedPeriod, () => {
-  fetchStats()
-})
 
 // --- Lifecycle ---
 
@@ -739,7 +606,7 @@ onMounted(() => {
 
   // Auto-poll every 30 seconds
   pollInterval = setInterval(() => {
-    fetchStatus()
+    refresh()
   }, 30000)
 
   // Tick the "last refreshed" counter every second
