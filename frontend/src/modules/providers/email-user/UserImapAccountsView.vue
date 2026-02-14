@@ -1,7 +1,7 @@
 <template>
-  <div class="p-6 max-w-5xl mx-auto">
+  <div>
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('accounts.title') }}</h1>
+      <div></div>
       <button
         v-if="!showForm"
         @click="openAddForm"
@@ -564,12 +564,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  useAccountsStore,
-  type EmailAccount,
-  type IMAPFolder,
-  type WatchedFolder,
-} from '@/stores/accounts'
+import { useAccountsStore, type EmailAccount, type IMAPFolder, type WatchedFolder } from './store'
 
 const { t } = useI18n()
 const accountsStore = useAccountsStore()

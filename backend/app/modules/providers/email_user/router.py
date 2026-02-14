@@ -7,12 +7,12 @@ from app.models.imap_settings import ImapSettings
 from app.schemas.imap_settings import ImapSettingsRequest, ImapSettingsResponse
 from app.api.deps import get_admin_user
 
-router = APIRouter(prefix="/api/v1/settings/imap", tags=["settings"], dependencies=[Depends(get_admin_user)])
+router = APIRouter(tags=["email-user"], dependencies=[Depends(get_admin_user)])
 
 DEFAULTS = ImapSettingsResponse(id=0, max_email_age_days=7, check_uidvalidity=True)
 
 
-@router.get("", response_model=ImapSettingsResponse)
+@router.get("/settings", response_model=ImapSettingsResponse)
 async def get_imap_settings(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(ImapSettings))
     settings = result.scalar_one_or_none()
@@ -21,7 +21,7 @@ async def get_imap_settings(db: AsyncSession = Depends(get_db)):
     return settings
 
 
-@router.put("", response_model=ImapSettingsResponse)
+@router.put("/settings", response_model=ImapSettingsResponse)
 async def update_imap_settings(req: ImapSettingsRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(ImapSettings))
     settings = result.scalar_one_or_none()

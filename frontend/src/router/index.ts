@@ -1,13 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getAdminRoutes, getUserRoutes } from '@/core/moduleRegistry'
+
+// Import module manifests to trigger registration
+import '@/modules/analysers/llm'
+import '@/modules/providers/email-global'
+import '@/modules/providers/email-user'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      redirect: '/dashboard',
-    },
+    { path: '/', redirect: '/dashboard' },
     {
       path: '/login',
       name: 'login',
@@ -20,10 +23,7 @@ const router = createRouter({
         }
       },
     },
-    {
-      path: '/setup',
-      redirect: '/login',
-    },
+    { path: '/setup', redirect: '/login' },
     {
       path: '/dashboard',
       name: 'dashboard',
@@ -48,11 +48,11 @@ const router = createRouter({
       component: () => import('@/views/HistoryView.vue'),
       meta: { requiresAuth: true },
     },
+    // Provider user routes (dynamically from modules)
     {
-      path: '/accounts',
-      name: 'accounts',
-      component: () => import('@/views/AccountsView.vue'),
+      path: '/providers',
       meta: { requiresAuth: true },
+      children: getUserRoutes(),
     },
     {
       path: '/profile',
@@ -60,6 +60,11 @@ const router = createRouter({
       component: () => import('@/views/ProfileView.vue'),
       meta: { requiresAuth: true },
     },
+    // Legacy redirects
+    { path: '/accounts', redirect: '/providers/email-user' },
+    { path: '/accounts/imap', redirect: '/providers/email-user' },
+    { path: '/accounts/forwarding', redirect: '/providers/email-global' },
+    { path: '/admin/llm', redirect: '/admin/settings/llm' },
     {
       path: '/admin/users',
       name: 'admin-users',
@@ -67,59 +72,46 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
-      path: '/admin/llm',
-      redirect: '/admin/settings/llm',
-    },
-    {
       path: '/admin/settings',
       component: () => import('@/views/admin/SettingsView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
       children: [
-        {
-          path: '',
-          redirect: '/admin/settings/llm',
-        },
-        {
-          path: 'llm',
-          name: 'settings-llm',
-          component: () => import('@/views/admin/LLMConfigView.vue'),
-        },
-        {
-          path: 'imap',
-          name: 'settings-imap',
-          component: () => import('@/views/admin/ImapSettingsView.vue'),
-        },
+        { path: '', redirect: '/admin/settings/queue' },
         {
           path: 'queue',
           name: 'queue-settings',
           component: () => import('@/views/admin/QueueSettingsView.vue'),
         },
+        {
+          path: 'analysers',
+          name: 'analysers-settings',
+          component: () => import('@/views/admin/AnalysersView.vue'),
+        },
+        // Module admin routes (dynamically from modules)
+        ...getAdminRoutes(),
       ],
     },
     {
-      path: '/admin/system',
-      name: 'admin-system',
-      component: () => import('@/views/admin/SystemView.vue'),
+      path: '/admin/status',
+      name: 'admin-status',
+      component: () => import('@/views/admin/StatusView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+    { path: '/admin/system', redirect: '/admin/status' },
   ],
 })
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
-
   if (auth.isLoggedIn && !auth.user) {
     await auth.fetchUser()
   }
-
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
     return { name: 'login' }
   }
-
   if (to.meta.guest && auth.isLoggedIn) {
     return { name: 'dashboard' }
   }
-
   if (to.meta.requiresAdmin && !auth.isAdmin) {
     return { name: 'dashboard' }
   }

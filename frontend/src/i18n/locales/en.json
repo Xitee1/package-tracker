@@ -33,9 +33,11 @@
     "emailAccounts": "Email Accounts",
     "users": "Users",
     "llmConfig": "LLM Config",
-    "system": "System",
+    "status": "Status",
     "settings": "Settings",
     "history": "History",
+    "providers": "Providers",
+    "analysers": "Analysers",
     "logout": "Logout"
   },
   "app": {
@@ -235,7 +237,10 @@
     "idleNotSupportedReject": "This email provider does not support IMAP IDLE",
     "modeIdle": "IDLE",
     "modePolling": "Polling",
-    "modeDetecting": "Detecting..."
+    "modeDetecting": "Detecting...",
+    "tabImap": "IMAP Accounts",
+    "tabForwarding": "Forwarding",
+    "noModulesEnabled": "No email features are currently enabled. Contact your administrator."
   },
   "profile": {
     "title": "Profile",
@@ -368,13 +373,89 @@
     "jobLastRun": "Last run",
     "jobNextRun": "Next run",
     "jobLastStatus": "Last status",
-    "jobNever": "Never"
+    "jobNever": "Never",
+    "modules": "Modules",
+    "moduleType": {
+      "analyser": "Analyser",
+      "provider": "Provider"
+    },
+    "moduleDisabled": "Disabled",
+    "moduleNotConfigured": "Not configured",
+    "moduleNoStatus": "No status available",
+    "globalMailWatching": "Watching: {folder}",
+    "globalMailSenders": "{count} registered senders",
+    "llmProvider": "Provider: {provider}",
+    "llmModel": "Model: {model}",
+    "llmActive": "Active",
+    "llmIdle": "Idle",
+    "noAnalyserWarning": "No analyser is configured. Set up an analyser before emails can be processed.",
+    "noAnalyserWarningQueued": "No analyser is configured. {count} queued item(s) will not be processed until at least one analyser is set up.",
+    "configureAnalysers": "Configure Analysers"
+  },
+  "analysers": {
+    "title": "Analysers",
+    "description": "Manage analyser modules and their execution priority. Higher priority analysers are tried first.",
+    "empty": "No analyser modules are registered.",
+    "priority": "Priority",
+    "configure": "Configure",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "notConfigured": "Not configured",
+    "configured": "Configured"
+  },
+  "forwarding": {
+    "infoText": "Forward your order confirmation emails to:",
+    "notConfigured": "Global mail forwarding is not configured yet. Contact your administrator.",
+    "emailAddress": "Your Email Address",
+    "emailPlaceholder": "your.email@example.com",
+    "addAddress": "Add Address",
+    "noAddresses": "No sender addresses registered yet.",
+    "addFailed": "Failed to add address.",
+    "deleteFailed": "Failed to remove address."
+  },
+  "modules": {
+    "llm": {
+      "title": "LLM Analyser",
+      "description": "Analyse emails using LLM to extract order information"
+    },
+    "email-global": {
+      "title": "Email - Global/Redirect",
+      "description": "Shared global email inbox with sender-based routing"
+    },
+    "email-user": {
+      "title": "Email - User IMAP",
+      "description": "Allow users to connect their own IMAP email accounts"
+    },
+    "toggleFailed": "Failed to update module."
+  },
+  "globalMail": {
+    "connectionTitle": "Connection Details",
+    "imapHost": "IMAP Host",
+    "imapPort": "IMAP Port",
+    "username": "Username",
+    "password": "Password",
+    "passwordKeepCurrent": "(leave empty to keep current)",
+    "useSsl": "Use SSL",
+    "saveConnection": "Save Connection",
+    "settingsTitle": "Mail Settings",
+    "watchedFolder": "Watched Folder",
+    "pollingInterval": "Polling Interval (seconds)",
+    "pollingHint": "IMAP IDLE is not supported by this server. Polling will be used instead.",
+    "idleHint": "This server supports IMAP IDLE for real-time email detection.",
+    "saveSettings": "Save Settings",
+    "configSaved": "Configuration saved.",
+    "saveFailed": "Failed to save configuration.",
+    "loadingFolders": "Loading folders...",
+    "folderLoadError": "Could not load folders. Check connection details.",
+    "retry": "Retry"
   },
   "settings": {
     "title": "Settings",
     "llmConfig": "LLM Config",
     "imap": "IMAP",
-    "queue": "Queue"
+    "queue": "Queue",
+    "email": "Email",
+    "analysers": "Analysers"
   },
   "imap": {
     "title": "IMAP Settings",

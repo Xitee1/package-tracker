@@ -6,8 +6,8 @@ from sqlalchemy import select
 
 from app.core.auth import hash_password
 from app.core.encryption import encrypt_value
-from app.models.email_account import EmailAccount, WatchedFolder
-from app.models.processed_email import ProcessedEmail
+from app.modules.providers.email_user.models import EmailAccount, WatchedFolder
+from app.modules._shared.email.models import ProcessedEmail
 from app.models.user import User
 
 

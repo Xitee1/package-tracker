@@ -11,9 +11,10 @@ class ProcessedEmail(Base):
     __tablename__ = "processed_emails"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    account_id: Mapped[int] = mapped_column(
-        ForeignKey("email_accounts.id", ondelete="CASCADE")
+    account_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("email_accounts.id", ondelete="CASCADE"), nullable=True
     )
+    source: Mapped[str] = mapped_column(String(20), default="user_account")
     folder_path: Mapped[str] = mapped_column(String(512))
     email_uid: Mapped[int] = mapped_column(Integer)
     message_id: Mapped[str] = mapped_column(String(512), unique=True, index=True)

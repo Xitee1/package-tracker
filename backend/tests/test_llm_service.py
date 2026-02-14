@@ -2,9 +2,9 @@ import json
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from app.models.llm_config import LLMConfig
+from app.modules.analysers.llm.models import LLMConfig
 from app.core.encryption import encrypt_value
-from app.services.llm_service import analyze_email, EmailAnalysis
+from app.modules.analysers.llm.service import analyze_email, EmailAnalysis
 
 
 def _make_llm_response(content: str):
@@ -52,7 +52,7 @@ async def test_analyze_relevant_order_email(db_session, llm_config):
         "items": [{"name": "USB-C Cable", "quantity": 2, "price": 12.99}],
     }
 
-    with patch("app.services.llm_service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response(json.dumps(raw))
 
         analysis, raw_resp = await analyze_email(
@@ -80,7 +80,7 @@ async def test_analyze_irrelevant_email(db_session, llm_config):
     """Test that an irrelevant email returns is_relevant=False."""
     raw = {"is_relevant": False}
 
-    with patch("app.services.llm_service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response(json.dumps(raw))
 
         analysis, raw_resp = await analyze_email(
@@ -119,7 +119,7 @@ async def test_analyze_malformed_json_retry(db_session, llm_config):
             return _make_llm_response("Not valid JSON {{{")
         return _make_llm_response(json.dumps(good_response))
 
-    with patch("app.services.llm_service.litellm.acompletion", side_effect=mock_completion):
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", side_effect=mock_completion):
         analysis, raw_resp = await analyze_email(
             subject="Your package has shipped",
             sender="shipping@newegg.com",
@@ -137,7 +137,7 @@ async def test_analyze_malformed_json_retry(db_session, llm_config):
 @pytest.mark.asyncio
 async def test_analyze_malformed_json_both_attempts_fail(db_session, llm_config):
     """Test that two consecutive malformed JSON responses return None."""
-    with patch("app.services.llm_service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response("not json at all")
 
         analysis, raw_resp = await analyze_email(
@@ -169,7 +169,7 @@ async def test_analyze_no_llm_config(db_session):
 @pytest.mark.asyncio
 async def test_analyze_llm_api_error(db_session, llm_config):
     """Test that an LLM API exception returns None with error message."""
-    with patch("app.services.llm_service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.side_effect = Exception("API rate limit exceeded")
 
         analysis, raw_resp = await analyze_email(

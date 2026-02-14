@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.order import Order
 from app.models.order_state import OrderState
-from app.services.llm_service import EmailAnalysis
+from app.modules.analysers.llm.service import EmailAnalysis
 
 
 def _parse_date(value: str | None) -> date | None:

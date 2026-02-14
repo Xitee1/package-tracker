@@ -45,6 +45,46 @@
           {{ item.label }}
         </router-link>
 
+        <!-- Providers Section -->
+        <template v-if="providerItems.length > 0">
+          <button
+            @click="providersExpanded = !providersExpanded"
+            class="flex items-center justify-between w-full px-3 py-2 mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            {{ $t('nav.providers') }}
+            <svg
+              class="w-3.5 h-3.5 transition-transform duration-200"
+              :class="{ 'rotate-180': !providersExpanded }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          <template v-if="providersExpanded">
+            <router-link
+              v-for="item in providerItems"
+              :key="item.to"
+              :to="item.to"
+              class="flex items-center gap-3 px-3 py-2.5 pl-6 text-sm font-medium rounded-lg transition-colors"
+              :class="
+                isActive(item.to)
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              "
+              @click="sidebarOpen = false"
+            >
+              {{ item.label }}
+            </router-link>
+          </template>
+        </template>
+
         <!-- Admin Section -->
         <template v-if="auth.isAdmin">
           <div class="pt-4 pb-1 px-3">
@@ -145,7 +185,7 @@
       </div>
 
       <!-- Page Content -->
-      <main>
+      <main class="p-6 max-w-7xl mx-auto">
         <slot />
       </main>
     </div>
@@ -153,16 +193,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { useModulesStore } from '@/stores/modules'
+import { getUserSidebarItems } from '@/core/moduleRegistry'
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const modulesStore = useModulesStore()
 
 const sidebarOpen = ref(false)
+
+const providerItems = computed(() => {
+  return getUserSidebarItems().filter(
+    (item) => modulesStore.isEnabled(item.moduleKey) && modulesStore.isConfigured(item.moduleKey),
+  )
+})
+
+const providersExpanded = ref(true)
 
 const navItems = computed(() => [
   {
@@ -180,11 +231,6 @@ const navItems = computed(() => [
     label: t('nav.history'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
   },
-  {
-    to: '/accounts',
-    label: t('nav.emailAccounts'),
-    icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>',
-  },
 ])
 
 const adminNavItems = computed(() => [
@@ -199,8 +245,8 @@ const adminNavItems = computed(() => [
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>',
   },
   {
-    to: '/admin/system',
-    label: t('nav.system'),
+    to: '/admin/status',
+    label: t('nav.status'),
     icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>',
   },
 ])
@@ -208,6 +254,7 @@ const adminNavItems = computed(() => [
 function isActive(path: string): boolean {
   if (path === '/orders' && route.path.startsWith('/orders/')) return true
   if (path === '/admin/settings' && route.path.startsWith('/admin/settings')) return true
+  if (path.startsWith('/providers/') && route.path === path) return true
   return route.path === path
 }
 
@@ -215,4 +262,10 @@ function handleLogout() {
   auth.logout()
   router.push('/login')
 }
+
+onMounted(async () => {
+  if (!modulesStore.loaded) {
+    await modulesStore.fetchModules()
+  }
+})
 </script>

@@ -2,7 +2,7 @@ import pytest
 
 from app.models.user import User
 from app.models.order import Order
-from app.services.llm_service import EmailAnalysis, EmailItem
+from app.modules.analysers.llm.service import EmailAnalysis, EmailItem
 from app.services.orders.order_matcher import DefaultOrderMatcher
 from app.core.auth import hash_password
 

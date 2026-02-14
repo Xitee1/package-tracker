@@ -4,12 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.encryption import encrypt_value, decrypt_value
 from app.database import get_db
-from app.models.llm_config import LLMConfig
-from app.schemas.llm_config import LLMConfigRequest, LLMConfigResponse
+from app.modules.analysers.llm.models import LLMConfig
+from app.modules.analysers.llm.schemas import LLMConfigRequest, LLMConfigResponse
 from app.api.deps import get_admin_user
-from app.services.llm_service import call_llm
+from app.modules.analysers.llm.service import call_llm
 
-router = APIRouter(prefix="/api/v1/llm", tags=["llm"], dependencies=[Depends(get_admin_user)])
+router = APIRouter(tags=["llm"], dependencies=[Depends(get_admin_user)])
 
 
 @router.get("/config", response_model=LLMConfigResponse | None)

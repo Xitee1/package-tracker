@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-4xl mx-auto">
+  <div>
     <!-- Back link -->
     <div class="mb-6">
       <router-link

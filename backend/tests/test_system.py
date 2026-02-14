@@ -3,11 +3,13 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
+from sqlalchemy import select
 
-from app.models.email_account import EmailAccount, WatchedFolder
+from app.modules.providers.email_user.models import EmailAccount, WatchedFolder
 from app.models.user import User
-from app.core.auth import hash_password, create_access_token
-from app.services.imap_worker import WorkerState, WorkerMode
+from app.models.module_config import ModuleConfig
+from app.core.auth import hash_password
+from app.modules._shared.email.imap_watcher import WorkerState, WorkerMode
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +83,19 @@ async def _seed_user_account_folder(db_session, *, username="worker_user", folde
     return user, account, folder
 
 
+async def _enable_module(db_session, module_key: str):
+    """Enable a module in the ModuleConfig table."""
+    result = await db_session.execute(
+        select(ModuleConfig).where(ModuleConfig.module_key == module_key)
+    )
+    config = result.scalar_one_or_none()
+    if config:
+        config.enabled = True
+    else:
+        db_session.add(ModuleConfig(module_key=module_key, enabled=True))
+    await db_session.commit()
+
+
 # ===========================================================================
 # /api/v1/system/status tests
 # ===========================================================================
@@ -88,38 +103,52 @@ async def _seed_user_account_folder(db_session, *, username="worker_user", folde
 
 @pytest.mark.asyncio
 async def test_status_empty(client, admin_token):
-    """With no email accounts/folders the response should have an empty users list and zero global counts."""
+    """With no module status hooks, response should have system and modules sections."""
     resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
     assert resp.status_code == 200
 
     data = resp.json()
 
-    # Global counters should all be zero
-    g = data["global"]
-    assert g["total_folders"] == 0
-    assert g["running"] == 0
-    assert g["errors"] == 0
-    assert g["queue_total"] == 0
-    assert g["processing_folders"] == 0
-
-    # Queue stats should exist with all zeros
-    q = data["queue"]
+    # System section
+    assert "system" in data
+    q = data["system"]["queue"]
     assert q["queued"] == 0
     assert q["processing"] == 0
     assert q["completed"] == 0
     assert q["failed"] == 0
+    assert "scheduled_jobs" in data["system"]
 
-    # The admin user exists but has no email accounts, so the endpoint skips
-    # users without accounts -- the users list should be empty.
-    assert data["users"] == []
+    # Modules section
+    assert "modules" in data
+    assert isinstance(data["modules"], list)
 
 
 @pytest.mark.asyncio
-async def test_status_with_folders(client, admin_token, db_session):
-    """Create a user with an account and folder, mock worker dicts, verify full response structure."""
+async def test_status_modules_have_metadata(client, admin_token):
+    """Each module entry should have key, name, type, version, description, enabled, configured."""
+    resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
+    assert resp.status_code == 200
+
+    data = resp.json()
+    for mod in data["modules"]:
+        assert "key" in mod
+        assert "name" in mod
+        assert "type" in mod
+        assert "version" in mod
+        assert "description" in mod
+        assert "enabled" in mod
+        assert "configured" in mod
+        assert "status" in mod
+
+
+@pytest.mark.asyncio
+async def test_status_email_user_with_folders(client, admin_token, db_session):
+    """The email-user module status should include user/account/folder hierarchy."""
     user, account, folder = await _seed_user_account_folder(db_session)
 
-    # Build mock asyncio.Task that looks "running"
+    # Enable the email-user module so the status hook is invoked
+    await _enable_module(db_session, "email-user")
+
     mock_task = MagicMock(spec=asyncio.Task)
     mock_task.done.return_value = False
 
@@ -139,36 +168,38 @@ async def test_status_with_folders(client, admin_token, db_session):
     )
 
     with (
-        patch("app.api.system._running_tasks", {folder.id: mock_task}),
-        patch("app.api.system._worker_state", {folder.id: state}),
+        patch(
+            "app.modules.providers.email_user.service._running_tasks",
+            {folder.id: mock_task},
+        ),
+        patch(
+            "app.modules.providers.email_user.service._worker_state",
+            {folder.id: state},
+        ),
     ):
         resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
 
     assert resp.status_code == 200
     data = resp.json()
 
-    # Global counters
-    g = data["global"]
-    assert g["total_folders"] == 1
-    assert g["running"] == 1
-    assert g["errors"] == 0
-    assert g["queue_total"] == 3  # remaining = max(0, 5 - 2) = 3
-    assert g["processing_folders"] == 1
+    # Find email-user module
+    email_user_mod = next((m for m in data["modules"] if m["key"] == "email-user"), None)
+    assert email_user_mod is not None
+    assert email_user_mod["status"] is not None
 
-    # Queue section should exist
-    assert "queue" in data
+    status = email_user_mod["status"]
+    assert status["total_folders"] == 1
+    assert status["running"] == 1
+    assert status["errors"] == 0
 
-    # User hierarchy
-    assert len(data["users"]) == 1
-    u = data["users"][0]
-    assert u["user_id"] == user.id
+    assert len(status["users"]) >= 1
+    u = next(u for u in status["users"] if u["user_id"] == user.id)
     assert u["username"] == user.username
 
     assert len(u["accounts"]) == 1
     a = u["accounts"][0]
     assert a["account_id"] == account.id
     assert a["account_name"] == account.name
-    assert a["is_active"] is True
 
     assert len(a["folders"]) == 1
     f = a["folders"][0]
@@ -179,40 +210,6 @@ async def test_status_with_folders(client, admin_token, db_session):
     assert f["queue_total"] == 5
     assert f["queue_position"] == 2
     assert f["current_email_subject"] == "Your order shipped"
-    assert f["current_email_sender"] == "shop@example.com"
-    assert f["error"] is None
-    # Timestamps should be non-null ISO strings
-    assert f["last_scan_at"] is not None
-    assert f["next_scan_at"] is not None
-    assert f["last_activity_at"] is not None
-
-
-@pytest.mark.asyncio
-async def test_status_with_errored_task(client, admin_token, db_session):
-    """A finished task with an exception should surface the error in the response."""
-    _user, _account, folder = await _seed_user_account_folder(db_session)
-
-    mock_task = MagicMock(spec=asyncio.Task)
-    mock_task.done.return_value = True
-    mock_task.exception.return_value = RuntimeError("IMAP connection refused")
-
-    with (
-        patch("app.api.system._running_tasks", {folder.id: mock_task}),
-        patch("app.api.system._worker_state", {}),
-    ):
-        resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
-
-    assert resp.status_code == 200
-    data = resp.json()
-
-    g = data["global"]
-    assert g["errors"] == 1
-    assert g["running"] == 0
-
-    f = data["users"][0]["accounts"][0]["folders"][0]
-    assert f["running"] is False
-    assert f["mode"] == "stopped"
-    assert "IMAP connection refused" in f["error"]
 
 
 @pytest.mark.asyncio
@@ -222,8 +219,7 @@ async def test_status_has_queue_section(client, admin_token):
     assert resp.status_code == 200
     data = resp.json()
 
-    assert "queue" in data
-    q = data["queue"]
+    q = data["system"]["queue"]
     assert "queued" in q
     assert "processing" in q
     assert "completed" in q
@@ -236,8 +232,8 @@ async def test_status_has_scheduled_jobs(client, admin_token):
     resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert "scheduled_jobs" in data
-    assert isinstance(data["scheduled_jobs"], list)
+    assert "scheduled_jobs" in data["system"]
+    assert isinstance(data["system"]["scheduled_jobs"], list)
 
 
 @pytest.mark.asyncio
@@ -245,6 +241,17 @@ async def test_status_requires_admin(client, user_token):
     """Non-admin users should receive 403."""
     resp = await client.get("/api/v1/system/status", headers=auth(user_token))
     assert resp.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_llm_module_not_configured_by_default(client, admin_token):
+    """LLM module should report configured=False when no LLMConfig exists."""
+    resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    llm_mod = next((m for m in data["modules"] if m["key"] == "llm"), None)
+    assert llm_mod is not None
+    assert llm_mod["configured"] is False
 
 
 @pytest.mark.asyncio

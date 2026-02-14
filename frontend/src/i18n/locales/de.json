@@ -33,9 +33,11 @@
     "emailAccounts": "E-Mail-Konten",
     "users": "Benutzer",
     "llmConfig": "LLM-Konfiguration",
-    "system": "System",
+    "status": "Status",
     "settings": "Einstellungen",
     "history": "Verlauf",
+    "providers": "Anbieter",
+    "analysers": "Analyser",
     "logout": "Abmelden"
   },
   "app": {
@@ -235,7 +237,10 @@
     "idleNotSupportedReject": "Dieser E-Mail-Anbieter unterstützt kein IMAP IDLE",
     "modeIdle": "IDLE",
     "modePolling": "Polling",
-    "modeDetecting": "Erkennung..."
+    "modeDetecting": "Erkennung...",
+    "tabImap": "IMAP-Konten",
+    "tabForwarding": "Weiterleitung",
+    "noModulesEnabled": "Derzeit sind keine E-Mail-Funktionen aktiviert. Wenden Sie sich an Ihren Administrator."
   },
   "profile": {
     "title": "Profil",
@@ -368,13 +373,89 @@
     "jobLastRun": "Letzter Lauf",
     "jobNextRun": "Nächster Lauf",
     "jobLastStatus": "Letzter Status",
-    "jobNever": "Nie"
+    "jobNever": "Nie",
+    "modules": "Module",
+    "moduleType": {
+      "analyser": "Analysator",
+      "provider": "Anbieter"
+    },
+    "moduleDisabled": "Deaktiviert",
+    "moduleNotConfigured": "Nicht konfiguriert",
+    "moduleNoStatus": "Kein Status verfügbar",
+    "globalMailWatching": "Überwacht: {folder}",
+    "globalMailSenders": "{count} registrierte Absender",
+    "llmProvider": "Anbieter: {provider}",
+    "llmModel": "Modell: {model}",
+    "llmActive": "Aktiv",
+    "llmIdle": "Leerlauf",
+    "noAnalyserWarning": "Kein Analyser ist konfiguriert. Richte einen Analyser ein, bevor E-Mails verarbeitet werden können.",
+    "noAnalyserWarningQueued": "Kein Analyser ist konfiguriert. {count} Element(e) in der Warteschlange werden nicht verarbeitet, bis mindestens ein Analyser eingerichtet ist.",
+    "configureAnalysers": "Analyser konfigurieren"
+  },
+  "analysers": {
+    "title": "Analyser",
+    "description": "Verwalte Analyser-Module und deren Ausführungspriorität. Analyser mit höherer Priorität werden zuerst versucht.",
+    "empty": "Keine Analyser-Module registriert.",
+    "priority": "Priorität",
+    "configure": "Konfigurieren",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "notConfigured": "Nicht konfiguriert",
+    "configured": "Konfiguriert"
+  },
+  "forwarding": {
+    "infoText": "Leiten Sie Ihre Bestellbestätigungen weiter an:",
+    "notConfigured": "Die globale E-Mail-Weiterleitung ist noch nicht konfiguriert. Wenden Sie sich an Ihren Administrator.",
+    "emailAddress": "Ihre E-Mail-Adresse",
+    "emailPlaceholder": "ihre.email@beispiel.de",
+    "addAddress": "Adresse hinzufügen",
+    "noAddresses": "Noch keine Absenderadressen registriert.",
+    "addFailed": "Adresse konnte nicht hinzugefügt werden.",
+    "deleteFailed": "Adresse konnte nicht entfernt werden."
+  },
+  "modules": {
+    "llm": {
+      "title": "LLM Analyse",
+      "description": "E-Mails mit LLM analysieren, um Bestellinformationen zu extrahieren"
+    },
+    "email-global": {
+      "title": "E-Mail - Global/Weiterleitung",
+      "description": "Gemeinsames globales E-Mail-Postfach mit absenderbasierter Zuordnung"
+    },
+    "email-user": {
+      "title": "E-Mail - Benutzer IMAP",
+      "description": "Benutzern erlauben, eigene IMAP-E-Mail-Konten zu verbinden"
+    },
+    "toggleFailed": "Modul konnte nicht aktualisiert werden."
+  },
+  "globalMail": {
+    "connectionTitle": "Verbindungsdetails",
+    "imapHost": "IMAP-Host",
+    "imapPort": "IMAP-Port",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "passwordKeepCurrent": "(leer lassen, um aktuelles beizubehalten)",
+    "useSsl": "SSL verwenden",
+    "saveConnection": "Verbindung speichern",
+    "settingsTitle": "E-Mail-Einstellungen",
+    "watchedFolder": "Überwachter Ordner",
+    "pollingInterval": "Abfrageintervall (Sekunden)",
+    "pollingHint": "Dieser Server unterstützt kein IMAP IDLE. Stattdessen wird Polling verwendet.",
+    "idleHint": "Dieser Server unterstützt IMAP IDLE für Echtzeit-E-Mail-Erkennung.",
+    "saveSettings": "Einstellungen speichern",
+    "configSaved": "Konfiguration gespeichert.",
+    "saveFailed": "Konfiguration konnte nicht gespeichert werden.",
+    "loadingFolders": "Ordner werden geladen...",
+    "folderLoadError": "Ordner konnten nicht geladen werden. Verbindungsdetails prüfen.",
+    "retry": "Erneut versuchen"
   },
   "settings": {
     "title": "Einstellungen",
     "llmConfig": "LLM-Konfiguration",
     "imap": "IMAP",
-    "queue": "Warteschlange"
+    "queue": "Warteschlange",
+    "email": "E-Mail",
+    "analysers": "Analyser"
   },
   "imap": {
     "title": "IMAP-Einstellungen",

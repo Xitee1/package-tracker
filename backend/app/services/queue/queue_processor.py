@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.llm_service import EmailAnalysis, analyze_email
+from app.modules.analysers.llm.service import EmailAnalysis, analyze_email
 
 logger = logging.getLogger(__name__)
 

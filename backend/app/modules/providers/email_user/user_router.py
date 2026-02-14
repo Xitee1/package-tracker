@@ -7,24 +7,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.encryption import encrypt_value, decrypt_value
 from app.database import get_db
 from app.models.user import User
-from app.models.email_account import EmailAccount, WatchedFolder
-from app.schemas.email_account import (
+from app.modules.providers.email_user.models import EmailAccount, WatchedFolder
+from app.modules.providers.email_user.schemas import (
     CreateAccountRequest, UpdateAccountRequest, AccountResponse,
     WatchFolderRequest, UpdateWatchedFolderRequest, WatchedFolderResponse,
 )
 from app.api.deps import get_current_user
-from app.services.imap_worker import restart_watchers, restart_single_watcher, is_folder_scanning
+from app.modules.providers.email_user.service import restart_watchers, restart_single_watcher, is_folder_scanning
 
-router = APIRouter(prefix="/api/v1/accounts", tags=["accounts"])
+user_router = APIRouter(tags=["email-user"])
 
 
-@router.get("", response_model=list[AccountResponse])
+@user_router.get("/accounts", response_model=list[AccountResponse])
 async def list_accounts(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(EmailAccount).where(EmailAccount.user_id == user.id))
     return result.scalars().all()
 
 
-@router.post("", response_model=AccountResponse, status_code=status.HTTP_201_CREATED)
+@user_router.post("/accounts", response_model=AccountResponse, status_code=status.HTTP_201_CREATED)
 async def create_account(req: CreateAccountRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = EmailAccount(
         user_id=user.id,
@@ -43,7 +43,7 @@ async def create_account(req: CreateAccountRequest, user: User = Depends(get_cur
     return account
 
 
-@router.patch("/{account_id}", response_model=AccountResponse)
+@user_router.patch("/accounts/{account_id}", response_model=AccountResponse)
 async def update_account(account_id: int, req: UpdateAccountRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
@@ -63,7 +63,7 @@ async def update_account(account_id: int, req: UpdateAccountRequest, user: User 
     return account
 
 
-@router.delete("/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
+@user_router.delete("/accounts/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_account(account_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
@@ -72,7 +72,7 @@ async def delete_account(account_id: int, user: User = Depends(get_current_user)
     await db.commit()
 
 
-@router.post("/{account_id}/test")
+@user_router.post("/accounts/{account_id}/test")
 async def test_connection(account_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
@@ -93,7 +93,7 @@ async def test_connection(account_id: int, user: User = Depends(get_current_user
         return {"success": False, "message": str(e), "idle_supported": None}
 
 
-@router.get("/{account_id}/folders", response_model=list[str])
+@user_router.get("/accounts/{account_id}/folders", response_model=list[str])
 async def list_folders(account_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
@@ -121,9 +121,7 @@ async def list_folders(account_id: int, user: User = Depends(get_current_user), 
         raise HTTPException(status_code=400, detail=f"Failed to list folders: {e}")
 
 
-# --- Watched Folders ---
-
-@router.get("/{account_id}/folders/watched", response_model=list[WatchedFolderResponse])
+@user_router.get("/accounts/{account_id}/folders/watched", response_model=list[WatchedFolderResponse])
 async def list_watched(account_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
@@ -132,7 +130,7 @@ async def list_watched(account_id: int, user: User = Depends(get_current_user), 
     return result.scalars().all()
 
 
-@router.post("/{account_id}/folders/watched", response_model=WatchedFolderResponse, status_code=status.HTTP_201_CREATED)
+@user_router.post("/accounts/{account_id}/folders/watched", response_model=WatchedFolderResponse, status_code=status.HTTP_201_CREATED)
 async def add_watched(account_id: int, req: WatchFolderRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
@@ -145,7 +143,7 @@ async def add_watched(account_id: int, req: WatchFolderRequest, user: User = Dep
     return folder
 
 
-@router.delete("/{account_id}/folders/watched/{folder_id}", status_code=status.HTTP_204_NO_CONTENT)
+@user_router.delete("/accounts/{account_id}/folders/watched/{folder_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_watched(account_id: int, folder_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
@@ -158,7 +156,7 @@ async def remove_watched(account_id: int, folder_id: int, user: User = Depends(g
     await restart_watchers()
 
 
-@router.patch("/{account_id}/folders/watched/{folder_id}", response_model=WatchedFolderResponse)
+@user_router.patch("/accounts/{account_id}/folders/watched/{folder_id}", response_model=WatchedFolderResponse)
 async def update_watched(
     account_id: int, folder_id: int, req: UpdateWatchedFolderRequest,
     user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db),
@@ -176,7 +174,7 @@ async def update_watched(
     return folder
 
 
-@router.post("/{account_id}/folders/watched/{folder_id}/scan")
+@user_router.post("/accounts/{account_id}/folders/watched/{folder_id}/scan")
 async def scan_folder(
     account_id: int, folder_id: int,
     user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db),
