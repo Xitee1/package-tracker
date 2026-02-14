@@ -515,21 +515,45 @@
 
               <!-- ===== LLM module ===== -->
               <template v-else-if="mod.key === 'llm'">
-                <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                  <p>
+                <div class="flex items-start justify-between">
+                  <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                    <p>
+                      {{
+                        t('system.llmProvider', {
+                          provider: (mod.status as LLMStatus).provider,
+                        })
+                      }}
+                    </p>
+                    <p>
+                      {{
+                        t('system.llmModel', {
+                          model: (mod.status as LLMStatus).model,
+                        })
+                      }}
+                    </p>
+                  </div>
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="
+                      (mod.status as LLMStatus).mode === 'active'
+                        ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    "
+                  >
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      :class="
+                        (mod.status as LLMStatus).mode === 'active'
+                          ? 'bg-blue-500'
+                          : 'bg-gray-400'
+                      "
+                    ></span>
                     {{
-                      t('system.llmProvider', {
-                        provider: (mod.status as LLMStatus).provider,
-                      })
+                      (mod.status as LLMStatus).mode === 'active'
+                        ? t('system.llmActive')
+                        : t('system.llmIdle')
                     }}
-                  </p>
-                  <p>
-                    {{
-                      t('system.llmModel', {
-                        model: (mod.status as LLMStatus).model,
-                      })
-                    }}
-                  </p>
+                  </span>
                 </div>
               </template>
 
@@ -612,6 +636,7 @@ interface EmailGlobalStatus {
 interface LLMStatus {
   provider: string
   model: string
+  mode: string
 }
 
 interface ModuleEntry {

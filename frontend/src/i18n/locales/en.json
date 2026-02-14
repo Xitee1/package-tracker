@@ -382,7 +382,9 @@
     "globalMailWatching": "Watching: {folder}",
     "globalMailSenders": "{count} registered senders",
     "llmProvider": "Provider: {provider}",
-    "llmModel": "Model: {model}"
+    "llmModel": "Model: {model}",
+    "llmActive": "Active",
+    "llmIdle": "Idle"
   },
   "forwarding": {
     "infoText": "Forward your order confirmation emails to:",

@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.encryption import decrypt_value
 from app.modules.analysers.llm.models import LLMConfig
 
+_active_requests: int = 0
+
 
 async def get_status(db: AsyncSession) -> dict | None:
     """Status hook: return current LLM configuration summary."""
@@ -18,6 +20,7 @@ async def get_status(db: AsyncSession) -> dict | None:
     return {
         "provider": config.provider,
         "model": config.model_name,
+        "mode": "active" if _active_requests > 0 else "idle",
     }
 
 
@@ -94,16 +97,21 @@ async def analyze_email(subject: str, sender: str, body: str, db: AsyncSession) 
         {"role": "user", "content": user_message},
     ]
 
+    global _active_requests
     raw_text = None
-    for attempt in range(2):
-        try:
-            raw_text = await call_llm(config, api_key, messages, max_tokens=2048)
-            raw_dict = json.loads(raw_text)
-            parsed = EmailAnalysis.model_validate(raw_dict)
-            return parsed, raw_dict
-        except (json.JSONDecodeError, ValidationError):
-            if attempt == 0:
-                continue
-            return None, {"error": "Failed to parse LLM response", "raw": raw_text}
-        except Exception as e:
-            return None, {"error": str(e)}
+    _active_requests += 1
+    try:
+        for attempt in range(2):
+            try:
+                raw_text = await call_llm(config, api_key, messages, max_tokens=2048)
+                raw_dict = json.loads(raw_text)
+                parsed = EmailAnalysis.model_validate(raw_dict)
+                return parsed, raw_dict
+            except (json.JSONDecodeError, ValidationError):
+                if attempt == 0:
+                    continue
+                return None, {"error": "Failed to parse LLM response", "raw": raw_text}
+            except Exception as e:
+                return None, {"error": str(e)}
+    finally:
+        _active_requests -= 1

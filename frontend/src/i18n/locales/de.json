@@ -382,7 +382,9 @@
     "globalMailWatching": "Überwacht: {folder}",
     "globalMailSenders": "{count} registrierte Absender",
     "llmProvider": "Anbieter: {provider}",
-    "llmModel": "Modell: {model}"
+    "llmModel": "Modell: {model}",
+    "llmActive": "Aktiv",
+    "llmIdle": "Leerlauf"
   },
   "forwarding": {
     "infoText": "Leiten Sie Ihre Bestellbestätigungen weiter an:",
