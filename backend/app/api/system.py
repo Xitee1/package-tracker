@@ -49,7 +49,7 @@ async def system_status(db: AsyncSession = Depends(get_db)):
 
     # --- Module statuses ---
     all_modules = get_all_modules()
-    result = await db.execute(select(ModuleConfig).order_by(ModuleConfig.module_key))
+    result = await db.execute(select(ModuleConfig).order_by(ModuleConfig.priority, ModuleConfig.module_key))
     configs = {c.module_key: c for c in result.scalars().all()}
 
     modules_out = []

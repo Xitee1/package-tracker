@@ -18,7 +18,7 @@ async def list_modules(
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(ModuleConfig).order_by(ModuleConfig.module_key))
+    result = await db.execute(select(ModuleConfig).order_by(ModuleConfig.priority, ModuleConfig.module_key))
     configs = result.scalars().all()
     all_modules = get_all_modules()
     response = []
@@ -34,6 +34,7 @@ async def list_modules(
             module_key=config.module_key,
             enabled=config.enabled,
             configured=configured,
+            priority=config.priority,
             name=info.name if info else None,
             type=info.type if info else None,
             description=info.description if info else None,
@@ -73,6 +74,7 @@ async def update_module(
     return ModuleResponse(
         module_key=module.module_key,
         enabled=module.enabled,
+        priority=module.priority,
         name=info.name if info else None,
         type=info.type if info else None,
         description=info.description if info else None,

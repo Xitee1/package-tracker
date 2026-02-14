@@ -5,6 +5,7 @@ class ModuleResponse(BaseModel):
     module_key: str
     enabled: bool
     configured: bool = True
+    priority: int = 0
     name: str | None = None
     type: str | None = None
     description: str | None = None
