@@ -18,6 +18,7 @@ dependencies = [
     "html2text>=2024.0.0",
     "python-multipart>=0.0.18",
     "python-dotenv>=1.0.0",
+    "apscheduler>=4.0.0a1",
 ]
 
 [project.optional-dependencies]
