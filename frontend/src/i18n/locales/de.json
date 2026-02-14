@@ -37,6 +37,7 @@
     "settings": "Einstellungen",
     "history": "Verlauf",
     "providers": "Anbieter",
+    "analysers": "Analyser",
     "logout": "Abmelden"
   },
   "app": {
@@ -386,7 +387,21 @@
     "llmProvider": "Anbieter: {provider}",
     "llmModel": "Modell: {model}",
     "llmActive": "Aktiv",
-    "llmIdle": "Leerlauf"
+    "llmIdle": "Leerlauf",
+    "noAnalyserWarning": "Kein Analyser ist konfiguriert. Richte einen Analyser ein, bevor E-Mails verarbeitet werden können.",
+    "noAnalyserWarningQueued": "Kein Analyser ist konfiguriert. {count} Element(e) in der Warteschlange werden nicht verarbeitet, bis mindestens ein Analyser eingerichtet ist.",
+    "configureAnalysers": "Analyser konfigurieren"
+  },
+  "analysers": {
+    "title": "Analyser",
+    "description": "Verwalte Analyser-Module und deren Ausführungspriorität. Analyser mit höherer Priorität werden zuerst versucht.",
+    "empty": "Keine Analyser-Module registriert.",
+    "priority": "Priorität",
+    "configure": "Konfigurieren",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "notConfigured": "Nicht konfiguriert",
+    "configured": "Konfiguriert"
   },
   "forwarding": {
     "infoText": "Leiten Sie Ihre Bestellbestätigungen weiter an:",

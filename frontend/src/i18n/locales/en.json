@@ -37,6 +37,7 @@
     "settings": "Settings",
     "history": "History",
     "providers": "Providers",
+    "analysers": "Analysers",
     "logout": "Logout"
   },
   "app": {
@@ -386,7 +387,21 @@
     "llmProvider": "Provider: {provider}",
     "llmModel": "Model: {model}",
     "llmActive": "Active",
-    "llmIdle": "Idle"
+    "llmIdle": "Idle",
+    "noAnalyserWarning": "No analyser is configured. Set up an analyser before emails can be processed.",
+    "noAnalyserWarningQueued": "No analyser is configured. {count} queued item(s) will not be processed until at least one analyser is set up.",
+    "configureAnalysers": "Configure Analysers"
+  },
+  "analysers": {
+    "title": "Analysers",
+    "description": "Manage analyser modules and their execution priority. Higher priority analysers are tried first.",
+    "empty": "No analyser modules are registered.",
+    "priority": "Priority",
+    "configure": "Configure",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "notConfigured": "Not configured",
+    "configured": "Configured"
   },
   "forwarding": {
     "infoText": "Forward your order confirmation emails to:",
