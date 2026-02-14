@@ -133,6 +133,43 @@
           }}</label>
         </div>
 
+        <div class="flex items-center gap-2">
+          <div class="relative inline-flex items-center">
+            <input
+              id="use_polling"
+              v-model="form.use_polling"
+              type="checkbox"
+              :disabled="editingId ? (accountBeingEdited?.idle_supported === false || accountBeingEdited?.idle_supported === null) : false"
+              class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <label
+              for="use_polling"
+              class="text-sm font-medium text-gray-700 dark:text-gray-300 ml-2"
+              :class="{ 'opacity-50': editingId && (accountBeingEdited?.idle_supported === false || accountBeingEdited?.idle_supported === null) }"
+            >
+              {{ $t('accounts.usePolling') }}
+            </label>
+          </div>
+          <div
+            v-if="editingId && accountBeingEdited?.idle_supported === false"
+            class="text-xs text-amber-600 dark:text-amber-400"
+          >
+            {{ $t('accounts.idleNotSupported') }}
+          </div>
+          <div
+            v-else-if="editingId && accountBeingEdited?.idle_supported === null"
+            class="text-xs text-gray-500 dark:text-gray-400"
+          >
+            {{ $t('accounts.idleDetecting') }}
+          </div>
+          <div
+            v-else
+            class="text-xs text-gray-500 dark:text-gray-400"
+          >
+            {{ $t('accounts.usePollingTooltip') }}
+          </div>
+        </div>
+
         <div class="flex items-center gap-3 pt-2">
           <button
             type="submit"
@@ -227,6 +264,23 @@
                   "
                 >
                   {{ account.is_active ? $t('common.active') : $t('common.inactive') }}
+                </span>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                  :class="{
+                    'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400': !account.use_polling && account.idle_supported === true,
+                    'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400': account.use_polling,
+                    'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400': account.idle_supported === null && !account.use_polling,
+                  }"
+                  :title="account.idle_supported === null ? $t('accounts.idleDetecting') : ''"
+                >
+                  {{
+                    account.use_polling
+                      ? $t('accounts.modePolling')
+                      : account.idle_supported === true
+                        ? $t('accounts.modeIdle')
+                        : $t('accounts.modeDetecting')
+                  }}
                 </span>
               </div>
               <div
@@ -376,6 +430,13 @@
           </div>
 
           <div
+            v-if="watchedFolders.length >= 10"
+            class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 px-3 py-2 rounded-md text-sm mb-4"
+          >
+            {{ $t('accounts.folderLimitWarning') }}
+          </div>
+
+          <div
             v-if="availableFolders.length === 0 && !foldersLoading"
             class="text-sm text-gray-400 dark:text-gray-500 italic py-2"
           >
@@ -517,7 +578,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   useAccountsStore,
@@ -543,6 +604,7 @@ const form = ref({
   imap_password: '',
   use_ssl: true,
   polling_interval_sec: 300,
+  use_polling: false,
 })
 
 // Test connection state
@@ -562,6 +624,11 @@ const foldersLoading = ref(false)
 const folderError = ref('')
 const scanningFolderId = ref<number | null>(null)
 
+const accountBeingEdited = computed(() => {
+  if (!editingId.value) return null
+  return accountsStore.accounts.find((a) => a.id === editingId.value) ?? null
+})
+
 function resetForm() {
   form.value = {
     name: '',
@@ -571,6 +638,7 @@ function resetForm() {
     imap_password: '',
     use_ssl: true,
     polling_interval_sec: 300,
+    use_polling: false,
   }
   formError.value = ''
   editingId.value = null
@@ -591,6 +659,7 @@ function openEditForm(account: EmailAccount) {
     imap_password: '',
     use_ssl: account.use_ssl,
     polling_interval_sec: account.polling_interval_sec,
+    use_polling: account.use_polling,
   }
   formError.value = ''
   showForm.value = true
@@ -613,6 +682,7 @@ async function handleSubmit() {
         imap_user: form.value.imap_user,
         use_ssl: form.value.use_ssl,
         polling_interval_sec: form.value.polling_interval_sec,
+        use_polling: form.value.use_polling,
       }
       if (form.value.imap_password) {
         data.imap_password = form.value.imap_password
