@@ -185,6 +185,17 @@
                     {{ t('system.moduleNotConfigured') }}
                   </span>
                   <span
+                    v-else-if="mod.status && typeof mod.status === 'object' && 'mode' in mod.status"
+                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium"
+                    :class="moduleModeColor(mod.status.mode as string)"
+                  >
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      :class="moduleModeDotColor(mod.status.mode as string)"
+                    ></span>
+                    {{ moduleModeLabel(mod.status.mode as string) }}
+                  </span>
+                  <span
                     v-else
                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
                   >
@@ -515,45 +526,21 @@
 
               <!-- ===== LLM module ===== -->
               <template v-else-if="mod.key === 'llm'">
-                <div class="flex items-start justify-between">
-                  <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                    <p>
-                      {{
-                        t('system.llmProvider', {
-                          provider: (mod.status as LLMStatus).provider,
-                        })
-                      }}
-                    </p>
-                    <p>
-                      {{
-                        t('system.llmModel', {
-                          model: (mod.status as LLMStatus).model,
-                        })
-                      }}
-                    </p>
-                  </div>
-                  <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    :class="
-                      (mod.status as LLMStatus).mode === 'active'
-                        ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                    "
-                  >
-                    <span
-                      class="w-1.5 h-1.5 rounded-full"
-                      :class="
-                        (mod.status as LLMStatus).mode === 'active'
-                          ? 'bg-blue-500'
-                          : 'bg-gray-400'
-                      "
-                    ></span>
+                <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                  <p>
                     {{
-                      (mod.status as LLMStatus).mode === 'active'
-                        ? t('system.llmActive')
-                        : t('system.llmIdle')
+                      t('system.llmProvider', {
+                        provider: (mod.status as LLMStatus).provider,
+                      })
                     }}
-                  </span>
+                  </p>
+                  <p>
+                    {{
+                      t('system.llmModel', {
+                        model: (mod.status as LLMStatus).model,
+                      })
+                    }}
+                  </p>
                 </div>
               </template>
 
@@ -744,6 +731,47 @@ function modeColor(mode: string): string {
 function modeDotColor(mode: string): string {
   const colors: Record<string, string> = {
     idle: 'bg-green-500',
+    polling: 'bg-blue-500',
+    processing: 'bg-amber-500',
+    connecting: 'bg-gray-400',
+    error_backoff: 'bg-red-500',
+    stopped: 'bg-gray-400',
+  }
+  return colors[mode] || 'bg-gray-400'
+}
+
+// --- Module-level mode helpers (for header badges) ---
+
+function moduleModeLabel(mode: string): string {
+  const labels: Record<string, string> = {
+    active: t('system.llmActive'),
+    idle: t('system.llmIdle'),
+    polling: t('system.modePolling'),
+    processing: t('system.modeProcessing'),
+    connecting: t('system.modeConnecting'),
+    error_backoff: t('system.modeStopped'),
+    stopped: t('system.modeStopped'),
+  }
+  return labels[mode] || mode
+}
+
+function moduleModeColor(mode: string): string {
+  const colors: Record<string, string> = {
+    active: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400',
+    idle: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400',
+    polling: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400',
+    processing: 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-400',
+    connecting: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
+    error_backoff: 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-400',
+    stopped: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
+  }
+  return colors[mode] || 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+}
+
+function moduleModeDotColor(mode: string): string {
+  const colors: Record<string, string> = {
+    active: 'bg-blue-500',
+    idle: 'bg-blue-500',
     polling: 'bg-blue-500',
     processing: 'bg-amber-500',
     connecting: 'bg-gray-400',
