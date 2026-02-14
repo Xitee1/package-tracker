@@ -182,8 +182,10 @@
         </button>
         <button
           @click="
-            showCreateForm = false
-            newKeyName = ''
+            () => {
+              showCreateForm = false
+              newKeyName = ''
+            }
           "
           class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
         >

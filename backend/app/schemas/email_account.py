@@ -9,7 +9,8 @@ class CreateAccountRequest(BaseModel):
     imap_user: str
     imap_password: str
     use_ssl: bool = True
-    polling_interval_sec: int = 120
+    polling_interval_sec: int = 300
+    use_polling: bool = False
 
 
 class UpdateAccountRequest(BaseModel):
@@ -21,6 +22,7 @@ class UpdateAccountRequest(BaseModel):
     use_ssl: Optional[bool] = None
     polling_interval_sec: Optional[int] = None
     is_active: Optional[bool] = None
+    use_polling: Optional[bool] = None
 
 
 class AccountResponse(BaseModel):
@@ -32,6 +34,8 @@ class AccountResponse(BaseModel):
     use_ssl: bool
     polling_interval_sec: int
     is_active: bool
+    use_polling: bool
+    idle_supported: Optional[bool] = None
 
     model_config = {"from_attributes": True}
 
@@ -42,7 +46,6 @@ class WatchFolderRequest(BaseModel):
 
 class UpdateWatchedFolderRequest(BaseModel):
     max_email_age_days: Optional[int] = None
-    processing_delay_sec: Optional[float] = None
 
 
 class WatchedFolderResponse(BaseModel):
@@ -50,6 +53,5 @@ class WatchedFolderResponse(BaseModel):
     folder_path: str
     last_seen_uid: int
     max_email_age_days: Optional[int] = None
-    processing_delay_sec: Optional[float] = None
 
     model_config = {"from_attributes": True}

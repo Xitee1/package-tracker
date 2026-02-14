@@ -35,6 +35,7 @@ async def create_account(req: CreateAccountRequest, user: User = Depends(get_cur
         imap_password_encrypted=encrypt_value(req.imap_password),
         use_ssl=req.use_ssl,
         polling_interval_sec=req.polling_interval_sec,
+        use_polling=req.use_polling,
     )
     db.add(account)
     await db.commit()
@@ -47,6 +48,11 @@ async def update_account(account_id: int, req: UpdateAccountRequest, user: User 
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
         raise HTTPException(status_code=404, detail="Account not found")
+    if req.use_polling is False and account.idle_supported is False:
+        raise HTTPException(
+            status_code=400,
+            detail="This email provider does not support IMAP IDLE",
+        )
     for field, value in req.model_dump(exclude_unset=True).items():
         if field == "imap_password" and value is not None:
             account.imap_password_encrypted = encrypt_value(value)
@@ -78,10 +84,13 @@ async def test_connection(account_id: int, user: User = Depends(get_current_user
         else:
             mail = imaplib.IMAP4(account.imap_host, account.imap_port)
         mail.login(account.imap_user, password)
+        _, caps = mail.capability()
+        capabilities = caps[0].decode().upper().split() if caps else []
+        idle_supported = "IDLE" in capabilities
         mail.logout()
-        return {"success": True, "message": "Connection successful"}
+        return {"success": True, "message": "Connection successful", "idle_supported": idle_supported}
     except Exception as e:
-        return {"success": False, "message": str(e)}
+        return {"success": False, "message": str(e), "idle_supported": None}
 
 
 @router.get("/{account_id}/folders", response_model=list[str])

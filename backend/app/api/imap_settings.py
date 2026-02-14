@@ -9,7 +9,7 @@ from app.api.deps import get_admin_user
 
 router = APIRouter(prefix="/api/v1/settings/imap", tags=["settings"], dependencies=[Depends(get_admin_user)])
 
-DEFAULTS = ImapSettingsResponse(id=0, max_email_age_days=7, processing_delay_sec=2.0, check_uidvalidity=True)
+DEFAULTS = ImapSettingsResponse(id=0, max_email_age_days=7, check_uidvalidity=True)
 
 
 @router.get("", response_model=ImapSettingsResponse)
@@ -28,13 +28,11 @@ async def update_imap_settings(req: ImapSettingsRequest, db: AsyncSession = Depe
     if not settings:
         settings = ImapSettings(
             max_email_age_days=req.max_email_age_days,
-            processing_delay_sec=req.processing_delay_sec,
             check_uidvalidity=req.check_uidvalidity,
         )
         db.add(settings)
     else:
         settings.max_email_age_days = req.max_email_age_days
-        settings.processing_delay_sec = req.processing_delay_sec
         settings.check_uidvalidity = req.check_uidvalidity
     await db.commit()
     await db.refresh(settings)
