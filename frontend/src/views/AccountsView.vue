@@ -139,22 +139,14 @@
               id="use_polling"
               v-model="form.use_polling"
               type="checkbox"
-              :disabled="
-                editingId
-                  ? accountBeingEdited?.idle_supported === false ||
-                    accountBeingEdited?.idle_supported === null
-                  : false
-              "
+              :disabled="editingId ? accountBeingEdited?.idle_supported === false : false"
               class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label
               for="use_polling"
               class="text-sm font-medium text-gray-700 dark:text-gray-300 ml-2"
               :class="{
-                'opacity-50':
-                  editingId &&
-                  (accountBeingEdited?.idle_supported === false ||
-                    accountBeingEdited?.idle_supported === null),
+                'opacity-50': editingId && accountBeingEdited?.idle_supported === false,
               }"
             >
               {{ $t('accounts.usePolling') }}
