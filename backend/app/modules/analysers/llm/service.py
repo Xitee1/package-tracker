@@ -9,6 +9,18 @@ from app.core.encryption import decrypt_value
 from app.modules.analysers.llm.models import LLMConfig
 
 
+async def get_status(db) -> dict | None:
+    """Status hook: return current LLM configuration summary."""
+    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
+    config = result.scalar_one_or_none()
+    if not config:
+        return None
+    return {
+        "provider": config.provider,
+        "model": config.model_name,
+    }
+
+
 async def call_llm(config: LLMConfig, api_key: str | None, messages: list[dict], **kwargs) -> str:
     """Call LLM via LiteLLM and return the response text."""
     model = f"{config.provider}/{config.model_name}" if config.provider != "openai" else config.model_name
