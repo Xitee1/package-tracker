@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timezone
 
-from apscheduler import AsyncScheduler, ConflictPolicy
+from apscheduler import AsyncScheduler, ScheduleLookupError
 from apscheduler.datastores.sqlalchemy import SQLAlchemyDataStore
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -61,20 +61,22 @@ async def create_scheduler() -> AsyncScheduler:
     return scheduler
 
 
+async def _add_or_skip(
+    scheduler: AsyncScheduler, func, trigger: IntervalTrigger, schedule_id: str
+) -> None:
+    """Add a schedule only if it doesn't already exist in the data store."""
+    try:
+        await scheduler.get_schedule(schedule_id)
+        logger.debug("Schedule %s already exists, skipping", schedule_id)
+    except ScheduleLookupError:
+        await scheduler.add_schedule(func, trigger, id=schedule_id)
+        logger.info("Added schedule %s", schedule_id)
+
+
 async def register_schedules(scheduler: AsyncScheduler) -> None:
     """Register all scheduled jobs."""
-    await scheduler.add_schedule(
-        _run_queue_worker,
-        IntervalTrigger(seconds=5),
-        id="queue-worker",
-        conflict_policy=ConflictPolicy.replace,
-    )
-    await scheduler.add_schedule(
-        _run_retention_cleanup,
-        IntervalTrigger(seconds=600),
-        id="retention-cleanup",
-        conflict_policy=ConflictPolicy.replace,
-    )
+    await _add_or_skip(scheduler, _run_queue_worker, IntervalTrigger(seconds=5), "queue-worker")
+    await _add_or_skip(scheduler, _run_retention_cleanup, IntervalTrigger(seconds=600), "retention-cleanup")
     logger.info("Registered queue-worker and retention-cleanup schedules")
 
 
