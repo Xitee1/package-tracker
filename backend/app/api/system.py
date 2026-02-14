@@ -7,10 +7,10 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_admin_user
 from app.database import get_db
-from app.models.email_account import EmailAccount
 from app.models.user import User
 from app.models.queue_item import QueueItem
-from app.services.imap_worker import _running_tasks, _worker_state
+from app.modules.providers.email_user.models import EmailAccount
+from app.modules.providers.email_user.service import _running_tasks, _worker_state
 from app.services.scheduler import get_job_metadata
 
 router = APIRouter(prefix="/api/v1/system", tags=["system"], dependencies=[Depends(get_admin_user)])
