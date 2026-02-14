@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-6 max-w-7xl mx-auto">
     <!-- Info box showing the global inbox address -->
     <div
       v-if="globalInfo.configured"
@@ -8,14 +8,6 @@
       <p class="text-sm text-blue-800 dark:text-blue-300">
         {{ $t('forwarding.infoText') }}
         <span class="font-mono font-semibold">{{ globalInfo.email_address }}</span>
-      </p>
-    </div>
-    <div
-      v-else
-      class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6"
-    >
-      <p class="text-sm text-amber-800 dark:text-amber-300">
-        {{ $t('forwarding.notConfigured') }}
       </p>
     </div>
 

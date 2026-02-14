@@ -24,9 +24,16 @@ async def list_modules(
     response = []
     for config in configs:
         info = all_modules.get(config.module_key)
+        configured = True
+        if info and info.is_configured:
+            try:
+                configured = await info.is_configured()
+            except Exception:
+                configured = False
         response.append(ModuleResponse(
             module_key=config.module_key,
             enabled=config.enabled,
+            configured=configured,
             name=info.name if info else None,
             type=info.type if info else None,
             description=info.description if info else None,

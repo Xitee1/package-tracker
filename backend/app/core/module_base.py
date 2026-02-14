@@ -16,3 +16,4 @@ class ModuleInfo:
     user_router: APIRouter | None = None
     startup: Callable[[], Awaitable[None]] | None = None
     shutdown: Callable[[], Awaitable[None]] | None = None
+    is_configured: Callable[[], Awaitable[bool]] | None = None

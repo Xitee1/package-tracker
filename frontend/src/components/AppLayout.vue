@@ -208,7 +208,9 @@ const modulesStore = useModulesStore()
 const sidebarOpen = ref(false)
 
 const providerItems = computed(() => {
-  return getUserSidebarItems().filter((item) => modulesStore.isEnabled(item.moduleKey))
+  return getUserSidebarItems().filter(
+    (item) => modulesStore.isEnabled(item.moduleKey) && modulesStore.isConfigured(item.moduleKey),
+  )
 })
 
 const providersExpanded = ref(true)

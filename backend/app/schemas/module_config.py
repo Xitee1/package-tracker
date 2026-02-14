@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class ModuleResponse(BaseModel):
     module_key: str
     enabled: bool
+    configured: bool = True
     name: str | None = None
     type: str | None = None
     description: str | None = None
