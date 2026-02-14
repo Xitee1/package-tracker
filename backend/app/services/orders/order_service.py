@@ -20,6 +20,7 @@ async def create_or_update_order(
     analysis: EmailAnalysis,
     user_id: int,
     existing_order: Order | None,
+    *,
     source_type: str | None = None,
     source_info: str | None = None,
     db: AsyncSession,
