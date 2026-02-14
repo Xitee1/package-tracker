@@ -44,6 +44,8 @@ const tabs = computed(() => [
   { to: '/admin/settings/llm', label: t('settings.llmConfig') },
   { to: '/admin/settings/imap', label: t('settings.imap') },
   { to: '/admin/settings/queue', label: t('settings.queue') },
+  { to: '/admin/settings/modules', label: t('settings.modules') },
+  { to: '/admin/settings/email', label: t('settings.email') },
 ])
 
 function isActive(path: string): boolean {

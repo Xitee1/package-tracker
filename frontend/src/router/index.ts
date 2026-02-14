@@ -94,6 +94,16 @@ const router = createRouter({
           name: 'queue-settings',
           component: () => import('@/views/admin/QueueSettingsView.vue'),
         },
+        {
+          path: 'modules',
+          name: 'settings-modules',
+          component: () => import('@/views/admin/ModulesView.vue'),
+        },
+        {
+          path: 'email',
+          name: 'settings-email',
+          component: () => import('@/views/admin/GlobalMailConfigView.vue'),
+        },
       ],
     },
     {
