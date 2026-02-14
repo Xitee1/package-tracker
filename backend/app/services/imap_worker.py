@@ -10,14 +10,12 @@ from enum import StrEnum
 import html2text
 from aioimaplib import IMAP4_SSL
 from sqlalchemy import select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.database import async_session
 from app.models.email_account import EmailAccount, WatchedFolder
-from app.models.email_scan import EmailScan
 from app.models.imap_settings import ImapSettings
-from app.models.worker_stats import WorkerStats
-from app.services.email_processor import process_email
+from app.models.processed_email import ProcessedEmail
+from app.models.queue_item import QueueItem
 
 logger = logging.getLogger(__name__)
 h2t = html2text.HTML2Text()
@@ -110,25 +108,6 @@ async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, float
     check_uid = global_settings.check_uidvalidity if global_settings else True
 
     return max_age, delay, check_uid
-
-
-async def _record_stat(db, folder_id: int, *, processed: int = 0, errors: int = 0):
-    """Increment hourly stats for a folder using upsert."""
-    bucket = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
-    stmt = pg_insert(WorkerStats).values(
-        folder_id=folder_id,
-        hour_bucket=bucket,
-        emails_processed=processed,
-        errors_count=errors,
-    ).on_conflict_do_update(
-        constraint="uq_worker_stats_folder_hour",
-        set_={
-            "emails_processed": WorkerStats.emails_processed + processed,
-            "errors_count": WorkerStats.errors_count + errors,
-        },
-    )
-    await db.execute(stmt)
-    await db.commit()
 
 
 async def _watch_folder(account_id: int, folder_id: int):
@@ -238,19 +217,42 @@ async def _watch_folder(account_id: int, folder_id: int):
                         state.current_email_sender = sender
                         state.last_activity_at = datetime.now(timezone.utc)
 
-                    await process_email(
-                        subject=subject,
-                        sender=sender,
-                        body=body,
-                        message_id=message_id,
-                        email_uid=uid,
-                        folder_path=folder.folder_path,
-                        account_id=account_id,
-                        user_id=account.user_id,
-                        db=db,
-                        email_date=email_date,
+                    # Dedup check
+                    existing = await db.execute(
+                        select(ProcessedEmail).where(ProcessedEmail.message_id == message_id)
                     )
-                    await _record_stat(db, folder_id, processed=1)
+                    if existing.scalar_one_or_none():
+                        folder.last_seen_uid = uid
+                        await db.commit()
+                        continue
+
+                    # Create queue item
+                    queue_item = QueueItem(
+                        user_id=account.user_id,
+                        status="queued",
+                        source_type="email",
+                        source_info=f"{account.imap_user} / {folder.folder_path}",
+                        raw_data={
+                            "subject": subject,
+                            "sender": sender,
+                            "body": body,
+                            "message_id": message_id,
+                            "email_uid": uid,
+                            "email_date": email_date.isoformat() if email_date else None,
+                        },
+                    )
+                    db.add(queue_item)
+                    await db.flush()
+
+                    # Record dedup entry
+                    processed = ProcessedEmail(
+                        account_id=account_id,
+                        folder_path=folder.folder_path,
+                        email_uid=uid,
+                        message_id=message_id,
+                        queue_item_id=queue_item.id,
+                    )
+                    db.add(processed)
 
                     folder.last_seen_uid = uid
                     await db.commit()
@@ -262,77 +264,6 @@ async def _watch_folder(account_id: int, folder_id: int):
                 if state:
                     state.last_scan_at = datetime.now(timezone.utc)
                     state.clear_queue()
-
-                # Process rescan queue
-                rescan_result = await db.execute(
-                    select(EmailScan).where(
-                        EmailScan.rescan_queued == True,
-                        EmailScan.account_id == account_id,
-                        EmailScan.folder_path == folder.folder_path,
-                    )
-                )
-                rescan_entries = rescan_result.scalars().all()
-
-                for rescan_scan in rescan_entries:
-                    try:
-                        _, msg_data = await imap.uid(
-                            "fetch", str(rescan_scan.email_uid), "(RFC822)"
-                        )
-                        if not msg_data or not msg_data[0]:
-                            rescan_scan.rescan_queued = False
-                            rescan_scan.llm_raw_response = {
-                                **(rescan_scan.llm_raw_response or {}),
-                                "rescan_error": f"Email UID {rescan_scan.email_uid} not found on server",
-                            }
-                            await db.commit()
-                            continue
-
-                        raw_email = msg_data[0]
-                        if isinstance(raw_email, (list, tuple)):
-                            raw_email = raw_email[-1] if len(raw_email) > 1 else raw_email[0]
-                        if not isinstance(raw_email, bytes):
-                            rescan_scan.rescan_queued = False
-                            rescan_scan.llm_raw_response = {
-                                **(rescan_scan.llm_raw_response or {}),
-                                "rescan_error": "Could not parse email data from server",
-                            }
-                            await db.commit()
-                            continue
-
-                        msg = email.message_from_bytes(raw_email)
-                        subject = _decode_header_value(msg.get("Subject", ""))
-                        sender = _decode_header_value(msg.get("From", ""))
-                        body = _extract_body(msg)
-
-                        from app.services.llm_service import analyze_email
-                        analysis, raw_response = await analyze_email(subject, sender, body, db)
-
-                        is_relevant = analysis is not None and analysis.is_relevant
-                        rescan_scan.llm_raw_response = raw_response
-                        rescan_scan.is_relevant = is_relevant
-                        rescan_scan.rescan_queued = False
-
-                        if is_relevant:
-                            from app.services.order_matcher import find_matching_order
-                            order = await find_matching_order(analysis, account.user_id, db)
-                            rescan_scan.order_id = order.id if order else None
-
-                        await db.commit()
-                        logger.info(
-                            f"Rescan complete for EmailScan {rescan_scan.id} "
-                            f"(UID {rescan_scan.email_uid}), relevant={is_relevant}"
-                        )
-
-                    except Exception as e:
-                        logger.error(
-                            f"Error rescanning EmailScan {rescan_scan.id}: {e}"
-                        )
-                        rescan_scan.rescan_queued = False
-                        rescan_scan.llm_raw_response = {
-                            **(rescan_scan.llm_raw_response or {}),
-                            "rescan_error": str(e),
-                        }
-                        await db.commit()
 
                 # Try IDLE, fall back to polling
                 try:
@@ -362,12 +293,6 @@ async def _watch_folder(account_id: int, folder_id: int):
             return
         except Exception as e:
             logger.error(f"Error watching folder {folder_id}: {e}")
-            # Record error stat
-            try:
-                async with async_session() as err_db:
-                    await _record_stat(err_db, folder_id, errors=1)
-            except Exception:
-                pass  # Don't break error recovery
             # Update state: error backoff
             state = _worker_state.get(folder_id)
             if state:
