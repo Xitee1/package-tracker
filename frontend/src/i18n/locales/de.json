@@ -235,7 +235,10 @@
     "idleNotSupportedReject": "Dieser E-Mail-Anbieter unterstützt kein IMAP IDLE",
     "modeIdle": "IDLE",
     "modePolling": "Polling",
-    "modeDetecting": "Erkennung..."
+    "modeDetecting": "Erkennung...",
+    "tabImap": "IMAP-Konten",
+    "tabForwarding": "Weiterleitung",
+    "noModulesEnabled": "Derzeit sind keine E-Mail-Funktionen aktiviert. Wenden Sie sich an Ihren Administrator."
   },
   "profile": {
     "title": "Profil",
@@ -370,11 +373,49 @@
     "jobLastStatus": "Letzter Status",
     "jobNever": "Nie"
   },
+  "forwarding": {
+    "infoText": "Leiten Sie Ihre Bestellbestätigungen weiter an:",
+    "notConfigured": "Die globale E-Mail-Weiterleitung ist noch nicht konfiguriert. Wenden Sie sich an Ihren Administrator.",
+    "emailAddress": "Ihre E-Mail-Adresse",
+    "emailPlaceholder": "ihre.email@beispiel.de",
+    "addAddress": "Adresse hinzufügen",
+    "noAddresses": "Noch keine Absenderadressen registriert.",
+    "addFailed": "Adresse konnte nicht hinzugefügt werden.",
+    "deleteFailed": "Adresse konnte nicht entfernt werden."
+  },
+  "modules": {
+    "email-imap": {
+      "title": "IMAP-Konten",
+      "description": "Erlaubt Benutzern, eigene IMAP-E-Mail-Konten zu verbinden."
+    },
+    "email-global": {
+      "title": "Globale E-Mail-Weiterleitung",
+      "description": "Erlaubt Benutzern, E-Mails an ein gemeinsames Postfach weiterzuleiten."
+    },
+    "toggleFailed": "Modul konnte nicht aktualisiert werden."
+  },
+  "globalMail": {
+    "imapHost": "IMAP-Host",
+    "imapPort": "IMAP-Port",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "passwordKeepCurrent": "(leer lassen, um aktuelles beizubehalten)",
+    "useSsl": "SSL verwenden",
+    "pollingInterval": "Abfrageintervall (Sekunden)",
+    "usePolling": "Polling verwenden",
+    "watchedFolder": "Überwachter Ordner",
+    "isActive": "Aktiv",
+    "saveSettings": "Einstellungen speichern",
+    "configSaved": "Globale E-Mail-Konfiguration gespeichert.",
+    "saveFailed": "Konfiguration konnte nicht gespeichert werden."
+  },
   "settings": {
     "title": "Einstellungen",
     "llmConfig": "LLM-Konfiguration",
     "imap": "IMAP",
-    "queue": "Warteschlange"
+    "queue": "Warteschlange",
+    "email": "E-Mail",
+    "modules": "Module"
   },
   "imap": {
     "title": "IMAP-Einstellungen",

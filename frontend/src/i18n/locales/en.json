@@ -235,7 +235,10 @@
     "idleNotSupportedReject": "This email provider does not support IMAP IDLE",
     "modeIdle": "IDLE",
     "modePolling": "Polling",
-    "modeDetecting": "Detecting..."
+    "modeDetecting": "Detecting...",
+    "tabImap": "IMAP Accounts",
+    "tabForwarding": "Forwarding",
+    "noModulesEnabled": "No email features are currently enabled. Contact your administrator."
   },
   "profile": {
     "title": "Profile",
@@ -370,11 +373,49 @@
     "jobLastStatus": "Last status",
     "jobNever": "Never"
   },
+  "forwarding": {
+    "infoText": "Forward your order confirmation emails to:",
+    "notConfigured": "Global mail forwarding is not configured yet. Contact your administrator.",
+    "emailAddress": "Your Email Address",
+    "emailPlaceholder": "your.email@example.com",
+    "addAddress": "Add Address",
+    "noAddresses": "No sender addresses registered yet.",
+    "addFailed": "Failed to add address.",
+    "deleteFailed": "Failed to remove address."
+  },
+  "modules": {
+    "email-imap": {
+      "title": "IMAP Accounts",
+      "description": "Allow users to connect their own IMAP email accounts."
+    },
+    "email-global": {
+      "title": "Global Mail Forwarding",
+      "description": "Allow users to forward emails to a shared inbox."
+    },
+    "toggleFailed": "Failed to update module."
+  },
+  "globalMail": {
+    "imapHost": "IMAP Host",
+    "imapPort": "IMAP Port",
+    "username": "Username",
+    "password": "Password",
+    "passwordKeepCurrent": "(leave empty to keep current)",
+    "useSsl": "Use SSL",
+    "pollingInterval": "Polling Interval (seconds)",
+    "usePolling": "Use Polling",
+    "watchedFolder": "Watched Folder",
+    "isActive": "Active",
+    "saveSettings": "Save Settings",
+    "configSaved": "Global mail configuration saved.",
+    "saveFailed": "Failed to save configuration."
+  },
   "settings": {
     "title": "Settings",
     "llmConfig": "LLM Config",
     "imap": "IMAP",
-    "queue": "Queue"
+    "queue": "Queue",
+    "email": "Email",
+    "modules": "Modules"
   },
   "imap": {
     "title": "IMAP Settings",
