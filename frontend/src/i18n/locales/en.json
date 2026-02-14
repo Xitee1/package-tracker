@@ -395,19 +395,25 @@
     "toggleFailed": "Failed to update module."
   },
   "globalMail": {
+    "connectionTitle": "Connection Details",
     "imapHost": "IMAP Host",
     "imapPort": "IMAP Port",
     "username": "Username",
     "password": "Password",
     "passwordKeepCurrent": "(leave empty to keep current)",
     "useSsl": "Use SSL",
-    "pollingInterval": "Polling Interval (seconds)",
-    "usePolling": "Use Polling",
+    "saveConnection": "Save Connection",
+    "settingsTitle": "Mail Settings",
     "watchedFolder": "Watched Folder",
-    "isActive": "Active",
+    "pollingInterval": "Polling Interval (seconds)",
+    "pollingHint": "IMAP IDLE is not supported by this server. Polling will be used instead.",
+    "idleHint": "This server supports IMAP IDLE for real-time email detection.",
     "saveSettings": "Save Settings",
-    "configSaved": "Global mail configuration saved.",
-    "saveFailed": "Failed to save configuration."
+    "configSaved": "Configuration saved.",
+    "saveFailed": "Failed to save configuration.",
+    "loadingFolders": "Loading folders...",
+    "folderLoadError": "Could not load folders. Check connection details.",
+    "retry": "Retry"
   },
   "settings": {
     "title": "Settings",

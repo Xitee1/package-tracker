@@ -395,19 +395,25 @@
     "toggleFailed": "Modul konnte nicht aktualisiert werden."
   },
   "globalMail": {
+    "connectionTitle": "Verbindungsdetails",
     "imapHost": "IMAP-Host",
     "imapPort": "IMAP-Port",
     "username": "Benutzername",
     "password": "Passwort",
     "passwordKeepCurrent": "(leer lassen, um aktuelles beizubehalten)",
     "useSsl": "SSL verwenden",
-    "pollingInterval": "Abfrageintervall (Sekunden)",
-    "usePolling": "Polling verwenden",
+    "saveConnection": "Verbindung speichern",
+    "settingsTitle": "E-Mail-Einstellungen",
     "watchedFolder": "Überwachter Ordner",
-    "isActive": "Aktiv",
+    "pollingInterval": "Abfrageintervall (Sekunden)",
+    "pollingHint": "Dieser Server unterstützt kein IMAP IDLE. Stattdessen wird Polling verwendet.",
+    "idleHint": "Dieser Server unterstützt IMAP IDLE für Echtzeit-E-Mail-Erkennung.",
     "saveSettings": "Einstellungen speichern",
-    "configSaved": "Globale E-Mail-Konfiguration gespeichert.",
-    "saveFailed": "Konfiguration konnte nicht gespeichert werden."
+    "configSaved": "Konfiguration gespeichert.",
+    "saveFailed": "Konfiguration konnte nicht gespeichert werden.",
+    "loadingFolders": "Ordner werden geladen...",
+    "folderLoadError": "Ordner konnten nicht geladen werden. Verbindungsdetails prüfen.",
+    "retry": "Erneut versuchen"
   },
   "settings": {
     "title": "Einstellungen",
