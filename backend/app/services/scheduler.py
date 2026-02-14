@@ -52,6 +52,7 @@ async def create_scheduler() -> AsyncScheduler:
     scheduler = AsyncScheduler(data_store)
 
     _job_metadata["history_cleanup"] = {
+        "description": "Clean up old email scan history",
         "interval_hours": interval_hours,
         "last_run": None,
         "last_status": None,
