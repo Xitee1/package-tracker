@@ -36,7 +36,7 @@
               <option value="">{{ t('queue.allSourceTypes') }}</option>
               <option value="email">{{ t('queue.sourceEmail') }}</option>
               <option value="manual">{{ t('queue.sourceManual') }}</option>
-              <option value="api">API</option>
+              <option value="api">{{ t('queue.sourceApi') }}</option>
             </select>
           </div>
         </div>

@@ -108,6 +108,7 @@
     "allSourceTypes": "Alle Quelltypen",
     "sourceEmail": "E-Mail",
     "sourceManual": "Manuell",
+    "sourceApi": "API",
     "statusQueued": "Wartend",
     "statusProcessing": "In Verarbeitung",
     "statusCompleted": "Abgeschlossen",
