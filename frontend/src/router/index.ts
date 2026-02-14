@@ -87,11 +87,12 @@ const router = createRouter({
       ],
     },
     {
-      path: '/admin/system',
-      name: 'admin-system',
-      component: () => import('@/views/admin/SystemView.vue'),
+      path: '/admin/status',
+      name: 'admin-status',
+      component: () => import('@/views/admin/StatusView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+    { path: '/admin/system', redirect: '/admin/status' },
   ],
 })
 
