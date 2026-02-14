@@ -5,6 +5,9 @@ import api from '@/api/client'
 interface Module {
   module_key: string
   enabled: boolean
+  name: string | null
+  type: string | null
+  description: string | null
 }
 
 export const useModulesStore = defineStore('modules', () => {
@@ -16,11 +19,15 @@ export const useModulesStore = defineStore('modules', () => {
     return m?.enabled ?? false
   })
 
+  function getModule(key: string): Module | undefined {
+    return modules.value.find((mod) => mod.module_key === key)
+  }
+
   async function fetchModules() {
     const res = await api.get('/modules')
     modules.value = res.data
     loaded.value = true
   }
 
-  return { modules, loaded, isEnabled, fetchModules }
+  return { modules, loaded, isEnabled, getModule, fetchModules }
 })
