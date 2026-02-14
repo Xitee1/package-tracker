@@ -18,3 +18,4 @@ class User(Base):
     email_accounts = relationship("EmailAccount", back_populates="user", cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
     api_keys = relationship("ApiKey", back_populates="user", cascade="all, delete-orphan")
+    sender_addresses = relationship("UserSenderAddress", back_populates="user", cascade="all, delete-orphan")

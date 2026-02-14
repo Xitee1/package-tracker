@@ -10,10 +10,11 @@ from app.models.processed_email import ProcessedEmail
 from app.models.queue_settings import QueueSettings
 from app.models.module_config import ModuleConfig
 from app.models.global_mail_config import GlobalMailConfig
+from app.models.user_sender_address import UserSenderAddress
 
 __all__ = [
     "User", "EmailAccount", "WatchedFolder", "Order", "OrderState",
     "LLMConfig", "ApiKey", "ImapSettings",
     "QueueItem", "ProcessedEmail", "QueueSettings",
-    "ModuleConfig", "GlobalMailConfig",
+    "ModuleConfig", "GlobalMailConfig", "UserSenderAddress",
 ]
