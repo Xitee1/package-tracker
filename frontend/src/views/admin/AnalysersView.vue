@@ -24,10 +24,10 @@
       <p class="text-gray-500 dark:text-gray-400">{{ t('analysers.empty') }}</p>
     </div>
 
-    <!-- Analyser Cards -->
-    <div v-if="!loading && analysers.length > 0" class="space-y-3">
+    <!-- Enabled Analyser Cards -->
+    <div v-if="!loading && enabledAnalysers.length > 0" class="space-y-3">
       <div
-        v-for="(mod, index) in analysers"
+        v-for="(mod, index) in enabledAnalysers"
         :key="mod.module_key"
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-5 py-4"
       >
@@ -51,7 +51,7 @@
                 </svg>
               </button>
               <button
-                :disabled="index === analysers.length - 1 || reordering"
+                :disabled="index === enabledAnalysers.length - 1 || reordering"
                 @click="moveDown(index)"
                 class="p-0.5 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed"
                 :title="t('analysers.moveDown')"
@@ -69,19 +69,7 @@
 
             <!-- Module info -->
             <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ mod.name }}</h3>
-                <span
-                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                  :class="
-                    mod.configured
-                      ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400'
-                      : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400'
-                  "
-                >
-                  {{ mod.configured ? t('analysers.configured') : t('analysers.notConfigured') }}
-                </span>
-              </div>
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ mod.name }}</h3>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ mod.description }}</p>
             </div>
           </div>
@@ -99,11 +87,44 @@
         </div>
       </div>
     </div>
+
+    <!-- Disabled Analyser Cards -->
+    <div v-if="!loading && disabledAnalysers.length > 0" class="space-y-3 mt-3">
+      <div
+        v-for="mod in disabledAnalysers"
+        :key="mod.module_key"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-5 py-4 opacity-50"
+      >
+        <div class="flex items-center justify-between">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ mod.name }}</h3>
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+              >
+                {{ t('system.moduleDisabled') }}
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ mod.description }}</p>
+          </div>
+
+          <div class="flex items-center gap-3 ml-4">
+            <router-link
+              v-if="configPath(mod.module_key)"
+              :to="configPath(mod.module_key)!"
+              class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+            >
+              {{ t('analysers.configure') }}
+            </router-link>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
 import { getModulesByType } from '@/core/moduleRegistry'
@@ -125,6 +146,12 @@ const loading = ref(false)
 const error = ref('')
 const reordering = ref(false)
 
+const enabledAnalysers = computed(() =>
+  analysers.value.filter((m) => m.enabled).sort((a, b) => a.priority - b.priority),
+)
+
+const disabledAnalysers = computed(() => analysers.value.filter((m) => !m.enabled))
+
 function configPath(moduleKey: string): string | null {
   const manifests = getModulesByType('analyser')
   const manifest = manifests.find((m) => m.key === moduleKey)
@@ -139,9 +166,7 @@ async function fetchAnalysers() {
   error.value = ''
   try {
     const res = await api.get<AnalyserModule[]>('/modules')
-    analysers.value = res.data
-      .filter((m) => m.type === 'analyser')
-      .sort((a, b) => a.priority - b.priority)
+    analysers.value = res.data.filter((m) => m.type === 'analyser')
   } catch {
     error.value = 'Failed to load analyser modules.'
   } finally {
@@ -153,7 +178,7 @@ async function saveOrder() {
   reordering.value = true
   error.value = ''
   try {
-    const keys = analysers.value.map((m) => m.module_key)
+    const keys = enabledAnalysers.value.map((m) => m.module_key)
     await api.patch('/modules/priority', { module_keys: keys })
   } catch {
     error.value = 'Failed to save priority order.'
@@ -164,17 +189,18 @@ async function saveOrder() {
 
 function moveUp(index: number) {
   if (index <= 0) return
-  const arr = [...analysers.value]
-  ;[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]]
-  analysers.value = arr
+  const enabled = [...enabledAnalysers.value]
+  ;[enabled[index - 1], enabled[index]] = [enabled[index], enabled[index - 1]]
+  // Update priority values to match new order
+  enabled.forEach((m, i) => (m.priority = i))
   saveOrder()
 }
 
 function moveDown(index: number) {
-  if (index >= analysers.value.length - 1) return
-  const arr = [...analysers.value]
-  ;[arr[index], arr[index + 1]] = [arr[index + 1], arr[index]]
-  analysers.value = arr
+  if (index >= enabledAnalysers.value.length - 1) return
+  const enabled = [...enabledAnalysers.value]
+  ;[enabled[index], enabled[index + 1]] = [enabled[index + 1], enabled[index]]
+  enabled.forEach((m, i) => (m.priority = i))
   saveOrder()
 }
 
