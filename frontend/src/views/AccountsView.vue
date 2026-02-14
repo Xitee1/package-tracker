@@ -275,10 +275,16 @@
                 <span
                   class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
                   :class="{
+                    // IDLE mode (IDLE supported and used)
                     'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400':
                       !account.use_polling && account.idle_supported === true,
+                    // Polling chosen even though IDLE is supported
+                    'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-400':
+                      account.use_polling && account.idle_supported === true,
+                    // Polling forced because IDLE is not supported
                     'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400':
-                      account.use_polling,
+                      account.use_polling && account.idle_supported === false,
+                    // Detecting IDLE support
                     'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400':
                       account.idle_supported === null && !account.use_polling,
                   }"
