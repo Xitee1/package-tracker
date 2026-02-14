@@ -139,13 +139,23 @@
               id="use_polling"
               v-model="form.use_polling"
               type="checkbox"
-              :disabled="editingId ? (accountBeingEdited?.idle_supported === false || accountBeingEdited?.idle_supported === null) : false"
+              :disabled="
+                editingId
+                  ? accountBeingEdited?.idle_supported === false ||
+                    accountBeingEdited?.idle_supported === null
+                  : false
+              "
               class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label
               for="use_polling"
               class="text-sm font-medium text-gray-700 dark:text-gray-300 ml-2"
-              :class="{ 'opacity-50': editingId && (accountBeingEdited?.idle_supported === false || accountBeingEdited?.idle_supported === null) }"
+              :class="{
+                'opacity-50':
+                  editingId &&
+                  (accountBeingEdited?.idle_supported === false ||
+                    accountBeingEdited?.idle_supported === null),
+              }"
             >
               {{ $t('accounts.usePolling') }}
             </label>
@@ -162,10 +172,7 @@
           >
             {{ $t('accounts.idleDetecting') }}
           </div>
-          <div
-            v-else
-            class="text-xs text-gray-500 dark:text-gray-400"
-          >
+          <div v-else class="text-xs text-gray-500 dark:text-gray-400">
             {{ $t('accounts.usePollingTooltip') }}
           </div>
         </div>
@@ -268,9 +275,12 @@
                 <span
                   class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
                   :class="{
-                    'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400': !account.use_polling && account.idle_supported === true,
-                    'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400': account.use_polling,
-                    'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400': account.idle_supported === null && !account.use_polling,
+                    'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400':
+                      !account.use_polling && account.idle_supported === true,
+                    'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400':
+                      account.use_polling,
+                    'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400':
+                      account.idle_supported === null && !account.use_polling,
                   }"
                   :title="account.idle_supported === null ? $t('accounts.idleDetecting') : ''"
                 >
