@@ -185,7 +185,7 @@
       </div>
 
       <!-- Page Content -->
-      <main>
+      <main class="p-6 max-w-7xl mx-auto">
         <slot />
       </main>
     </div>

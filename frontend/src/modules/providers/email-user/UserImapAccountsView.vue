@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-7xl mx-auto">
+  <div>
     <div class="flex items-center justify-between mb-6">
       <div></div>
       <button

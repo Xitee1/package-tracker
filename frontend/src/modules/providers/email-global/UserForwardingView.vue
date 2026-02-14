@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-7xl mx-auto">
+  <div>
     <!-- Info box showing the global inbox address -->
     <div
       v-if="globalInfo.configured"
