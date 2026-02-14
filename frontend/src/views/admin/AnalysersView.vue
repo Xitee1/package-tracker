@@ -93,10 +93,10 @@
       <div
         v-for="mod in disabledAnalysers"
         :key="mod.module_key"
-        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-5 py-4 opacity-50"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-5 py-4"
       >
         <div class="flex items-center justify-between">
-          <div class="min-w-0">
+          <div class="min-w-0 opacity-50">
             <div class="flex items-center gap-2">
               <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ mod.name }}</h3>
               <span
