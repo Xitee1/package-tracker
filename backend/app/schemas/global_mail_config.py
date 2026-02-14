@@ -27,6 +27,11 @@ class GlobalMailConfigResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class GlobalMailFoldersResponse(BaseModel):
+    folders: list[str]
+    idle_supported: bool
+
+
 class GlobalMailInfoResponse(BaseModel):
     configured: bool
     email_address: Optional[str] = None
