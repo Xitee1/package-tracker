@@ -29,19 +29,18 @@ class OrderResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class OrderEventResponse(BaseModel):
+class OrderStateResponse(BaseModel):
     id: int
-    event_type: str
-    old_status: Optional[str]
-    new_status: str
-    source_email_message_id: Optional[str]
+    status: str
+    source_type: str | None
+    source_info: str | None
     created_at: datetime
 
     model_config = {"from_attributes": True}
 
 
 class OrderDetailResponse(OrderResponse):
-    events: list[OrderEventResponse]
+    states: list[OrderStateResponse]
 
 
 class UpdateOrderRequest(BaseModel):
