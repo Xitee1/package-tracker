@@ -18,7 +18,9 @@ class EmailAccount(Base):
     imap_user: Mapped[str] = mapped_column(String(255))
     imap_password_encrypted: Mapped[str] = mapped_column(String(1024))
     use_ssl: Mapped[bool] = mapped_column(Boolean, default=True)
-    polling_interval_sec: Mapped[int] = mapped_column(Integer, default=120)
+    polling_interval_sec: Mapped[int] = mapped_column(Integer, default=300)
+    use_polling: Mapped[bool] = mapped_column(Boolean, default=False)
+    idle_supported: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True, default=None)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
