@@ -36,6 +36,7 @@
     "system": "System",
     "settings": "Einstellungen",
     "history": "Verlauf",
+    "providers": "Anbieter",
     "logout": "Abmelden"
   },
   "app": {
@@ -384,13 +385,17 @@
     "deleteFailed": "Adresse konnte nicht entfernt werden."
   },
   "modules": {
-    "email-imap": {
-      "title": "IMAP-Konten",
-      "description": "Erlaubt Benutzern, eigene IMAP-E-Mail-Konten zu verbinden."
+    "llm": {
+      "title": "LLM Analyse",
+      "description": "E-Mails mit LLM analysieren, um Bestellinformationen zu extrahieren"
     },
     "email-global": {
-      "title": "Globale E-Mail-Weiterleitung",
-      "description": "Erlaubt Benutzern, E-Mails an ein gemeinsames Postfach weiterzuleiten."
+      "title": "E-Mail - Global/Weiterleitung",
+      "description": "Gemeinsames globales E-Mail-Postfach mit absenderbasierter Zuordnung"
+    },
+    "email-user": {
+      "title": "E-Mail - Benutzer IMAP",
+      "description": "Benutzern erlauben, eigene IMAP-E-Mail-Konten zu verbinden"
     },
     "toggleFailed": "Modul konnte nicht aktualisiert werden."
   },
@@ -420,8 +425,7 @@
     "llmConfig": "LLM-Konfiguration",
     "imap": "IMAP",
     "queue": "Warteschlange",
-    "email": "E-Mail",
-    "modules": "Module"
+    "email": "E-Mail"
   },
   "imap": {
     "title": "IMAP-Einstellungen",

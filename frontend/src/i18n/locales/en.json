@@ -36,6 +36,7 @@
     "system": "System",
     "settings": "Settings",
     "history": "History",
+    "providers": "Providers",
     "logout": "Logout"
   },
   "app": {
@@ -384,13 +385,17 @@
     "deleteFailed": "Failed to remove address."
   },
   "modules": {
-    "email-imap": {
-      "title": "IMAP Accounts",
-      "description": "Allow users to connect their own IMAP email accounts."
+    "llm": {
+      "title": "LLM Analyser",
+      "description": "Analyse emails using LLM to extract order information"
     },
     "email-global": {
-      "title": "Global Mail Forwarding",
-      "description": "Allow users to forward emails to a shared inbox."
+      "title": "Email - Global/Redirect",
+      "description": "Shared global email inbox with sender-based routing"
+    },
+    "email-user": {
+      "title": "Email - User IMAP",
+      "description": "Allow users to connect their own IMAP email accounts"
     },
     "toggleFailed": "Failed to update module."
   },
@@ -420,8 +425,7 @@
     "llmConfig": "LLM Config",
     "imap": "IMAP",
     "queue": "Queue",
-    "email": "Email",
-    "modules": "Modules"
+    "email": "Email"
   },
   "imap": {
     "title": "IMAP Settings",
