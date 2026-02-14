@@ -25,17 +25,16 @@ export interface Order {
   updated_at: string
 }
 
-export interface OrderEvent {
+export interface OrderState {
   id: number
-  order_id: number
-  event_type: string
-  description: string | null
-  timestamp: string
-  raw_data: Record<string, unknown> | null
+  status: string
+  source_type: string | null
+  source_info: string | null
+  created_at: string
 }
 
 export interface OrderDetail extends Order {
-  events: OrderEvent[]
+  states: OrderState[]
 }
 
 export const useOrdersStore = defineStore('orders', () => {
