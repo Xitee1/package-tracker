@@ -6,21 +6,11 @@ from app.api.deps import get_current_user, get_admin_user
 from app.database import get_db
 from app.models.module_config import ModuleConfig
 from app.schemas.module_config import ModuleResponse, UpdateModuleRequest
+from app.core.module_registry import (
+    get_all_modules, enable_module, disable_module,
+)
 
 router = APIRouter(prefix="/api/v1/modules", tags=["modules"])
-
-KNOWN_MODULES = {"email-imap", "email-global"}
-
-
-async def _ensure_modules_exist(db: AsyncSession) -> None:
-    """Create module rows if they don't exist (first-run without migration seed)."""
-    result = await db.execute(select(ModuleConfig))
-    existing = {m.module_key for m in result.scalars().all()}
-    for key in KNOWN_MODULES:
-        if key not in existing:
-            db.add(ModuleConfig(module_key=key, enabled=(key == "email-imap")))
-    if KNOWN_MODULES - existing:
-        await db.commit()
 
 
 @router.get("", response_model=list[ModuleResponse])
@@ -28,9 +18,20 @@ async def list_modules(
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    await _ensure_modules_exist(db)
     result = await db.execute(select(ModuleConfig).order_by(ModuleConfig.module_key))
-    return result.scalars().all()
+    configs = result.scalars().all()
+    all_modules = get_all_modules()
+    response = []
+    for config in configs:
+        info = all_modules.get(config.module_key)
+        response.append(ModuleResponse(
+            module_key=config.module_key,
+            enabled=config.enabled,
+            name=info.name if info else None,
+            type=info.type if info else None,
+            description=info.description if info else None,
+        ))
+    return response
 
 
 @router.put("/{module_key}", response_model=ModuleResponse)
@@ -40,16 +41,32 @@ async def update_module(
     user=Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if module_key not in KNOWN_MODULES:
+    if module_key not in get_all_modules():
         raise HTTPException(status_code=404, detail="Unknown module")
-    await _ensure_modules_exist(db)
     result = await db.execute(
         select(ModuleConfig).where(ModuleConfig.module_key == module_key)
     )
     module = result.scalar_one_or_none()
     if not module:
         raise HTTPException(status_code=404, detail="Module not found")
+
+    was_enabled = module.enabled
     module.enabled = req.enabled
     await db.commit()
     await db.refresh(module)
-    return module
+
+    # Lifecycle hooks
+    if req.enabled and not was_enabled:
+        await enable_module(module_key)
+    elif not req.enabled and was_enabled:
+        await disable_module(module_key)
+
+    all_modules = get_all_modules()
+    info = all_modules.get(module_key)
+    return ModuleResponse(
+        module_key=module.module_key,
+        enabled=module.enabled,
+        name=info.name if info else None,
+        type=info.type if info else None,
+        description=info.description if info else None,
+    )
