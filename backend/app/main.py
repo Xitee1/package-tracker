@@ -67,6 +67,7 @@ from app.api.system import router as system_router
 from app.api.imap_settings import router as imap_settings_router
 from app.api.queue import router as queue_router
 from app.api.queue_settings import router as queue_settings_router
+from app.api.modules import router as modules_router
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(accounts_router)
@@ -77,6 +78,7 @@ app.include_router(system_router)
 app.include_router(imap_settings_router)
 app.include_router(queue_router)
 app.include_router(queue_settings_router)
+app.include_router(modules_router)
 
 
 @app.get("/api/v1/health")
