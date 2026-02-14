@@ -188,13 +188,17 @@ async def _watch_folder(account_id: int, folder_id: int):
                     if not msg_data or not msg_data[0]:
                         continue
 
-                    raw_email = msg_data[0]
-                    if isinstance(raw_email, (list, tuple)):
-                        raw_email = raw_email[-1] if len(raw_email) > 1 else raw_email[0]
-                    if isinstance(raw_email, bytes):
-                        msg = email.message_from_bytes(raw_email)
-                    else:
+                    # aioimaplib returns a flat list of response lines:
+                    #   [b'1 FETCH (UID 1 RFC822 {size}', bytearray(email_bytes), b')', ...]
+                    # Find the literal data (bytearray) which contains the actual email.
+                    raw_email = None
+                    for part in msg_data:
+                        if isinstance(part, bytearray):
+                            raw_email = bytes(part)
+                            break
+                    if raw_email is None:
                         continue
+                    msg = email.message_from_bytes(raw_email)
 
                     subject = _decode_header_value(msg.get("Subject", ""))
                     sender = _decode_header_value(msg.get("From", ""))
