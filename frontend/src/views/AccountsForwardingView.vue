@@ -49,7 +49,10 @@
     <div v-if="store.loading" class="text-center py-8 text-gray-500 dark:text-gray-400">
       {{ $t('common.loading') }}
     </div>
-    <div v-else-if="store.addresses.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+    <div
+      v-else-if="store.addresses.length === 0"
+      class="text-center py-8 text-gray-500 dark:text-gray-400"
+    >
       {{ $t('forwarding.noAddresses') }}
     </div>
     <div v-else class="space-y-2">

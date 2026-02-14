@@ -9,7 +9,9 @@
     </div>
 
     <template v-else-if="enabledTabs.length === 0">
-      <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+      <div
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center"
+      >
         <p class="text-gray-500 dark:text-gray-400">{{ $t('accounts.noModulesEnabled') }}</p>
       </div>
     </template>
@@ -55,7 +57,7 @@ const allTabs = computed(() => [
 ])
 
 const enabledTabs = computed(() =>
-  allTabs.value.filter((tab) => modulesStore.isEnabled(tab.module))
+  allTabs.value.filter((tab) => modulesStore.isEnabled(tab.module)),
 )
 
 function isActive(path: string): boolean {
