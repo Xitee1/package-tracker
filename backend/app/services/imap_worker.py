@@ -222,6 +222,15 @@ async def _watch_folder(account_id: int, folder_id: int):
                     message_id = msg.get("Message-ID", "")
                     body = _extract_body(msg)
 
+                    email_date = None
+                    try:
+                        date_str = msg.get("Date", "")
+                        if date_str:
+                            from email.utils import parsedate_to_datetime
+                            email_date = parsedate_to_datetime(date_str)
+                    except Exception:
+                        pass
+
                     # Update state: processing individual email
                     if state:
                         state.queue_position = i + 1
@@ -239,6 +248,7 @@ async def _watch_folder(account_id: int, folder_id: int):
                         account_id=account_id,
                         user_id=account.user_id,
                         db=db,
+                        email_date=email_date,
                     )
                     await _record_stat(db, folder_id, processed=1)
 
