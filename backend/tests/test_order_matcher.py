@@ -3,7 +3,7 @@ import pytest
 from app.models.user import User
 from app.models.order import Order
 from app.services.llm_service import EmailAnalysis, EmailItem
-from app.services.order_matcher import find_matching_order
+from app.services.orders.order_matcher import DefaultOrderMatcher
 from app.core.auth import hash_password
 
 
@@ -52,48 +52,53 @@ async def order_with_tracking(db_session, test_user):
     return order
 
 
+@pytest.fixture
+def matcher():
+    return DefaultOrderMatcher()
+
+
 @pytest.mark.asyncio
-async def test_match_by_order_number(db_session, test_user, order_with_order_number):
+async def test_match_by_order_number(db_session, test_user, order_with_order_number, matcher):
     """Priority 1: exact order_number match."""
     analysis = EmailAnalysis(
         is_relevant=True,
         order_number="ORD-100",
         vendor_domain="amazon.com",
     )
-    matched = await find_matching_order(analysis, test_user.id, db_session)
+    matched = await matcher.find_match(analysis, test_user.id, db_session)
     assert matched is not None
     assert matched.id == order_with_order_number.id
     assert matched.order_number == "ORD-100"
 
 
 @pytest.mark.asyncio
-async def test_match_by_tracking_number(db_session, test_user, order_with_tracking):
+async def test_match_by_tracking_number(db_session, test_user, order_with_tracking, matcher):
     """Priority 2: exact tracking_number match."""
     analysis = EmailAnalysis(
         is_relevant=True,
         tracking_number="1Z999AA10123456784",
     )
-    matched = await find_matching_order(analysis, test_user.id, db_session)
+    matched = await matcher.find_match(analysis, test_user.id, db_session)
     assert matched is not None
     assert matched.id == order_with_tracking.id
     assert matched.tracking_number == "1Z999AA10123456784"
 
 
 @pytest.mark.asyncio
-async def test_match_by_vendor_and_items(db_session, test_user, order_with_order_number):
+async def test_match_by_vendor_and_items(db_session, test_user, order_with_order_number, matcher):
     """Priority 3: fuzzy match by vendor_domain + item name overlap."""
     analysis = EmailAnalysis(
         is_relevant=True,
         vendor_domain="amazon.com",
         items=[EmailItem(name="Wireless Mouse", quantity=1)],
     )
-    matched = await find_matching_order(analysis, test_user.id, db_session)
+    matched = await matcher.find_match(analysis, test_user.id, db_session)
     assert matched is not None
     assert matched.id == order_with_order_number.id
 
 
 @pytest.mark.asyncio
-async def test_no_match_returns_none(db_session, test_user, order_with_order_number):
+async def test_no_match_returns_none(db_session, test_user, order_with_order_number, matcher):
     """When nothing matches, return None."""
     analysis = EmailAnalysis(
         is_relevant=True,
@@ -101,12 +106,12 @@ async def test_no_match_returns_none(db_session, test_user, order_with_order_num
         vendor_domain="bestbuy.com",
         items=[EmailItem(name="Laptop Stand", quantity=1)],
     )
-    matched = await find_matching_order(analysis, test_user.id, db_session)
+    matched = await matcher.find_match(analysis, test_user.id, db_session)
     assert matched is None
 
 
 @pytest.mark.asyncio
-async def test_no_match_different_user(db_session, test_user, order_with_order_number):
+async def test_no_match_different_user(db_session, test_user, order_with_order_number, matcher):
     """Orders from a different user should not match."""
     other_user = User(username="otheruser", password_hash=hash_password("pass"), is_admin=False)
     db_session.add(other_user)
@@ -117,31 +122,31 @@ async def test_no_match_different_user(db_session, test_user, order_with_order_n
         is_relevant=True,
         order_number="ORD-100",
     )
-    matched = await find_matching_order(analysis, other_user.id, db_session)
+    matched = await matcher.find_match(analysis, other_user.id, db_session)
     assert matched is None
 
 
 @pytest.mark.asyncio
-async def test_fuzzy_match_case_insensitive(db_session, test_user, order_with_order_number):
+async def test_fuzzy_match_case_insensitive(db_session, test_user, order_with_order_number, matcher):
     """Fuzzy item name matching should be case-insensitive."""
     analysis = EmailAnalysis(
         is_relevant=True,
         vendor_domain="amazon.com",
         items=[EmailItem(name="wireless mouse", quantity=1)],
     )
-    matched = await find_matching_order(analysis, test_user.id, db_session)
+    matched = await matcher.find_match(analysis, test_user.id, db_session)
     assert matched is not None
     assert matched.id == order_with_order_number.id
 
 
 @pytest.mark.asyncio
-async def test_order_number_takes_priority_over_tracking(db_session, test_user, order_with_order_number, order_with_tracking):
+async def test_order_number_takes_priority_over_tracking(db_session, test_user, order_with_order_number, order_with_tracking, matcher):
     """Order number match should take priority even if tracking also matches a different order."""
     analysis = EmailAnalysis(
         is_relevant=True,
         order_number="ORD-100",
         tracking_number="1Z999AA10123456784",
     )
-    matched = await find_matching_order(analysis, test_user.id, db_session)
+    matched = await matcher.find_match(analysis, test_user.id, db_session)
     assert matched is not None
     assert matched.id == order_with_order_number.id

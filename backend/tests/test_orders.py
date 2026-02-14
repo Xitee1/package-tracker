@@ -2,7 +2,8 @@ import pytest
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
-from app.models.order import Order, OrderEvent
+from app.models.order import Order
+from app.models.order_state import OrderState
 
 
 @pytest.fixture
@@ -78,14 +79,13 @@ async def test_get_order_detail(client, db_session, admin_token):
     user_id = await _get_user_id(client, admin_token)
     order = await _create_order(db_session, user_id, order_number="ORD-100", vendor_name="BestBuy")
 
-    # Add an event
-    event = OrderEvent(
+    # Add an OrderState
+    state = OrderState(
         order_id=order.id,
-        event_type="status_change",
-        old_status="ordered",
-        new_status="shipped",
+        status="shipped",
+        source_type="manual",
     )
-    db_session.add(event)
+    db_session.add(state)
     await db_session.commit()
 
     resp = await client.get(f"/api/v1/orders/{order.id}", headers=auth(admin_token))
@@ -93,9 +93,9 @@ async def test_get_order_detail(client, db_session, admin_token):
     data = resp.json()
     assert data["order_number"] == "ORD-100"
     assert data["vendor_name"] == "BestBuy"
-    assert len(data["events"]) == 1
-    assert data["events"][0]["event_type"] == "status_change"
-    assert data["events"][0]["new_status"] == "shipped"
+    assert len(data["states"]) == 1
+    assert data["states"][0]["status"] == "shipped"
+    assert data["states"][0]["source_type"] == "manual"
 
 
 @pytest.mark.asyncio
@@ -123,6 +123,27 @@ async def test_update_order(client, db_session, admin_token):
     assert data["carrier"] == "UPS"
     assert data["status"] == "shipped"
     assert data["order_number"] == "ORD-200"  # unchanged
+
+
+@pytest.mark.asyncio
+async def test_update_order_creates_order_state(client, db_session, admin_token):
+    """Updating status via API should create an OrderState entry."""
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-210")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"status": "shipped"},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 200
+
+    # Verify OrderState created
+    resp = await client.get(f"/api/v1/orders/{order.id}", headers=auth(admin_token))
+    data = resp.json()
+    assert len(data["states"]) == 1
+    assert data["states"][0]["status"] == "shipped"
+    assert data["states"][0]["source_type"] == "manual"
 
 
 @pytest.mark.asyncio
@@ -245,14 +266,13 @@ async def test_link_orders(client, db_session, admin_token):
         tracking_number="TRACK123", carrier="FedEx", status="shipped",
     )
 
-    # Add an event to the target
-    event = OrderEvent(
+    # Add an OrderState to the target
+    state = OrderState(
         order_id=target.id,
-        event_type="status_change",
-        old_status="ordered",
-        new_status="shipped",
+        status="shipped",
+        source_type="email",
     )
-    db_session.add(event)
+    db_session.add(state)
     await db_session.commit()
 
     resp = await client.post(
@@ -271,8 +291,9 @@ async def test_link_orders(client, db_session, admin_token):
     assert detail["tracking_number"] == "TRACK123"
     assert detail["carrier"] == "FedEx"
     assert detail["status"] == "shipped"
-    assert len(detail["events"]) == 1
-    assert detail["events"][0]["new_status"] == "shipped"
+    # OrderState should have been migrated from target to source
+    assert len(detail["states"]) == 1
+    assert detail["states"][0]["status"] == "shipped"
 
     # Verify target is deleted
     resp = await client.get(f"/api/v1/orders/{target.id}", headers=auth(admin_token))

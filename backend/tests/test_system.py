@@ -6,7 +6,6 @@ import pytest
 
 from app.models.email_account import EmailAccount, WatchedFolder
 from app.models.user import User
-from app.models.worker_stats import WorkerStats
 from app.core.auth import hash_password, create_access_token
 from app.services.imap_worker import WorkerState, WorkerMode
 
@@ -43,7 +42,7 @@ def auth(token):
 
 
 # ---------------------------------------------------------------------------
-# Helper to seed a user → account → folder chain in the DB
+# Helper to seed a user -> account -> folder chain in the DB
 # ---------------------------------------------------------------------------
 
 async def _seed_user_account_folder(db_session, *, username="worker_user", folder_path="INBOX"):
@@ -103,8 +102,15 @@ async def test_status_empty(client, admin_token):
     assert g["queue_total"] == 0
     assert g["processing_folders"] == 0
 
+    # Queue stats should exist with all zeros
+    q = data["queue"]
+    assert q["queued"] == 0
+    assert q["processing"] == 0
+    assert q["completed"] == 0
+    assert q["failed"] == 0
+
     # The admin user exists but has no email accounts, so the endpoint skips
-    # users without accounts — the users list should be empty.
+    # users without accounts -- the users list should be empty.
     assert data["users"] == []
 
 
@@ -148,6 +154,9 @@ async def test_status_with_folders(client, admin_token, db_session):
     assert g["errors"] == 0
     assert g["queue_total"] == 3  # remaining = max(0, 5 - 2) = 3
     assert g["processing_folders"] == 1
+
+    # Queue section should exist
+    assert "queue" in data
 
     # User hierarchy
     assert len(data["users"]) == 1
@@ -207,6 +216,31 @@ async def test_status_with_errored_task(client, admin_token, db_session):
 
 
 @pytest.mark.asyncio
+async def test_status_has_queue_section(client, admin_token):
+    """System status should include a queue section with status counts."""
+    resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert "queue" in data
+    q = data["queue"]
+    assert "queued" in q
+    assert "processing" in q
+    assert "completed" in q
+    assert "failed" in q
+
+
+@pytest.mark.asyncio
+async def test_status_has_scheduled_jobs(client, admin_token):
+    """System status should include a scheduled_jobs list."""
+    resp = await client.get("/api/v1/system/status", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "scheduled_jobs" in data
+    assert isinstance(data["scheduled_jobs"], list)
+
+
+@pytest.mark.asyncio
 async def test_status_requires_admin(client, user_token):
     """Non-admin users should receive 403."""
     resp = await client.get("/api/v1/system/status", headers=auth(user_token))
@@ -218,155 +252,3 @@ async def test_status_unauthenticated(client):
     """Unauthenticated requests should be rejected."""
     resp = await client.get("/api/v1/system/status")
     assert resp.status_code in (401, 403)
-
-
-# ===========================================================================
-# /api/v1/system/stats tests
-# ===========================================================================
-
-
-@pytest.mark.asyncio
-async def test_stats_hourly(client, admin_token, db_session):
-    """Insert WorkerStats rows and verify hourly aggregation."""
-    # We need a folder to satisfy the FK, so seed one.
-    _user, _account, folder = await _seed_user_account_folder(db_session)
-
-    now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
-
-    # Insert three rows in the same hour bucket (same folder) — these should
-    # NOT be aggregated because they share the same hour_bucket + folder_id
-    # (UniqueConstraint). Instead, use distinct folder_ids or distinct hour
-    # buckets. We'll use distinct hour buckets within the last 24 hours.
-    stats_rows = [
-        WorkerStats(
-            folder_id=folder.id,
-            hour_bucket=now - timedelta(hours=2),
-            emails_processed=10,
-            errors_count=1,
-        ),
-        WorkerStats(
-            folder_id=folder.id,
-            hour_bucket=now - timedelta(hours=1),
-            emails_processed=5,
-            errors_count=0,
-        ),
-        WorkerStats(
-            folder_id=folder.id,
-            hour_bucket=now,
-            emails_processed=3,
-            errors_count=2,
-        ),
-    ]
-    for row in stats_rows:
-        db_session.add(row)
-    await db_session.commit()
-
-    resp = await client.get(
-        "/api/v1/system/stats",
-        params={"period": "hourly"},
-        headers=auth(admin_token),
-    )
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["period"] == "hourly"
-
-    buckets = data["buckets"]
-    assert len(buckets) == 3
-
-    # Buckets should be ordered by timestamp ascending
-    total_emails = sum(b["emails_processed"] for b in buckets)
-    total_errors = sum(b["errors_count"] for b in buckets)
-    assert total_emails == 18
-    assert total_errors == 3
-
-    # Verify each bucket has the expected keys
-    for b in buckets:
-        assert "timestamp" in b
-        assert "emails_processed" in b
-        assert "errors_count" in b
-
-
-@pytest.mark.asyncio
-async def test_stats_hourly_empty(client, admin_token):
-    """Hourly stats with no data should return an empty buckets list."""
-    resp = await client.get(
-        "/api/v1/system/stats",
-        params={"period": "hourly"},
-        headers=auth(admin_token),
-    )
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["period"] == "hourly"
-    assert data["buckets"] == []
-
-
-@pytest.mark.asyncio
-async def test_stats_invalid_period(client, admin_token):
-    """An invalid period value should return 400."""
-    resp = await client.get(
-        "/api/v1/system/stats",
-        params={"period": "yearly"},
-        headers=auth(admin_token),
-    )
-    assert resp.status_code == 400
-    assert "Invalid period" in resp.json()["detail"]
-
-
-@pytest.mark.asyncio
-async def test_stats_requires_admin(client, user_token):
-    """Non-admin users should receive 403 on the stats endpoint."""
-    resp = await client.get(
-        "/api/v1/system/stats",
-        params={"period": "hourly"},
-        headers=auth(user_token),
-    )
-    assert resp.status_code == 403
-
-
-@pytest.mark.asyncio
-async def test_stats_unauthenticated(client):
-    """Unauthenticated requests to the stats endpoint should be rejected."""
-    resp = await client.get(
-        "/api/v1/system/stats",
-        params={"period": "hourly"},
-    )
-    assert resp.status_code in (401, 403)
-
-
-@pytest.mark.asyncio
-async def test_stats_old_rows_cleaned_up(client, admin_token, db_session):
-    """Rows older than 4 weeks should be deleted by the stats endpoint."""
-    _user, _account, folder = await _seed_user_account_folder(db_session)
-
-    now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
-
-    # One row within range, one older than 4 weeks
-    db_session.add(
-        WorkerStats(
-            folder_id=folder.id,
-            hour_bucket=now - timedelta(hours=1),
-            emails_processed=5,
-            errors_count=0,
-        )
-    )
-    db_session.add(
-        WorkerStats(
-            folder_id=folder.id,
-            hour_bucket=now - timedelta(weeks=5),
-            emails_processed=99,
-            errors_count=10,
-        )
-    )
-    await db_session.commit()
-
-    resp = await client.get(
-        "/api/v1/system/stats",
-        params={"period": "hourly"},
-        headers=auth(admin_token),
-    )
-    assert resp.status_code == 200
-    data = resp.json()
-
-    # Only the recent bucket should appear
-    assert len(data["buckets"]) == 1
-    assert data["buckets"][0]["emails_processed"] == 5

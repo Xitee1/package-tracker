@@ -89,6 +89,11 @@ const router = createRouter({
           name: 'settings-imap',
           component: () => import('@/views/admin/ImapSettingsView.vue'),
         },
+        {
+          path: 'queue',
+          name: 'queue-settings',
+          component: () => import('@/views/admin/QueueSettingsView.vue'),
+        },
       ],
     },
     {

@@ -411,11 +411,10 @@
               </span>
               <div class="flex items-center gap-2">
                 <template v-if="isWatched(folder.name)">
-                  <label
-                    class="flex items-center gap-1"
-                    :title="$t('accounts.ageDaysTooltip')"
-                  >
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('accounts.ageDaysLabel') }}</span>
+                  <label class="flex items-center gap-1" :title="$t('accounts.ageDaysTooltip')">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{
+                      $t('accounts.ageDaysLabel')
+                    }}</span>
                     <input
                       type="number"
                       min="1"
@@ -426,13 +425,14 @@
                         handleOverrideChange(account.id, folder.name, 'max_email_age_days', $event)
                       "
                     />
-                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.ageDaysOverride') }}</span>
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{
+                      $t('accounts.ageDaysOverride')
+                    }}</span>
                   </label>
-                  <label
-                    class="flex items-center gap-1"
-                    :title="$t('accounts.delaySecTooltip')"
-                  >
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ $t('accounts.delaySecLabel') }}</span>
+                  <label class="flex items-center gap-1" :title="$t('accounts.delaySecTooltip')">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{
+                      $t('accounts.delaySecLabel')
+                    }}</span>
                     <input
                       type="number"
                       min="0"
@@ -441,10 +441,17 @@
                       :placeholder="'—'"
                       class="w-14 px-1.5 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
                       @change="
-                        handleOverrideChange(account.id, folder.name, 'processing_delay_sec', $event)
+                        handleOverrideChange(
+                          account.id,
+                          folder.name,
+                          'processing_delay_sec',
+                          $event,
+                        )
                       "
                     />
-                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ $t('accounts.delaySecOverride') }}</span>
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{
+                      $t('accounts.delaySecOverride')
+                    }}</span>
                   </label>
                   <button
                     @click="handleScan(account.id, getWatchedFolder(folder.name)!.id)"

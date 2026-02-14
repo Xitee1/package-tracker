@@ -43,6 +43,7 @@ const route = useRoute()
 const tabs = computed(() => [
   { to: '/admin/settings/llm', label: t('settings.llmConfig') },
   { to: '/admin/settings/imap', label: t('settings.imap') },
+  { to: '/admin/settings/queue', label: t('settings.queue') },
 ])
 
 function isActive(path: string): boolean {

@@ -298,21 +298,21 @@
         </div>
       </div>
 
-      <!-- Event Timeline -->
+      <!-- State Timeline -->
       <div
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
       >
         <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
-            {{ $t('orderDetail.eventTimeline') }}
+            {{ $t('orderDetail.stateTimeline') }}
           </h3>
         </div>
 
         <div
-          v-if="order.events.length === 0"
+          v-if="order.states.length === 0"
           class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm"
         >
-          {{ $t('orderDetail.noEvents') }}
+          {{ $t('orderDetail.noStates') }}
         </div>
 
         <div v-else class="p-5">
@@ -320,8 +320,8 @@
             <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
 
             <div
-              v-for="(event, idx) in sortedEvents"
-              :key="event.id"
+              v-for="(state, idx) in sortedStates"
+              :key="state.id"
               class="relative flex gap-4 pb-6 last:pb-0"
             >
               <div
@@ -336,14 +336,18 @@
                 ></div>
               </div>
               <div class="flex-1 min-w-0 pt-1">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ formatEventType(event.event_type) }}
-                </p>
-                <p v-if="event.description" class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
-                  {{ event.description }}
+                <div class="flex items-center gap-2">
+                  <StatusBadge :status="state.status" />
+                </div>
+                <p
+                  v-if="state.source_type || state.source_info"
+                  class="text-sm text-gray-600 dark:text-gray-400 mt-0.5"
+                >
+                  <span v-if="state.source_type" class="font-medium">{{ state.source_type }}</span>
+                  <span v-if="state.source_info"> &mdash; {{ state.source_info }}</span>
                 </p>
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                  {{ formatDateTime(event.timestamp) }}
+                  {{ formatDateTime(state.created_at) }}
                 </p>
               </div>
             </div>
@@ -389,7 +393,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useOrdersStore, type OrderDetail } from '@/stores/orders'
 import StatusBadge from '@/components/StatusBadge.vue'
 
-const { t, te } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const ordersStore = useOrdersStore()
@@ -422,10 +426,10 @@ const editForm = ref<EditForm>({
   estimated_delivery: '',
 })
 
-const sortedEvents = computed(() => {
+const sortedStates = computed(() => {
   if (!order.value) return []
-  return [...order.value.events].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+  return [...order.value.states].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   )
 })
 
@@ -478,7 +482,7 @@ async function saveEdit() {
 
     if (Object.keys(data).length > 0) {
       await ordersStore.updateOrder(order.value.id, data)
-      // Re-fetch to get updated data with events
+      // Re-fetch to get updated data with states
       order.value = await ordersStore.fetchOrder(order.value.id)
     }
     editing.value = false
@@ -525,12 +529,6 @@ function formatAmount(amount: number | null, currency: string | null): string {
   if (amount === null) return '-'
   const curr = currency || 'USD'
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: curr }).format(amount)
-}
-
-function formatEventType(type: string): string {
-  const key = `status.${type}`
-  if (te(key)) return t(key)
-  return type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
 onMounted(async () => {

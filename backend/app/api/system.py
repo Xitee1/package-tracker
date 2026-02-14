@@ -1,15 +1,15 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import delete, func, select
+from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_admin_user
 from app.database import get_db
-from app.models.email_account import EmailAccount, WatchedFolder
+from app.models.email_account import EmailAccount
 from app.models.user import User
-from app.models.worker_stats import WorkerStats
+from app.models.queue_item import QueueItem
 from app.services.imap_worker import _running_tasks, _worker_state
 from app.services.scheduler import get_job_metadata
 
@@ -115,25 +115,34 @@ async def system_status(db: AsyncSession = Depends(get_db)):
     # Build scheduled jobs list from scheduler metadata
     scheduled_jobs = []
     for job_id, meta in get_job_metadata().items():
-        interval_hours = meta.get("interval_hours")
+        interval_seconds = meta.get("interval_seconds")
         last_run_at = meta.get("last_run")
 
         # Compute next_run_at from last_run + interval
         next_run_at = None
-        if last_run_at is not None and interval_hours is not None:
+        if last_run_at is not None and interval_seconds is not None:
             if isinstance(last_run_at, str):
                 last_run_dt = datetime.fromisoformat(last_run_at)
             else:
                 last_run_dt = last_run_at
-            next_run_at = (last_run_dt + timedelta(hours=interval_hours)).isoformat()
+            next_run_at = (last_run_dt + timedelta(seconds=interval_seconds)).isoformat()
 
         scheduled_jobs.append({
             "id": job_id,
             "description": meta.get("description"),
-            "interval_hours": interval_hours,
+            "interval_seconds": interval_seconds,
             "last_run_at": last_run_at,
+            "last_status": meta.get("last_status"),
             "next_run_at": next_run_at,
         })
+
+    # Add queue stats
+    queue_stats = {}
+    for s in ("queued", "processing", "completed", "failed"):
+        result = await db.execute(
+            select(func.count()).select_from(QueueItem).where(QueueItem.status == s)
+        )
+        queue_stats[s] = result.scalar() or 0
 
     return {
         "global": {
@@ -143,55 +152,7 @@ async def system_status(db: AsyncSession = Depends(get_db)):
             "queue_total": queue_total_global,
             "processing_folders": processing_folders,
         },
+        "queue": queue_stats,
         "users": users_out,
         "scheduled_jobs": scheduled_jobs,
     }
-
-
-@router.get("/stats")
-async def system_stats(
-    period: str = "hourly",
-    db: AsyncSession = Depends(get_db),
-):
-    now = datetime.now(timezone.utc)
-    cutoff_4w = now - timedelta(weeks=4)
-
-    # Cleanup rows older than 4 weeks
-    await db.execute(delete(WorkerStats).where(WorkerStats.hour_bucket < cutoff_4w))
-    await db.commit()
-
-    if period == "hourly":
-        since = now - timedelta(hours=24)
-        group_expr = WorkerStats.hour_bucket
-    elif period == "daily":
-        since = now - timedelta(days=7)
-        group_expr = func.date_trunc("day", WorkerStats.hour_bucket)
-    elif period == "weekly":
-        since = now - timedelta(weeks=4)
-        group_expr = func.date_trunc("week", WorkerStats.hour_bucket)
-    else:
-        raise HTTPException(status_code=400, detail=f"Invalid period: {period}. Must be hourly, daily, or weekly.")
-
-    stmt = (
-        select(
-            group_expr.label("bucket"),
-            func.sum(WorkerStats.emails_processed).label("emails_processed"),
-            func.sum(WorkerStats.errors_count).label("errors_count"),
-        )
-        .where(WorkerStats.hour_bucket >= since)
-        .group_by("bucket")
-        .order_by("bucket")
-    )
-    result = await db.execute(stmt)
-    rows = result.all()
-
-    buckets = [
-        {
-            "timestamp": row.bucket.isoformat() if isinstance(row.bucket, datetime) else str(row.bucket),
-            "emails_processed": int(row.emails_processed or 0),
-            "errors_count": int(row.errors_count or 0),
-        }
-        for row in rows
-    ]
-
-    return {"period": period, "buckets": buckets}
