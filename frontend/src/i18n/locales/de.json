@@ -35,6 +35,7 @@
     "llmConfig": "LLM-Konfiguration",
     "system": "System",
     "settings": "Einstellungen",
+    "history": "Verlauf",
     "logout": "Abmelden"
   },
   "app": {
@@ -100,6 +101,39 @@
     "status": "Status",
     "date": "Datum",
     "amount": "Betrag"
+  },
+  "history": {
+    "title": "Scan-Verlauf",
+    "all": "Alle",
+    "relevant": "Relevant",
+    "notRelevant": "Nicht relevant",
+    "allAccounts": "Alle Konten",
+    "date": "Datum",
+    "subject": "Betreff",
+    "sender": "Absender",
+    "account": "Konto",
+    "relevance": "Relevant",
+    "order": "Bestellung",
+    "actions": "Aktionen",
+    "viewDetail": "Ansehen",
+    "rescan": "Erneut scannen",
+    "rescanQueued": "In Warteschlange",
+    "confirmDelete": "Diesen Scan-Verlaufseintrag löschen?",
+    "noResults": "Keine Scan-Verlaufseinträge gefunden.",
+    "detail": "Scan-Details",
+    "folder": "Ordner",
+    "llmResponse": "LLM-Antwort",
+    "fetchEmail": "E-Mail abrufen",
+    "fetchingEmail": "E-Mail wird vom Server abgerufen...",
+    "emailNotAvailable": "Die E-Mail ist auf dem Server nicht mehr verfügbar.",
+    "emailContent": "E-Mail-Inhalt",
+    "viewOrder": "Bestellung ansehen",
+    "page": "Seite {page} von {total}",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "close": "Schließen",
+    "deleteFailed": "Scan-Eintrag konnte nicht gelöscht werden.",
+    "rescanFailed": "Erneuter Scan konnte nicht in die Warteschlange gestellt werden."
   },
   "orderDetail": {
     "backToOrders": "Zurück zu Bestellungen",
@@ -311,7 +345,12 @@
     "nextCheck": "Nächste Prüfung in {time}",
     "queueIdle": "Leerlauf",
     "queueProcessing": "E-Mail {position} von {total} wird verarbeitet",
-    "noStats": "Noch keine Verarbeitungsdaten verfügbar."
+    "noStats": "Noch keine Verarbeitungsdaten verfügbar.",
+    "scheduledJobs": "Geplante Aufgaben",
+    "jobInterval": "Alle {hours}h",
+    "jobLastRun": "Letzter Lauf",
+    "jobNextRun": "Nächster Lauf",
+    "jobNever": "Nie"
   },
   "settings": {
     "title": "Einstellungen",
