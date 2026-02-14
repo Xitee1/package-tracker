@@ -212,6 +212,12 @@ async def _watch_folder(account_id: int, folder_id: int):
                     subject = _decode_header_value(msg.get("Subject", ""))
                     sender = _decode_header_value(msg.get("From", ""))
                     message_id = msg.get("Message-ID", "")
+                    
+                    # Fallback for missing Message-ID: use deterministic dedup key
+                    if not message_id:
+                        uidvalidity_part = folder.uidvalidity if folder.uidvalidity is not None else "0"
+                        message_id = f"fallback:{account_id}:{folder.folder_path}:{uidvalidity_part}:{uid}"
+                    
                     body = _extract_body(msg)
 
                     email_date = None
