@@ -28,18 +28,16 @@ async def test_get_returns_defaults_when_no_row(client, admin_token):
     assert resp.status_code == 200
     data = resp.json()
     assert data["max_email_age_days"] == 7
-    assert data["processing_delay_sec"] == 2.0
     assert data["check_uidvalidity"] is True
 
 
 @pytest.mark.asyncio
 async def test_put_creates_settings(client, admin_token):
-    payload = {"max_email_age_days": 30, "processing_delay_sec": 5.0, "check_uidvalidity": False}
+    payload = {"max_email_age_days": 30, "check_uidvalidity": False}
     resp = await client.put("/api/v1/settings/imap", json=payload, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["max_email_age_days"] == 30
-    assert data["processing_delay_sec"] == 5.0
     assert data["check_uidvalidity"] is False
 
 
@@ -47,18 +45,17 @@ async def test_put_creates_settings(client, admin_token):
 async def test_put_updates_existing(client, admin_token):
     await client.put(
         "/api/v1/settings/imap",
-        json={"max_email_age_days": 30, "processing_delay_sec": 5.0, "check_uidvalidity": False},
+        json={"max_email_age_days": 30, "check_uidvalidity": False},
         headers=auth(admin_token),
     )
     resp = await client.put(
         "/api/v1/settings/imap",
-        json={"max_email_age_days": 14, "processing_delay_sec": 1.0, "check_uidvalidity": True},
+        json={"max_email_age_days": 14, "check_uidvalidity": True},
         headers=auth(admin_token),
     )
     assert resp.status_code == 200
     data = resp.json()
     assert data["max_email_age_days"] == 14
-    assert data["processing_delay_sec"] == 1.0
     assert data["check_uidvalidity"] is True
 
 
@@ -66,7 +63,7 @@ async def test_put_updates_existing(client, admin_token):
 async def test_get_after_put(client, admin_token):
     await client.put(
         "/api/v1/settings/imap",
-        json={"max_email_age_days": 60, "processing_delay_sec": 3.0, "check_uidvalidity": True},
+        json={"max_email_age_days": 60, "check_uidvalidity": True},
         headers=auth(admin_token),
     )
     resp = await client.get("/api/v1/settings/imap", headers=auth(admin_token))

@@ -45,24 +45,6 @@
         </p>
       </div>
 
-      <!-- Processing Delay -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
-          $t('imap.processingDelaySec')
-        }}</label>
-        <input
-          v-model.number="form.processing_delay_sec"
-          type="number"
-          required
-          min="0"
-          step="0.5"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          {{ $t('imap.processingDelaySecHint') }}
-        </p>
-      </div>
-
       <!-- Check UIDVALIDITY -->
       <div class="flex items-start gap-3">
         <input
@@ -112,7 +94,6 @@ const saveSuccess = ref(false)
 
 const form = ref({
   max_email_age_days: 7,
-  processing_delay_sec: 2.0,
   check_uidvalidity: true,
 })
 
@@ -122,7 +103,6 @@ async function fetchSettings() {
   try {
     const res = await api.get('/settings/imap')
     form.value.max_email_age_days = res.data.max_email_age_days
-    form.value.processing_delay_sec = res.data.processing_delay_sec
     form.value.check_uidvalidity = res.data.check_uidvalidity
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }

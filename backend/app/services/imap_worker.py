@@ -96,8 +96,8 @@ def _extract_body(msg: email.message.Message) -> str:
     return ""
 
 
-async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, float, bool]:
-    """Return (max_email_age_days, processing_delay_sec, check_uidvalidity) for a folder."""
+async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, bool]:
+    """Return (max_email_age_days, check_uidvalidity) for a folder."""
     result = await db.execute(select(ImapSettings))
     global_settings = result.scalar_one_or_none()
 
@@ -105,13 +105,9 @@ async def _get_effective_settings(db, folder: WatchedFolder) -> tuple[int, float
     if max_age is None:
         max_age = global_settings.max_email_age_days if global_settings else 7
 
-    delay = folder.processing_delay_sec
-    if delay is None:
-        delay = global_settings.processing_delay_sec if global_settings else 2.0
-
     check_uid = global_settings.check_uidvalidity if global_settings else True
 
-    return max_age, delay, check_uid
+    return max_age, check_uid
 
 
 async def _connect_and_select(
@@ -146,7 +142,7 @@ async def _connect_and_select(
     select_response = await imap.select(folder.folder_path)
 
     # UIDVALIDITY check
-    max_age, delay, check_uid = await _get_effective_settings(db, folder)
+    _, check_uid = await _get_effective_settings(db, folder)
     if check_uid:
         current_uidvalidity = None
         if select_response and len(select_response) > 1:
@@ -177,7 +173,7 @@ async def _fetch_new_emails(
     imap: IMAP4_SSL, account, folder, db, state: WorkerState | None,
 ) -> None:
     """UID search for new emails, process and enqueue them."""
-    max_age, delay, _ = await _get_effective_settings(db, folder)
+    max_age, _ = await _get_effective_settings(db, folder)
     since_date = (datetime.now(timezone.utc) - timedelta(days=max_age)).strftime("%d-%b-%Y")
     search_criteria = f"UID {folder.last_seen_uid + 1}:* SINCE {since_date}"
     _, data = await imap.uid_search(search_criteria)
@@ -265,9 +261,6 @@ async def _fetch_new_emails(
 
         folder.last_seen_uid = uid
         await db.commit()
-
-        if delay > 0:
-            await asyncio.sleep(delay)
 
     if state:
         state.last_scan_at = datetime.now(timezone.utc)
