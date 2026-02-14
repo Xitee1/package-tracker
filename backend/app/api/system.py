@@ -11,6 +11,7 @@ from app.models.email_account import EmailAccount, WatchedFolder
 from app.models.user import User
 from app.models.worker_stats import WorkerStats
 from app.services.imap_worker import _running_tasks, _worker_state
+from app.services.scheduler import get_job_metadata
 
 router = APIRouter(prefix="/api/v1/system", tags=["system"], dependencies=[Depends(get_admin_user)])
 
@@ -111,6 +112,29 @@ async def system_status(db: AsyncSession = Depends(get_db)):
             "accounts": accounts_out,
         })
 
+    # Build scheduled jobs list from scheduler metadata
+    scheduled_jobs = []
+    for job_id, meta in get_job_metadata().items():
+        interval_hours = meta.get("interval_hours")
+        last_run_at = meta.get("last_run")
+
+        # Compute next_run_at from last_run + interval
+        next_run_at = None
+        if last_run_at is not None and interval_hours is not None:
+            if isinstance(last_run_at, str):
+                last_run_dt = datetime.fromisoformat(last_run_at)
+            else:
+                last_run_dt = last_run_at
+            next_run_at = (last_run_dt + timedelta(hours=interval_hours)).isoformat()
+
+        scheduled_jobs.append({
+            "id": job_id,
+            "description": meta.get("description"),
+            "interval_hours": interval_hours,
+            "last_run_at": last_run_at,
+            "next_run_at": next_run_at,
+        })
+
     return {
         "global": {
             "total_folders": total_folders,
@@ -120,6 +144,7 @@ async def system_status(db: AsyncSession = Depends(get_db)):
             "processing_folders": processing_folders,
         },
         "users": users_out,
+        "scheduled_jobs": scheduled_jobs,
     }
 
 

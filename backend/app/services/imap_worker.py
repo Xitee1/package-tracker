@@ -14,6 +14,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.database import async_session
 from app.models.email_account import EmailAccount, WatchedFolder
+from app.models.email_scan import EmailScan
 from app.models.imap_settings import ImapSettings
 from app.models.worker_stats import WorkerStats
 from app.services.email_processor import process_email
@@ -221,6 +222,15 @@ async def _watch_folder(account_id: int, folder_id: int):
                     message_id = msg.get("Message-ID", "")
                     body = _extract_body(msg)
 
+                    email_date = None
+                    try:
+                        date_str = msg.get("Date", "")
+                        if date_str:
+                            from email.utils import parsedate_to_datetime
+                            email_date = parsedate_to_datetime(date_str)
+                    except Exception:
+                        pass
+
                     # Update state: processing individual email
                     if state:
                         state.queue_position = i + 1
@@ -238,6 +248,7 @@ async def _watch_folder(account_id: int, folder_id: int):
                         account_id=account_id,
                         user_id=account.user_id,
                         db=db,
+                        email_date=email_date,
                     )
                     await _record_stat(db, folder_id, processed=1)
 
@@ -251,6 +262,77 @@ async def _watch_folder(account_id: int, folder_id: int):
                 if state:
                     state.last_scan_at = datetime.now(timezone.utc)
                     state.clear_queue()
+
+                # Process rescan queue
+                rescan_result = await db.execute(
+                    select(EmailScan).where(
+                        EmailScan.rescan_queued == True,
+                        EmailScan.account_id == account_id,
+                        EmailScan.folder_path == folder.folder_path,
+                    )
+                )
+                rescan_entries = rescan_result.scalars().all()
+
+                for rescan_scan in rescan_entries:
+                    try:
+                        _, msg_data = await imap.uid(
+                            "fetch", str(rescan_scan.email_uid), "(RFC822)"
+                        )
+                        if not msg_data or not msg_data[0]:
+                            rescan_scan.rescan_queued = False
+                            rescan_scan.llm_raw_response = {
+                                **(rescan_scan.llm_raw_response or {}),
+                                "rescan_error": f"Email UID {rescan_scan.email_uid} not found on server",
+                            }
+                            await db.commit()
+                            continue
+
+                        raw_email = msg_data[0]
+                        if isinstance(raw_email, (list, tuple)):
+                            raw_email = raw_email[-1] if len(raw_email) > 1 else raw_email[0]
+                        if not isinstance(raw_email, bytes):
+                            rescan_scan.rescan_queued = False
+                            rescan_scan.llm_raw_response = {
+                                **(rescan_scan.llm_raw_response or {}),
+                                "rescan_error": "Could not parse email data from server",
+                            }
+                            await db.commit()
+                            continue
+
+                        msg = email.message_from_bytes(raw_email)
+                        subject = _decode_header_value(msg.get("Subject", ""))
+                        sender = _decode_header_value(msg.get("From", ""))
+                        body = _extract_body(msg)
+
+                        from app.services.llm_service import analyze_email
+                        analysis, raw_response = await analyze_email(subject, sender, body, db)
+
+                        is_relevant = analysis is not None and analysis.is_relevant
+                        rescan_scan.llm_raw_response = raw_response
+                        rescan_scan.is_relevant = is_relevant
+                        rescan_scan.rescan_queued = False
+
+                        if is_relevant:
+                            from app.services.order_matcher import find_matching_order
+                            order = await find_matching_order(analysis, account.user_id, db)
+                            rescan_scan.order_id = order.id if order else None
+
+                        await db.commit()
+                        logger.info(
+                            f"Rescan complete for EmailScan {rescan_scan.id} "
+                            f"(UID {rescan_scan.email_uid}), relevant={is_relevant}"
+                        )
+
+                    except Exception as e:
+                        logger.error(
+                            f"Error rescanning EmailScan {rescan_scan.id}: {e}"
+                        )
+                        rescan_scan.rescan_queued = False
+                        rescan_scan.llm_raw_response = {
+                            **(rescan_scan.llm_raw_response or {}),
+                            "rescan_error": str(e),
+                        }
+                        await db.commit()
 
                 # Try IDLE, fall back to polling
                 try:
@@ -325,3 +407,33 @@ async def restart_watchers():
     """Restart all watchers (call after account/folder changes)."""
     await stop_all_watchers()
     await start_all_watchers()
+
+
+async def restart_single_watcher(folder_id: int):
+    """Restart watcher for a single folder to trigger immediate scan."""
+    if folder_id in _running_tasks:
+        task = _running_tasks.pop(folder_id)
+        task.cancel()
+        try:
+            await task
+        except (asyncio.CancelledError, Exception):
+            pass
+        _worker_state.pop(folder_id, None)
+
+    async with async_session() as db:
+        folder = await db.get(WatchedFolder, folder_id)
+        if not folder:
+            return
+        account = await db.get(EmailAccount, folder.account_id)
+        if not account or not account.is_active:
+            return
+        _worker_state[folder_id] = WorkerState(folder_id=folder_id, account_id=folder.account_id)
+        task = asyncio.create_task(_watch_folder(folder.account_id, folder_id))
+        _running_tasks[folder_id] = task
+        logger.info(f"Restarted watcher for folder {folder_id} (manual scan)")
+
+
+def is_folder_scanning(folder_id: int) -> bool:
+    """Check if a folder is currently mid-scan (processing emails)."""
+    state = _worker_state.get(folder_id)
+    return state is not None and state.mode == WorkerMode.PROCESSING

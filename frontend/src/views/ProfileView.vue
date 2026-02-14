@@ -117,7 +117,9 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('profile.apiKeys') }}</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+          {{ $t('profile.apiKeys') }}
+        </h2>
         <span class="text-sm text-gray-500 dark:text-gray-400">{{ apiKeys.length }} / 25</span>
       </div>
 
@@ -132,7 +134,8 @@
         <div class="flex items-center gap-2">
           <code
             class="flex-1 bg-white dark:bg-gray-800 border border-amber-300 dark:border-amber-700 rounded px-3 py-1.5 text-xs font-mono text-gray-900 dark:text-white select-all break-all"
-          >{{ newlyCreatedKey }}</code>
+            >{{ newlyCreatedKey }}</code
+          >
           <button
             @click="copyKey"
             class="shrink-0 px-3 py-1.5 text-xs font-medium rounded border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50"
@@ -178,7 +181,10 @@
           {{ keyCreating ? $t('profile.creating') : $t('profile.create') }}
         </button>
         <button
-          @click="showCreateForm = false; newKeyName = ''"
+          @click="
+            showCreateForm = false
+            newKeyName = ''
+          "
           class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
         >
           {{ $t('common.cancel') }}
@@ -195,14 +201,25 @@
       </div>
 
       <!-- Keys table -->
-      <div v-if="apiKeys.length > 0" class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+      <div
+        v-if="apiKeys.length > 0"
+        class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden"
+      >
         <table class="w-full text-sm">
           <thead class="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableName') }}</th>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableKey') }}</th>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableCreated') }}</th>
-              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">{{ $t('profile.keyTableLastUsed') }}</th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">
+                {{ $t('profile.keyTableName') }}
+              </th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">
+                {{ $t('profile.keyTableKey') }}
+              </th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">
+                {{ $t('profile.keyTableCreated') }}
+              </th>
+              <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">
+                {{ $t('profile.keyTableLastUsed') }}
+              </th>
               <th class="px-4 py-2"></th>
             </tr>
           </thead>
@@ -212,8 +229,12 @@
               <td class="px-4 py-2">
                 <code class="text-xs text-gray-500 dark:text-gray-400">{{ k.key_prefix }}...</code>
               </td>
-              <td class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ formatDate(k.created_at) }}</td>
-              <td class="px-4 py-2 text-gray-500 dark:text-gray-400">{{ k.last_used_at ? formatDate(k.last_used_at) : $t('profile.never') }}</td>
+              <td class="px-4 py-2 text-gray-500 dark:text-gray-400">
+                {{ formatDate(k.created_at) }}
+              </td>
+              <td class="px-4 py-2 text-gray-500 dark:text-gray-400">
+                {{ k.last_used_at ? formatDate(k.last_used_at) : $t('profile.never') }}
+              </td>
               <td class="px-4 py-2 text-right">
                 <button
                   @click="handleDeleteKey(k.id)"
@@ -273,7 +294,9 @@ async function handleChangePassword() {
     })
     pwSuccess.value = t('profile.passwordUpdated')
     pwForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
-    setTimeout(() => { pwSuccess.value = '' }, 3000)
+    setTimeout(() => {
+      pwSuccess.value = ''
+    }, 3000)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
     pwError.value = err.response?.data?.detail || t('profile.updateFailed')
@@ -334,7 +357,9 @@ async function handleDeleteKey(id: number) {
   if (confirmDeleteId.value !== id) {
     confirmDeleteId.value = id
     if (confirmTimer) clearTimeout(confirmTimer)
-    confirmTimer = setTimeout(() => { confirmDeleteId.value = null }, 3000)
+    confirmTimer = setTimeout(() => {
+      confirmDeleteId.value = null
+    }, 3000)
     return
   }
   confirmDeleteId.value = null
@@ -349,11 +374,17 @@ async function handleDeleteKey(id: number) {
 function copyKey() {
   navigator.clipboard.writeText(newlyCreatedKey.value)
   copied.value = true
-  setTimeout(() => { copied.value = false }, 2000)
+  setTimeout(() => {
+    copied.value = false
+  }, 2000)
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return new Date(iso).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
 }
 
 onMounted(fetchKeys)

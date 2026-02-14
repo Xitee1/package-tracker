@@ -167,6 +167,44 @@
         </div>
       </div>
 
+      <!-- Scheduled Jobs -->
+      <div
+        v-if="status.scheduled_jobs?.length"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6"
+      >
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ t('system.scheduledJobs') }}
+          </h2>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="job in status.scheduled_jobs"
+            :key="job.id"
+            class="px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+          >
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">
+                {{ job.description }}
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ t('system.jobInterval', { hours: job.interval_hours }) }}
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+              <span>
+                {{ t('system.jobLastRun') }}:
+                {{ job.last_run_at ? formatTimeAgo(job.last_run_at) : t('system.jobNever') }}
+              </span>
+              <span>
+                {{ t('system.jobNextRun') }}:
+                {{ job.next_run_at ? formatTimeUntil(job.next_run_at) : t('system.jobNever') }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- User-Grouped Folder List -->
       <div
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
@@ -396,9 +434,18 @@ interface GlobalSummary {
   processing_folders: number
 }
 
+interface ScheduledJob {
+  id: string
+  description: string
+  interval_hours: number
+  last_run_at: string | null
+  next_run_at: string | null
+}
+
 interface SystemStatus {
   global: GlobalSummary
   users: UserStatus[]
+  scheduled_jobs?: ScheduledJob[]
 }
 
 interface StatsBucket {
@@ -649,13 +696,6 @@ async function fetchStatus() {
   try {
     const res = await api.get<SystemStatus>('/system/status')
     status.value = res.data
-
-    // Default: expand all users
-    if (expandedUsers.value.size === 0 && res.data.users.length > 0) {
-      for (const user of res.data.users) {
-        expandedUsers.value.add(user.user_id)
-      }
-    }
 
     lastRefreshedAt.value = new Date()
     secondsSinceRefresh.value = 0

@@ -35,6 +35,7 @@
     "llmConfig": "LLM Config",
     "system": "System",
     "settings": "Settings",
+    "history": "History",
     "logout": "Logout"
   },
   "app": {
@@ -100,6 +101,39 @@
     "status": "Status",
     "date": "Date",
     "amount": "Amount"
+  },
+  "history": {
+    "title": "Scan History",
+    "all": "All",
+    "relevant": "Relevant",
+    "notRelevant": "Not Relevant",
+    "allAccounts": "All Accounts",
+    "date": "Date",
+    "subject": "Subject",
+    "sender": "Sender",
+    "account": "Account",
+    "relevance": "Relevant",
+    "order": "Order",
+    "actions": "Actions",
+    "viewDetail": "View",
+    "rescan": "Rescan",
+    "rescanQueued": "Queued",
+    "confirmDelete": "Delete this scan history entry?",
+    "noResults": "No scan history entries found.",
+    "detail": "Scan Detail",
+    "folder": "Folder",
+    "llmResponse": "LLM Response",
+    "fetchEmail": "Fetch Email",
+    "fetchingEmail": "Fetching email from server...",
+    "emailNotAvailable": "Email is no longer available on the server.",
+    "emailContent": "Email Content",
+    "viewOrder": "View Order",
+    "page": "Page {page} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "close": "Close",
+    "deleteFailed": "Failed to delete scan entry.",
+    "rescanFailed": "Failed to queue rescan."
   },
   "orderDetail": {
     "backToOrders": "Back to Orders",
@@ -176,8 +210,16 @@
     "removeWatchedFailed": "Failed to remove watched folder.",
     "manageFolders": "Manage folders",
     "ageDaysOverride": "days",
+    "ageDaysLabel": "Max age",
+    "ageDaysTooltip": "Only process emails newer than this many days",
     "delaySecOverride": "sec",
-    "overrideUpdateFailed": "Failed to update folder settings."
+    "delaySecLabel": "Delay",
+    "delaySecTooltip": "Seconds to wait between processing each email",
+    "overrideUpdateFailed": "Failed to update folder settings.",
+    "scanNow": "Scan now",
+    "scanning": "Scanning...",
+    "scanTriggered": "Scan triggered",
+    "scanAlreadyRunning": "Folder is already being scanned"
   },
   "profile": {
     "title": "Profile",
@@ -303,7 +345,12 @@
     "nextCheck": "next check in {time}",
     "queueIdle": "idle",
     "queueProcessing": "Processing email {position} of {total}",
-    "noStats": "No processing data available yet."
+    "noStats": "No processing data available yet.",
+    "scheduledJobs": "Scheduled Jobs",
+    "jobInterval": "Every {hours}h",
+    "jobLastRun": "Last run",
+    "jobNextRun": "Next run",
+    "jobNever": "Never"
   },
   "settings": {
     "title": "Settings",
