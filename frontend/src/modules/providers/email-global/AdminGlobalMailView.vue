@@ -262,7 +262,7 @@ async function fetchSettings() {
   loading.value = true
   loadError.value = ''
   try {
-    const res = await api.get('/settings/global-mail')
+    const res = await api.get('/modules/providers/email-global/config')
     if (res.data) {
       configExists.value = true
       connectionForm.value.imap_host = res.data.imap_host || ''
@@ -286,7 +286,7 @@ async function fetchFolders() {
   loadingFolders.value = true
   folderLoadError.value = false
   try {
-    const res = await api.get('/settings/global-mail/folders')
+    const res = await api.get('/modules/providers/email-global/folders')
     folders.value = res.data.folders
     idleSupported.value = res.data.idle_supported
   } catch {
@@ -309,7 +309,7 @@ async function handleSaveConnection() {
     if (!payload.imap_password) {
       delete payload.imap_password
     }
-    await api.put('/settings/global-mail', payload)
+    await api.put('/modules/providers/email-global/config', payload)
     connectionSaveSuccess.value = true
     configExists.value = true
     setTimeout(() => {
@@ -339,7 +339,7 @@ async function handleSaveSettings() {
     if (!payload.imap_password) {
       delete payload.imap_password
     }
-    await api.put('/settings/global-mail', payload)
+    await api.put('/modules/providers/email-global/config', payload)
     settingsSaveSuccess.value = true
     setTimeout(() => {
       settingsSaveSuccess.value = false

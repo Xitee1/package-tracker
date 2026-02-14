@@ -15,7 +15,7 @@ export const useSenderAddressesStore = defineStore('senderAddresses', () => {
   async function fetchAddresses() {
     loading.value = true
     try {
-      const res = await api.get('/sender-addresses')
+      const res = await api.get('/providers/email-global/sender-addresses')
       addresses.value = res.data
     } finally {
       loading.value = false
@@ -23,13 +23,13 @@ export const useSenderAddressesStore = defineStore('senderAddresses', () => {
   }
 
   async function addAddress(email: string): Promise<SenderAddress> {
-    const res = await api.post('/sender-addresses', { email_address: email })
+    const res = await api.post('/providers/email-global/sender-addresses', { email_address: email })
     addresses.value.push(res.data)
     return res.data
   }
 
   async function removeAddress(id: number) {
-    await api.delete(`/sender-addresses/${id}`)
+    await api.delete(`/providers/email-global/sender-addresses/${id}`)
     addresses.value = addresses.value.filter((a) => a.id !== id)
   }
 

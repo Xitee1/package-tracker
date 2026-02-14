@@ -61,12 +61,12 @@ const router = createRouter({
         {
           path: 'imap',
           name: 'accounts-imap',
-          component: () => import('@/views/AccountsImapView.vue'),
+          component: () => import('@/modules/providers/email-user/UserImapAccountsView.vue'),
         },
         {
           path: 'forwarding',
           name: 'accounts-forwarding',
-          component: () => import('@/views/AccountsForwardingView.vue'),
+          component: () => import('@/modules/providers/email-global/UserForwardingView.vue'),
         },
       ],
     },
@@ -98,12 +98,12 @@ const router = createRouter({
         {
           path: 'llm',
           name: 'settings-llm',
-          component: () => import('@/views/admin/LLMConfigView.vue'),
+          component: () => import('@/modules/analysers/llm/AdminLLMConfigView.vue'),
         },
         {
           path: 'imap',
           name: 'settings-imap',
-          component: () => import('@/views/admin/ImapSettingsView.vue'),
+          component: () => import('@/modules/providers/email-user/AdminImapSettingsView.vue'),
         },
         {
           path: 'queue',
@@ -118,7 +118,7 @@ const router = createRouter({
         {
           path: 'email',
           name: 'settings-email',
-          component: () => import('@/views/admin/GlobalMailConfigView.vue'),
+          component: () => import('@/modules/providers/email-global/AdminGlobalMailView.vue'),
         },
       ],
     },

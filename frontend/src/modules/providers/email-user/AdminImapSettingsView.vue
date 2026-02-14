@@ -101,7 +101,7 @@ async function fetchSettings() {
   loading.value = true
   loadError.value = ''
   try {
-    const res = await api.get('/settings/imap')
+    const res = await api.get('/modules/providers/email-user/settings')
     form.value.max_email_age_days = res.data.max_email_age_days
     form.value.check_uidvalidity = res.data.check_uidvalidity
   } catch (e: unknown) {
@@ -117,7 +117,7 @@ async function handleSave() {
   saveSuccess.value = false
   saving.value = true
   try {
-    await api.put('/settings/imap', form.value)
+    await api.put('/modules/providers/email-user/settings', form.value)
     saveSuccess.value = true
     setTimeout(() => {
       saveSuccess.value = false

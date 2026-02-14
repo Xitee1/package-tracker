@@ -215,7 +215,7 @@ async function fetchConfig() {
   loading.value = true
   loadError.value = ''
   try {
-    const res = await api.get('/llm/config')
+    const res = await api.get('/modules/analysers/llm/config')
     if (res.data) {
       form.value.provider = res.data.provider || 'openai'
       form.value.model_name = res.data.model_name || ''
@@ -252,7 +252,7 @@ async function handleSave() {
     if (showBaseUrl.value && form.value.api_base_url) {
       payload.api_base_url = form.value.api_base_url
     }
-    await api.put('/llm/config', payload)
+    await api.put('/modules/analysers/llm/config', payload)
     saveSuccess.value = true
     hasExistingKey.value = hasExistingKey.value || !!form.value.api_key
     form.value.api_key = ''
@@ -271,7 +271,7 @@ async function handleTest() {
   testing.value = true
   testResult.value = null
   try {
-    const res = await api.post('/llm/test')
+    const res = await api.post('/modules/analysers/llm/test')
     testResult.value = res.data
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }

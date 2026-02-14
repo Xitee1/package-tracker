@@ -78,7 +78,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
-import { useSenderAddressesStore } from '@/stores/senderAddresses'
+import { useSenderAddressesStore } from './store'
 
 const { t } = useI18n()
 const store = useSenderAddressesStore()
@@ -91,7 +91,7 @@ const globalInfo = reactive({ configured: false, email_address: '' })
 
 async function fetchGlobalInfo() {
   try {
-    const res = await api.get('/settings/global-mail/info')
+    const res = await api.get('/providers/email-global/info')
     globalInfo.configured = res.data.configured
     globalInfo.email_address = res.data.email_address || ''
   } catch {

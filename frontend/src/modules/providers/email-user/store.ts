@@ -58,7 +58,7 @@ export const useAccountsStore = defineStore('accounts', () => {
   async function fetchAccounts() {
     loading.value = true
     try {
-      const res = await api.get('/accounts')
+      const res = await api.get('/providers/email-user/accounts')
       accounts.value = res.data
     } finally {
       loading.value = false
@@ -66,45 +66,45 @@ export const useAccountsStore = defineStore('accounts', () => {
   }
 
   async function createAccount(data: CreateAccountPayload): Promise<EmailAccount> {
-    const res = await api.post('/accounts', data)
+    const res = await api.post('/providers/email-user/accounts', data)
     accounts.value.push(res.data)
     return res.data
   }
 
   async function updateAccount(id: number, data: UpdateAccountPayload): Promise<EmailAccount> {
-    const res = await api.patch(`/accounts/${id}`, data)
+    const res = await api.patch(`/providers/email-user/accounts/${id}`, data)
     const idx = accounts.value.findIndex((a) => a.id === id)
     if (idx !== -1) accounts.value[idx] = res.data
     return res.data
   }
 
   async function deleteAccount(id: number): Promise<void> {
-    await api.delete(`/accounts/${id}`)
+    await api.delete(`/providers/email-user/accounts/${id}`)
     accounts.value = accounts.value.filter((a) => a.id !== id)
   }
 
   async function testConnection(id: number): Promise<{ success: boolean; message: string }> {
-    const res = await api.post(`/accounts/${id}/test`)
+    const res = await api.post(`/providers/email-user/accounts/${id}/test`)
     return res.data
   }
 
   async function fetchFolders(id: number): Promise<IMAPFolder[]> {
-    const res = await api.get(`/accounts/${id}/folders`)
+    const res = await api.get(`/providers/email-user/accounts/${id}/folders`)
     return (res.data as string[]).map((name) => ({ name }))
   }
 
   async function fetchWatchedFolders(id: number): Promise<WatchedFolder[]> {
-    const res = await api.get(`/accounts/${id}/folders/watched`)
+    const res = await api.get(`/providers/email-user/accounts/${id}/folders/watched`)
     return res.data
   }
 
   async function addWatchedFolder(id: number, folderPath: string): Promise<WatchedFolder> {
-    const res = await api.post(`/accounts/${id}/folders/watched`, { folder_path: folderPath })
+    const res = await api.post(`/providers/email-user/accounts/${id}/folders/watched`, { folder_path: folderPath })
     return res.data
   }
 
   async function removeWatchedFolder(id: number, folderId: number): Promise<void> {
-    await api.delete(`/accounts/${id}/folders/watched/${folderId}`)
+    await api.delete(`/providers/email-user/accounts/${id}/folders/watched/${folderId}`)
   }
 
   async function updateWatchedFolder(
@@ -112,12 +112,12 @@ export const useAccountsStore = defineStore('accounts', () => {
     folderId: number,
     data: { max_email_age_days?: number | null },
   ): Promise<WatchedFolder> {
-    const res = await api.patch(`/accounts/${accountId}/folders/watched/${folderId}`, data)
+    const res = await api.patch(`/providers/email-user/accounts/${accountId}/folders/watched/${folderId}`, data)
     return res.data
   }
 
   async function scanFolder(accountId: number, folderId: number): Promise<void> {
-    await api.post(`/accounts/${accountId}/folders/watched/${folderId}/scan`)
+    await api.post(`/providers/email-user/accounts/${accountId}/folders/watched/${folderId}/scan`)
   }
 
   return {

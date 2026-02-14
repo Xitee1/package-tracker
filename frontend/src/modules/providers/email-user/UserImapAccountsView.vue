@@ -577,7 +577,7 @@ import {
   type EmailAccount,
   type IMAPFolder,
   type WatchedFolder,
-} from '@/stores/accounts'
+} from './store'
 
 const { t } = useI18n()
 const accountsStore = useAccountsStore()
