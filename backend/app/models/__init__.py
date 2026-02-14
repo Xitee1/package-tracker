@@ -8,9 +8,11 @@ from app.models.imap_settings import ImapSettings
 from app.models.queue_item import QueueItem
 from app.models.processed_email import ProcessedEmail
 from app.models.queue_settings import QueueSettings
+from app.models.module_config import ModuleConfig
 
 __all__ = [
     "User", "EmailAccount", "WatchedFolder", "Order", "OrderState",
     "LLMConfig", "ApiKey", "ImapSettings",
     "QueueItem", "ProcessedEmail", "QueueSettings",
+    "ModuleConfig",
 ]
