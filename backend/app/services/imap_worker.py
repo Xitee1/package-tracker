@@ -1,5 +1,6 @@
 import asyncio
 import email
+import hashlib
 import logging
 import re
 from dataclasses import dataclass
@@ -212,6 +213,15 @@ async def _watch_folder(account_id: int, folder_id: int):
                     subject = _decode_header_value(msg.get("Subject", ""))
                     sender = _decode_header_value(msg.get("From", ""))
                     message_id = msg.get("Message-ID", "")
+                    
+                    # Fallback for missing Message-ID: use deterministic dedup key
+                    # Hash components to ensure the result stays within 512 char limit
+                    if not message_id or not message_id.strip():
+                        uidvalidity_part = str(folder.uidvalidity) if folder.uidvalidity is not None else "no-uidvalidity"
+                        # Create a hash of folder_path to avoid length issues
+                        folder_hash = hashlib.sha256(folder.folder_path.encode()).hexdigest()[:16]
+                        message_id = f"fallback:{account_id}:{folder_hash}:{uidvalidity_part}:{uid}"
+                    
                     body = _extract_body(msg)
 
                     email_date = None
