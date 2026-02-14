@@ -214,8 +214,8 @@ async def _watch_folder(account_id: int, folder_id: int):
                     message_id = msg.get("Message-ID", "")
                     
                     # Fallback for missing Message-ID: use deterministic dedup key
-                    if not message_id.strip():
-                        uidvalidity_part = folder.uidvalidity if folder.uidvalidity is not None else "0"
+                    if not message_id or not message_id.strip():
+                        uidvalidity_part = folder.uidvalidity if folder.uidvalidity is not None else "no-uidvalidity"
                         message_id = f"fallback:{account_id}:{folder.folder_path}:{uidvalidity_part}:{uid}"
                     
                     body = _extract_body(msg)
