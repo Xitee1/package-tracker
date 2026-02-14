@@ -372,7 +372,17 @@
     "jobLastRun": "Letzter Lauf",
     "jobNextRun": "Nächster Lauf",
     "jobLastStatus": "Letzter Status",
-    "jobNever": "Nie"
+    "jobNever": "Nie",
+    "modules": "Module",
+    "moduleType.analyser": "Analysator",
+    "moduleType.provider": "Anbieter",
+    "moduleDisabled": "Deaktiviert",
+    "moduleNotConfigured": "Nicht konfiguriert",
+    "moduleNoStatus": "Kein Status verfügbar",
+    "globalMailWatching": "Überwacht: {folder}",
+    "globalMailSenders": "{count} registrierte Absender",
+    "llmProvider": "Anbieter: {provider}",
+    "llmModel": "Modell: {model}"
   },
   "forwarding": {
     "infoText": "Leiten Sie Ihre Bestellbestätigungen weiter an:",

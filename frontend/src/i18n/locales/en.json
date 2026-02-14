@@ -372,7 +372,17 @@
     "jobLastRun": "Last run",
     "jobNextRun": "Next run",
     "jobLastStatus": "Last status",
-    "jobNever": "Never"
+    "jobNever": "Never",
+    "modules": "Modules",
+    "moduleType.analyser": "Analyser",
+    "moduleType.provider": "Provider",
+    "moduleDisabled": "Disabled",
+    "moduleNotConfigured": "Not configured",
+    "moduleNoStatus": "No status available",
+    "globalMailWatching": "Watching: {folder}",
+    "globalMailSenders": "{count} registered senders",
+    "llmProvider": "Provider: {provider}",
+    "llmModel": "Model: {model}"
   },
   "forwarding": {
     "infoText": "Forward your order confirmation emails to:",
