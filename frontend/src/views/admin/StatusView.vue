@@ -147,30 +147,28 @@
       <!-- ==================== MODULES SECTION ==================== -->
 
       <div v-if="statusData.modules.length > 0">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ t('system.modules') }}
-        </h2>
+        <div v-for="(group, groupIdx) in groupedModules" :key="group.type">
+          <!-- Type Divider -->
+          <div class="flex items-center gap-3" :class="groupIdx === 0 ? 'mb-4' : 'mt-8 mb-4'">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+              {{ group.label }}
+            </h2>
+            <div class="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+          </div>
 
-        <div class="space-y-4">
-          <div
-            v-for="mod in statusData.modules"
-            :key="mod.key"
-            class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
-            :class="{ 'opacity-50': !mod.enabled }"
-          >
-            <!-- Module Card Header -->
-            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+          <div class="space-y-4">
+            <div
+              v-for="mod in group.modules"
+              :key="mod.key"
+              class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+              :class="{ 'opacity-50': !mod.enabled }"
+            >
+              <!-- Module Card Header -->
+              <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
                   <h3 class="text-base font-semibold text-gray-900 dark:text-white">
                     {{ mod.name }}
                   </h3>
-                  <span
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                  >
-                    {{ t(`system.moduleType.${mod.type}`) }}
-                  </span>
-                </div>
                 <div class="flex items-center gap-2">
                   <span
                     v-if="!mod.enabled"
@@ -550,6 +548,7 @@
               </template>
             </div>
           </div>
+          </div>
         </div>
       </div>
     </template>
@@ -557,7 +556,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
 
@@ -655,6 +654,22 @@ const error = ref('')
 const lastRefreshedAt = ref<Date | null>(null)
 const secondsSinceRefresh = ref(0)
 const expandedUsers = ref<Set<number>>(new Set())
+
+const groupedModules = computed(() => {
+  if (!statusData.value) return []
+  const groups: { type: string; label: string; modules: ModuleEntry[] }[] = []
+  const seen = new Map<string, { type: string; label: string; modules: ModuleEntry[] }>()
+  for (const mod of statusData.value.modules) {
+    let group = seen.get(mod.type)
+    if (!group) {
+      group = { type: mod.type, label: t(`system.moduleType.${mod.type}`), modules: [] }
+      seen.set(mod.type, group)
+      groups.push(group)
+    }
+    group.modules.push(mod)
+  }
+  return groups
+})
 
 let pollInterval: ReturnType<typeof setInterval> | null = null
 let tickInterval: ReturnType<typeof setInterval> | null = null
