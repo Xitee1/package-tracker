@@ -321,3 +321,40 @@ async def stop_global_watcher():
             pass
     _global_task = None
     _global_state = None
+
+
+async def get_status(db) -> dict | None:
+    """Status hook: return global mail watcher state."""
+    result = await db.execute(select(GlobalMailConfig))
+    config = result.scalar_one_or_none()
+    if not config:
+        return None
+
+    state = _global_state
+    task = _global_task
+
+    is_running = task is not None and not task.done()
+
+    if state:
+        mode = state.mode
+    elif not is_running:
+        mode = "stopped"
+    else:
+        mode = "unknown"
+
+    from sqlalchemy import func
+    sender_result = await db.execute(
+        select(func.count()).select_from(UserSenderAddress)
+    )
+    registered_senders = sender_result.scalar() or 0
+
+    return {
+        "watching": config.watched_folder_path,
+        "running": is_running,
+        "mode": mode,
+        "registered_senders": registered_senders,
+        "last_scan_at": state.last_scan_at.isoformat() if state and state.last_scan_at else None,
+        "next_scan_at": state.next_scan_at.isoformat() if state and state.next_scan_at else None,
+        "last_activity_at": state.last_activity_at.isoformat() if state and state.last_activity_at else None,
+        "error": state.error if state else None,
+    }

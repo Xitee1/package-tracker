@@ -4,7 +4,7 @@ from app.core.module_base import ModuleInfo
 from app.modules.providers.email_global.router import router
 from app.modules.providers.email_global.user_router import user_router
 from app.modules.providers.email_global.models import GlobalMailConfig, UserSenderAddress
-from app.modules.providers.email_global.service import start_global_watcher, stop_global_watcher
+from app.modules.providers.email_global.service import start_global_watcher, stop_global_watcher, get_status
 from app.database import async_session
 
 
@@ -26,4 +26,5 @@ MODULE_INFO = ModuleInfo(
     startup=start_global_watcher,
     shutdown=stop_global_watcher,
     is_configured=check_configured,
+    status=get_status,
 )
