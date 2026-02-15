@@ -145,10 +145,11 @@
     </div>
 
     <!-- Create Order Modal -->
-    <CreateOrderModal
+    <OrderFormModal
       v-if="showCreateModal"
+      mode="create"
       @close="showCreateModal = false"
-      @created="onOrderCreated"
+      @saved="onOrderCreated"
     />
   </div>
 </template>
@@ -158,7 +159,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useOrdersStore } from '@/stores/orders'
 import StatusBadge from '@/components/StatusBadge.vue'
-import CreateOrderModal from '@/components/CreateOrderModal.vue'
+import OrderFormModal from '@/components/OrderFormModal.vue'
 
 const { t } = useI18n()
 const ordersStore = useOrdersStore()
