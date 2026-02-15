@@ -257,13 +257,12 @@ async function fetchConfig() {
   try {
     const res = await api.get('/notifiers/notify-webhook/config')
     config.value.enabled = res.data.enabled ?? false
-    webhookForm.value.url = res.data.webhook_url || ''
+    webhookForm.value.url = res.data.url || ''
     webhookForm.value.auth_header = ''
-    if (res.data.events) {
-      events.value.new_order = res.data.events.new_order ?? true
-      events.value.tracking_update = res.data.events.tracking_update ?? true
-      events.value.package_delivered = res.data.events.package_delivered ?? true
-    }
+    const eventList: string[] = res.data.events || []
+    events.value.new_order = eventList.includes('new_order')
+    events.value.tracking_update = eventList.includes('tracking_update')
+    events.value.package_delivered = eventList.includes('package_delivered')
   } catch (e: unknown) {
     const err = e as { response?: { status?: number; data?: { detail?: string } } }
     if (err.response?.status !== 404) {
@@ -294,7 +293,7 @@ async function handleSaveWebhook() {
   savingWebhook.value = true
   try {
     const payload: Record<string, unknown> = {
-      webhook_url: webhookForm.value.url,
+      url: webhookForm.value.url,
     }
     if (webhookForm.value.auth_header) {
       payload.auth_header = webhookForm.value.auth_header
@@ -317,7 +316,8 @@ async function handleSaveEvents() {
   eventsSaveSuccess.value = false
   savingEvents.value = true
   try {
-    await api.put('/notifiers/notify-webhook/config/events', events.value)
+    const eventList = Object.entries(events.value).filter(([_, v]) => v).map(([k]) => k)
+    await api.put('/notifiers/notify-webhook/config/events', { events: eventList })
     eventsSaveSuccess.value = true
     setTimeout(() => {
       eventsSaveSuccess.value = false
@@ -336,8 +336,8 @@ async function handleTest() {
   testSuccessMessage.value = ''
   testing.value = true
   try {
-    const res = await api.post('/notifiers/notify-webhook/test')
-    const code = res.data?.status_code || 200
+    const res = await api.post('/notifiers/notify-webhook/test', { url: webhookForm.value.url })
+    const code = res.data?.response_code || 200
     testSuccessMessage.value = t('modules.notify-webhook.testSuccess', { code })
     testSuccess.value = true
     setTimeout(() => {

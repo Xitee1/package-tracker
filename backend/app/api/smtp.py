@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -61,4 +61,4 @@ async def test_smtp(req: SmtpTestRequest, db: AsyncSession = Depends(get_db)):
         )
         return {"status": "ok"}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise HTTPException(status_code=502, detail=str(e))
