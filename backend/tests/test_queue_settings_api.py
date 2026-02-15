@@ -84,9 +84,9 @@ async def test_patch_queue_settings_partial_update_max_per_user(client: AsyncCli
 
 @pytest.mark.asyncio
 async def test_patch_queue_settings_requires_admin(client: AsyncClient):
-    """Non-admin users cannot update queue settings."""
+    """Unauthenticated users cannot update queue settings."""
     response = await client.patch(
         "/api/v1/settings/queue/",
         json={"max_age_days": 10}
     )
-    assert response.status_code == 401
+    assert response.status_code == 403
