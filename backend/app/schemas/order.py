@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 VALID_STATUSES = {"ordered", "shipment_preparing", "shipped", "in_transit", "out_for_delivery", "delivered"}
@@ -9,15 +9,8 @@ VALID_STATUSES = {"ordered", "shipment_preparing", "shipped", "in_transit", "out
 
 class ItemCreate(BaseModel):
     name: str
-    quantity: int = 1
+    quantity: int = Field(default=1, ge=1)
     price: Optional[float] = None
-
-    @field_validator("quantity")
-    @classmethod
-    def validate_quantity(cls, v: int) -> int:
-        if v < 1:
-            raise ValueError("Quantity must be at least 1")
-        return v
 
 
 class OrderItemSchema(BaseModel):

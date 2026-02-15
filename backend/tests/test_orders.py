@@ -147,7 +147,7 @@ async def test_create_order_with_zero_quantity(client, admin_token):
         headers=auth(admin_token),
     )
     assert resp.status_code == 422
-    assert "Quantity must be at least 1" in resp.json()["detail"][0]["msg"]
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
 
 
 @pytest.mark.asyncio
@@ -161,7 +161,7 @@ async def test_create_order_with_negative_quantity(client, admin_token):
         headers=auth(admin_token),
     )
     assert resp.status_code == 422
-    assert "Quantity must be at least 1" in resp.json()["detail"][0]["msg"]
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
 
 
 # --- List Orders ---
@@ -364,7 +364,7 @@ async def test_update_order_with_zero_quantity(client, db_session, admin_token):
         headers=auth(admin_token),
     )
     assert resp.status_code == 422
-    assert "Quantity must be at least 1" in resp.json()["detail"][0]["msg"]
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
 
 
 @pytest.mark.asyncio
@@ -378,7 +378,7 @@ async def test_update_order_with_negative_quantity(client, db_session, admin_tok
         headers=auth(admin_token),
     )
     assert resp.status_code == 422
-    assert "Quantity must be at least 1" in resp.json()["detail"][0]["msg"]
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
 
 
 # --- Delete Order ---
