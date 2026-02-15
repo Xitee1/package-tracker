@@ -27,6 +27,7 @@ LLM_CONFIG = {
     "model_name": "gpt-4o-mini",
     "api_key": "sk-test-key-123",
     "api_base_url": "https://api.openai.com/v1",
+    "system_prompt": None,
 }
 
 
@@ -58,14 +59,16 @@ async def test_put_config_updates_existing(client, admin_token):
     updated = {
         "provider": "anthropic",
         "model_name": "claude-3-haiku",
+        "api_key": "sk-test-key-456",
+        "api_base_url": "https://api.anthropic.com/v1",
+        "system_prompt": None,
     }
     resp = await client.put("/api/v1/modules/analysers/llm/config", json=updated, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["provider"] == "anthropic"
     assert data["model_name"] == "claude-3-haiku"
-    assert data["api_base_url"] == "https://api.openai.com/v1"  # retained from first PUT
-    # API key should still be present from first PUT
+    assert data["api_base_url"] == "https://api.anthropic.com/v1"
     assert data["has_api_key"] is True
 
 
@@ -137,3 +140,22 @@ async def test_put_config_null_system_prompt_resets_to_default(client, admin_tok
     resp = await client.put("/api/v1/modules/analysers/llm/config", json=config_reset, headers=auth(admin_token))
     data = resp.json()
     assert data["system_prompt"] is None
+
+
+@pytest.mark.asyncio
+async def test_put_config_requires_all_fields(client, admin_token):
+    """PUT requires all fields to be explicitly provided."""
+    # Missing api_key, api_base_url, and system_prompt
+    incomplete = {
+        "provider": "openai",
+        "model_name": "gpt-4o-mini",
+    }
+    resp = await client.put("/api/v1/modules/analysers/llm/config", json=incomplete, headers=auth(admin_token))
+    assert resp.status_code == 422  # Unprocessable Entity
+    
+    # Should list missing required fields
+    errors = resp.json()["detail"]
+    missing_fields = {err["loc"][-1] for err in errors if err["type"] == "missing"}
+    assert "api_key" in missing_fields
+    assert "api_base_url" in missing_fields
+    assert "system_prompt" in missing_fields

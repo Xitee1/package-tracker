@@ -308,14 +308,19 @@ async function handleSave() {
   saveSuccess.value = false
   saving.value = true
   try {
+    // PUT requires all fields to be explicitly provided
     const payload: Record<string, string | null> = {
       provider: form.value.provider,
       model_name: form.value.model_name,
       system_prompt: form.value.system_prompt,
+      api_key: null,
+      api_base_url: null,
     }
+    // Only include api_key if provider supports it and user provided one
     if (showApiKey.value && form.value.api_key) {
       payload.api_key = form.value.api_key
     }
+    // Only include api_base_url if provider supports it and user provided one
     if (showBaseUrl.value && form.value.api_base_url) {
       payload.api_base_url = form.value.api_base_url
     }

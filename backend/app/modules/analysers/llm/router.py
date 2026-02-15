@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.encryption import encrypt_value, decrypt_value
 from app.database import get_db
 from app.modules.analysers.llm.models import LLMConfig
-from app.modules.analysers.llm.schemas import LLMConfigRequest, LLMConfigResponse
+from app.modules.analysers.llm.schemas import LLMConfigPutRequest, LLMConfigResponse
 from app.api.deps import get_admin_user
 from app.modules.analysers.llm.service import call_llm, SYSTEM_PROMPT
 
@@ -28,7 +28,7 @@ async def get_config(db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/config", response_model=LLMConfigResponse)
-async def update_config(req: LLMConfigRequest, db: AsyncSession = Depends(get_db)):
+async def update_config(req: LLMConfigPutRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
     config = result.scalar_one_or_none()
     if not config:
@@ -37,10 +37,12 @@ async def update_config(req: LLMConfigRequest, db: AsyncSession = Depends(get_db
     else:
         config.provider = req.provider
         config.model_name = req.model_name
+    # All fields are explicitly provided in PUT
+    # For api_key: if provided (not null), update it; if null, keep existing (don't clear)
     if req.api_key is not None:
         config.api_key_encrypted = encrypt_value(req.api_key)
-    if req.api_base_url is not None:
-        config.api_base_url = req.api_base_url
+    # For other nullable fields: null means clear the value
+    config.api_base_url = req.api_base_url
     config.system_prompt = req.system_prompt
     config.is_active = True
     await db.commit()
