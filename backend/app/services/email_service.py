@@ -47,6 +47,6 @@ async def send_email(
         username=config.username,
         password=password,
         use_tls=config.use_tls,
-        start_tls=not config.use_tls,
+        start_tls=False,
     )
     logger.info(f"Email sent to {to}: {subject}")
