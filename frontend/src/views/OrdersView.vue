@@ -118,7 +118,9 @@
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    :aria-label="ordersStore.sortDir === 'asc' ? $t('orders.sortAsc') : $t('orders.sortDesc')"
+                    :aria-label="
+                      ordersStore.sortDir === 'asc' ? $t('orders.sortAsc') : $t('orders.sortDesc')
+                    "
                   >
                     <path
                       v-if="ordersStore.sortDir === 'asc'"

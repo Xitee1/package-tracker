@@ -1,4 +1,4 @@
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 
 from fastapi import APIRouter, Depends
 
@@ -9,4 +9,8 @@ router = APIRouter(prefix="/api/v1", tags=["version"], dependencies=[Depends(get
 
 @router.get("/version")
 async def get_version():
-    return {"version": version("package-tracker")}
+    try:
+        v = version("package-tracker")
+    except PackageNotFoundError:
+        v = "unknown"
+    return {"version": v}
