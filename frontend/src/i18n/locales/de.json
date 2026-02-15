@@ -415,7 +415,7 @@
     "jobNever": "Nie",
     "modules": "Module",
     "moduleType": {
-      "analyser": "Analysator",
+      "analyser": "Analyser",
       "provider": "Anbieter",
       "notifier": "Benachrichtigung"
     },
@@ -457,11 +457,11 @@
   },
   "modules": {
     "llm": {
-      "title": "LLM Analyse",
+      "title": "LLM",
       "description": "E-Mails mit LLM analysieren, um Bestellinformationen zu extrahieren"
     },
     "email-global": {
-      "title": "E-Mail - Global/Weiterleitung",
+      "title": "E-Mail - Weiterleitung",
       "description": "Gemeinsames globales E-Mail-Postfach mit absenderbasierter Zuordnung",
       "userTitle": "E-Mail-Weiterleitung"
     },
@@ -471,11 +471,11 @@
       "userTitle": "E-Mail IMAP"
     },
     "notify-email": {
-      "title": "E-Mail-Benachrichtigungen",
+      "title": "E-Mail",
       "description": "E-Mail-Benachrichtigungen für Bestellereignisse senden",
       "userTitle": "E-Mail",
-      "smtpRequired": "E-Mail-Benachrichtigungen erfordern eine SMTP-Konfiguration. Bitten Sie Ihren Administrator, SMTP in den Einstellungen einzurichten.",
-      "emailAddress": "Benachrichtigungs-E-Mail",
+      "smtpRequired": "Für E-Mail-Benachrichtigungen wird der Anwendungsweite SMTP-Server verwendet.",
+      "emailAddress": "Empfänger",
       "emailPlaceholder": "ihre@email.de",
       "sendVerification": "Verifizierung senden",
       "verificationSent": "Verifizierungs-E-Mail gesendet. Prüfen Sie Ihren Posteingang.",
@@ -487,13 +487,13 @@
       "verifyExpired": "Verifizierungslink ist abgelaufen."
     },
     "notify-webhook": {
-      "title": "Webhook-Benachrichtigungen",
+      "title": "Webhook",
       "description": "Webhook-Benachrichtigungen für Bestellereignisse senden",
       "userTitle": "Webhook",
-      "webhookUrl": "Webhook-URL",
-      "webhookUrlPlaceholder": "https://beispiel.de/webhook",
-      "authHeader": "Authorization-Header",
-      "authHeaderPlaceholder": "Bearer ihr-token (optional)",
+      "webhookUrl": "URL",
+      "webhookUrlPlaceholder": "https://example.com/webhook",
+      "authHeader": "Authorization-Header (optional)",
+      "authHeaderPlaceholder": "Bearer YOUR_TOKEN_HERE",
       "saveWebhook": "Webhook speichern",
       "testWebhook": "Test senden",
       "testSuccess": "Test-Webhook erfolgreich gesendet (HTTP {code}).",
@@ -591,7 +591,7 @@
     "title": "Benachrichtigungen",
     "noModulesEnabled": "Derzeit sind keine Benachrichtigungsmodule aktiviert. Wenden Sie sich an Ihren Administrator.",
     "events": "Benachrichtigen bei",
-    "eventNewOrder": "Neue Bestellung erkannt",
+    "eventNewOrder": "Neue Bestellung",
     "eventTrackingUpdate": "Tracking-Update",
     "eventPackageDelivered": "Paket zugestellt",
     "enabled": "Aktiviert",
