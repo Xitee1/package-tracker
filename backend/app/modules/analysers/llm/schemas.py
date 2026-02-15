@@ -11,6 +11,7 @@ class LLMConfigRequest(BaseModel):
     model_name: str
     api_key: Optional[str] = None
     api_base_url: Optional[str] = None
+    system_prompt: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_provider_fields(self):
@@ -30,5 +31,7 @@ class LLMConfigResponse(BaseModel):
     api_base_url: Optional[str]
     is_active: bool
     has_api_key: bool
+    system_prompt: Optional[str] = None
+    default_system_prompt: str = ""
 
     model_config = {"from_attributes": True}
