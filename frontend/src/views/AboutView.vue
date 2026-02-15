@@ -195,6 +195,16 @@ function compareVersions(a: string, b: string): number {
 async function checkForUpdates() {
   updateStatus.value = 'checking'
   try {
+    // Check if current version is valid before attempting comparison
+    const isValidVersion = (v: string) => {
+      const normalized = v.replace(/^v/, '')
+      return /^\d+(\.\d+)*$/.test(normalized)
+    }
+
+    if (!isValidVersion(version.value)) {
+      throw new Error('Cannot check for updates: current version is unknown')
+    }
+
     const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
     if (!resp.ok) throw new Error('GitHub API error')
     const data = await resp.json()
