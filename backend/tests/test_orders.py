@@ -474,6 +474,53 @@ async def test_search_case_insensitive(client, db_session, admin_token):
     assert data["items"][0]["vendor_name"] == "Amazon"
 
 
+# --- Order Counts ---
+
+
+@pytest.mark.asyncio
+async def test_order_counts(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    await _create_order(db_session, user_id, order_number="C-001", status="ordered")
+    await _create_order(db_session, user_id, order_number="C-002", status="ordered")
+    await _create_order(db_session, user_id, order_number="C-003", status="shipped")
+    await _create_order(db_session, user_id, order_number="C-004", status="delivered")
+
+    resp = await client.get("/api/v1/orders/counts", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 4
+    assert data["ordered"] == 2
+    assert data["shipped"] == 1
+    assert data["delivered"] == 1
+    assert data["shipment_preparing"] == 0
+    assert data["in_transit"] == 0
+    assert data["out_for_delivery"] == 0
+
+
+@pytest.mark.asyncio
+async def test_order_counts_with_search(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    await _create_order(db_session, user_id, order_number="C-010", vendor_name="Amazon", status="ordered")
+    await _create_order(db_session, user_id, order_number="C-011", vendor_name="Amazon", status="shipped")
+    await _create_order(db_session, user_id, order_number="C-012", vendor_name="eBay", status="ordered")
+
+    resp = await client.get("/api/v1/orders/counts?search=Amazon", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 2
+    assert data["ordered"] == 1
+    assert data["shipped"] == 1
+
+
+@pytest.mark.asyncio
+async def test_order_counts_empty(client, admin_token):
+    resp = await client.get("/api/v1/orders/counts", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 0
+    assert data["ordered"] == 0
+
+
 # --- Link Orders ---
 
 
