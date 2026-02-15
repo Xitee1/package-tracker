@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from typing import Optional
@@ -8,7 +8,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.order import Order
 from app.models.order_state import OrderState
-from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest, CreateOrderRequest
+from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest, CreateOrderRequest, OrderListResponse
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
@@ -48,24 +48,44 @@ async def create_order(
     return order
 
 
-@router.get("", response_model=list[OrderResponse])
+@router.get("", response_model=OrderListResponse)
 async def list_orders(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(25, ge=1, le=200),
     status: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Order).where(Order.user_id == user.id).order_by(Order.updated_at.desc())
+    query = select(Order).where(Order.user_id == user.id)
+
     if status:
-        query = query.where(Order.status == status)
+        statuses = [s.strip() for s in status.split(",")]
+        query = query.where(Order.status.in_(statuses))
     if search:
+        search_filter = f"%{search}%"
         query = query.where(
-            (Order.order_number.contains(search))
-            | (Order.vendor_name.contains(search))
-            | (Order.tracking_number.contains(search))
+            (Order.order_number.ilike(search_filter))
+            | (Order.vendor_name.ilike(search_filter))
+            | (Order.tracking_number.ilike(search_filter))
+            | (Order.carrier.ilike(search_filter))
+            | (Order.vendor_domain.ilike(search_filter))
         )
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total = (await db.execute(count_query)).scalar() or 0
+
+    query = query.order_by(Order.updated_at.desc())
+    query = query.offset((page - 1) * per_page).limit(per_page)
     result = await db.execute(query)
-    return result.scalars().all()
+    items = result.scalars().all()
+
+    return OrderListResponse(
+        items=[OrderResponse.model_validate(i) for i in items],
+        total=total,
+        page=page,
+        per_page=per_page,
+    )
 
 
 @router.get("/{order_id}", response_model=OrderDetailResponse)
