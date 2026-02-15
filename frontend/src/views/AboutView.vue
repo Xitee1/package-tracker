@@ -7,7 +7,9 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+        <div
+          class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0"
+        >
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
@@ -127,6 +129,7 @@ const latestVersion = ref('')
 const latestReleaseUrl = ref('')
 
 const GITHUB_REPO = 'Xitee1/package-tracker'
+const INVALID_VERSIONS = ['?', 'unknown']
 
 const links = computed(() => [
   {
@@ -175,6 +178,11 @@ function compareVersions(a: string, b: string): number {
 async function checkForUpdates() {
   updateStatus.value = 'checking'
   try {
+    // Check if current version is valid before attempting update check
+    if (INVALID_VERSIONS.includes(version.value)) {
+      throw new Error('Cannot check for updates: current version is invalid or unknown')
+    }
+
     const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
     if (!resp.ok) throw new Error('GitHub API error')
     const data = await resp.json()
