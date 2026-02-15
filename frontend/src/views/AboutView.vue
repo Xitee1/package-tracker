@@ -178,9 +178,21 @@ async function checkForUpdates() {
     const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
     if (!resp.ok) throw new Error('GitHub API error')
     const data = await resp.json()
-    const latest = data.tag_name as string
+
+    // Validate GitHub API response structure
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid GitHub API response')
+    }
+
+    const latest = (data as any).tag_name
+    const latestUrl = (data as any).html_url
+
+    if (typeof latest !== 'string' || typeof latestUrl !== 'string') {
+      throw new Error('Missing required fields in GitHub API response')
+    }
+
     latestVersion.value = latest
-    latestReleaseUrl.value = data.html_url as string
+    latestReleaseUrl.value = latestUrl
 
     if (compareVersions(version.value, latest) >= 0) {
       updateStatus.value = 'up-to-date'
