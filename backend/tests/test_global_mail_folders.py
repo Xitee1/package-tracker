@@ -21,7 +21,7 @@ async def test_folders_returns_404_when_not_configured(client, admin_token):
 @pytest.mark.asyncio
 async def test_folders_returns_list(client, admin_token):
     # Create config first
-    await client.put(
+    await client.patch(
         "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "imap.example.com",
@@ -49,7 +49,7 @@ async def test_folders_returns_list(client, admin_token):
 
 @pytest.mark.asyncio
 async def test_folders_connection_failure(client, admin_token):
-    await client.put(
+    await client.patch(
         "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "bad.host",

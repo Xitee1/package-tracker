@@ -319,7 +319,7 @@ async function handleSave() {
     if (showBaseUrl.value && form.value.api_base_url) {
       payload.api_base_url = form.value.api_base_url
     }
-    await api.put('/modules/analysers/llm/config', payload)
+    await api.patch('/modules/analysers/llm/config', payload)
     saveSuccess.value = true
     hasExistingKey.value = hasExistingKey.value || !!form.value.api_key
     form.value.api_key = ''

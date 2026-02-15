@@ -38,8 +38,8 @@ async def test_get_config_returns_null_when_none(client, admin_token):
 
 
 @pytest.mark.asyncio
-async def test_put_config_creates_new(client, admin_token):
-    resp = await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
+async def test_patch_config_creates_new(client, admin_token):
+    resp = await client.patch("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["provider"] == "openai"
@@ -53,13 +53,13 @@ async def test_put_config_creates_new(client, admin_token):
 
 
 @pytest.mark.asyncio
-async def test_put_config_updates_existing(client, admin_token):
-    await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
+async def test_patch_config_updates_existing(client, admin_token):
+    await client.patch("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
     updated = {
         "provider": "anthropic",
         "model_name": "claude-3-haiku",
     }
-    resp = await client.put("/api/v1/modules/analysers/llm/config", json=updated, headers=auth(admin_token))
+    resp = await client.patch("/api/v1/modules/analysers/llm/config", json=updated, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["provider"] == "anthropic"
@@ -71,7 +71,7 @@ async def test_put_config_updates_existing(client, admin_token):
 
 @pytest.mark.asyncio
 async def test_get_config_after_put(client, admin_token):
-    await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
+    await client.patch("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
     resp = await client.get("/api/v1/modules/analysers/llm/config", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
@@ -87,8 +87,8 @@ async def test_non_admin_access_denied(client, user_token):
 
 
 @pytest.mark.asyncio
-async def test_non_admin_cannot_put_config(client, user_token):
-    resp = await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(user_token))
+async def test_non_admin_cannot_patch_config(client, user_token):
+    resp = await client.patch("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(user_token))
     assert resp.status_code == 403
 
 
@@ -101,7 +101,7 @@ async def test_unauthenticated_access_denied(client):
 @pytest.mark.asyncio
 async def test_get_config_includes_default_system_prompt(client, admin_token):
     """GET config response always includes default_system_prompt."""
-    await client.put("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
+    await client.patch("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
     resp = await client.get("/api/v1/modules/analysers/llm/config", headers=auth(admin_token))
     data = resp.json()
     assert "default_system_prompt" in data
@@ -110,10 +110,10 @@ async def test_get_config_includes_default_system_prompt(client, admin_token):
 
 
 @pytest.mark.asyncio
-async def test_put_config_with_custom_system_prompt(client, admin_token):
-    """PUT with system_prompt saves it; GET returns it back."""
+async def test_patch_config_with_custom_system_prompt(client, admin_token):
+    """PATCH with system_prompt saves it; GET returns it back."""
     config_with_prompt = {**LLM_CONFIG, "system_prompt": "You are a custom analyser."}
-    resp = await client.put("/api/v1/modules/analysers/llm/config", json=config_with_prompt, headers=auth(admin_token))
+    resp = await client.patch("/api/v1/modules/analysers/llm/config", json=config_with_prompt, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["system_prompt"] == "You are a custom analyser."
@@ -126,14 +126,14 @@ async def test_put_config_with_custom_system_prompt(client, admin_token):
 
 
 @pytest.mark.asyncio
-async def test_put_config_null_system_prompt_resets_to_default(client, admin_token):
-    """PUT with system_prompt=null clears custom prompt (uses default)."""
+async def test_patch_config_null_system_prompt_resets_to_default(client, admin_token):
+    """PATCH with system_prompt=null clears custom prompt (uses default)."""
     # First set a custom prompt
     config_with_prompt = {**LLM_CONFIG, "system_prompt": "Custom prompt"}
-    await client.put("/api/v1/modules/analysers/llm/config", json=config_with_prompt, headers=auth(admin_token))
+    await client.patch("/api/v1/modules/analysers/llm/config", json=config_with_prompt, headers=auth(admin_token))
 
     # Then reset to default by sending null
     config_reset = {**LLM_CONFIG, "system_prompt": None}
-    resp = await client.put("/api/v1/modules/analysers/llm/config", json=config_reset, headers=auth(admin_token))
+    resp = await client.patch("/api/v1/modules/analysers/llm/config", json=config_reset, headers=auth(admin_token))
     data = resp.json()
     assert data["system_prompt"] is None

@@ -29,7 +29,7 @@ async def get_global_mail_config(
     return await _get_config(db)
 
 
-@router.put("/config", response_model=GlobalMailConfigResponse)
+@router.patch("/config", response_model=GlobalMailConfigResponse)
 async def update_global_mail_config(
     req: GlobalMailConfigRequest,
     db: AsyncSession = Depends(get_db),

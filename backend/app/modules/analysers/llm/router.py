@@ -27,7 +27,7 @@ async def get_config(db: AsyncSession = Depends(get_db)):
     )
 
 
-@router.put("/config", response_model=LLMConfigResponse)
+@router.patch("/config", response_model=LLMConfigResponse)
 async def update_config(req: LLMConfigRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
     config = result.scalar_one_or_none()

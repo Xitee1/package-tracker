@@ -9,5 +9,5 @@ class QueueSettingsResponse(BaseModel):
 
 
 class UpdateQueueSettingsRequest(BaseModel):
-    max_age_days: int | None = None
-    max_per_user: int | None = None
+    max_age_days: int
+    max_per_user: int

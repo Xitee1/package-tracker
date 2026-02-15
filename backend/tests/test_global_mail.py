@@ -30,7 +30,7 @@ async def test_get_returns_empty_when_not_configured(client, admin_token):
 
 
 @pytest.mark.asyncio
-async def test_put_creates_config(client, admin_token):
+async def test_patch_creates_config(client, admin_token):
     payload = {
         "imap_host": "imap.example.com",
         "imap_port": 993,
@@ -39,7 +39,7 @@ async def test_put_creates_config(client, admin_token):
         "use_ssl": True,
         "watched_folder_path": "INBOX",
     }
-    resp = await client.put("/api/v1/modules/providers/email-global/config", json=payload, headers=auth(admin_token))
+    resp = await client.patch("/api/v1/modules/providers/email-global/config", json=payload, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["imap_host"] == "imap.example.com"
@@ -48,19 +48,19 @@ async def test_put_creates_config(client, admin_token):
 
 
 @pytest.mark.asyncio
-async def test_put_updates_existing(client, admin_token):
+async def test_patch_updates_existing(client, admin_token):
     payload = {
         "imap_host": "imap.example.com",
         "imap_user": "global@example.com",
         "imap_password": "secret",
     }
-    await client.put("/api/v1/modules/providers/email-global/config", json=payload, headers=auth(admin_token))
+    await client.patch("/api/v1/modules/providers/email-global/config", json=payload, headers=auth(admin_token))
     # Update without password
     payload2 = {
         "imap_host": "imap2.example.com",
         "imap_user": "global@example.com",
     }
-    resp = await client.put("/api/v1/modules/providers/email-global/config", json=payload2, headers=auth(admin_token))
+    resp = await client.patch("/api/v1/modules/providers/email-global/config", json=payload2, headers=auth(admin_token))
     assert resp.status_code == 200
     assert resp.json()["imap_host"] == "imap2.example.com"
 
@@ -86,7 +86,7 @@ async def test_info_endpoint_as_user(client, admin_token, user_token):
     )
 
     # Create config
-    await client.put(
+    await client.patch(
         "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "imap.example.com",
@@ -107,7 +107,7 @@ async def test_info_endpoint_as_user(client, admin_token, user_token):
 @pytest.mark.asyncio
 async def test_info_returns_unconfigured_when_module_disabled(client, admin_token, user_token):
     # Create config (module not enabled by default)
-    await client.put(
+    await client.patch(
         "/api/v1/modules/providers/email-global/config",
         json={
             "imap_host": "imap.example.com",

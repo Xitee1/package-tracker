@@ -36,8 +36,8 @@ async def update_queue_settings(
     db: AsyncSession = Depends(get_db),
 ):
     settings = await _get_or_create_settings(db)
-    for key, value in body.model_dump(exclude_unset=True).items():
-        setattr(settings, key, value)
+    settings.max_age_days = body.max_age_days
+    settings.max_per_user = body.max_per_user
     await db.commit()
     await db.refresh(settings)
     return settings
