@@ -286,11 +286,19 @@ interface FormItem {
   price: number | null
 }
 
+const getLocalDateISO = (): string => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const form = ref({
   vendor_name: '',
   vendor_domain: '',
   order_number: '',
-  order_date: new Date().toISOString().split('T')[0],
+  order_date: getLocalDateISO(),
   status: 'ordered',
   tracking_number: '',
   carrier: '',
