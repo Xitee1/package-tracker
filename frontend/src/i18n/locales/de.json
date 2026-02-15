@@ -125,7 +125,8 @@
     "sectionOrderInfo": "Bestellinfos",
     "sectionShipping": "Versand",
     "sectionCost": "Kosten",
-    "sectionItems": "Artikel"
+    "sectionItems": "Artikel",
+    "editOrder": "Bestellung bearbeiten"
   },
   "queue": {
     "title": "Warteschlange",

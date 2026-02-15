@@ -125,7 +125,8 @@
     "sectionOrderInfo": "Order Info",
     "sectionShipping": "Shipping",
     "sectionCost": "Cost",
-    "sectionItems": "Items"
+    "sectionItems": "Items",
+    "editOrder": "Edit Order"
   },
   "queue": {
     "title": "Queue",
