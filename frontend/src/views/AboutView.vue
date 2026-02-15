@@ -153,6 +153,11 @@ const links = computed(() => [
   },
 ])
 
+function isValidVersion(v: string): boolean {
+  const normalized = v.replace(/^v/, '')
+  return /^\d+(\.\d+)*$/.test(normalized)
+}
+
 async function fetchVersion() {
   try {
     const { data } = await api.get('/version')
@@ -165,11 +170,6 @@ async function fetchVersion() {
 function compareVersions(a: string, b: string): number {
   // Handle invalid versions (non-numeric like "?", "unknown", etc.)
   // Treat invalid versions as older than any valid version
-  const isValidVersion = (v: string) => {
-    const normalized = v.replace(/^v/, '')
-    return /^\d+(\.\d+)*$/.test(normalized)
-  }
-
   const aValid = isValidVersion(a)
   const bValid = isValidVersion(b)
 
@@ -196,11 +196,6 @@ async function checkForUpdates() {
   updateStatus.value = 'checking'
   try {
     // Check if current version is valid before attempting comparison
-    const isValidVersion = (v: string) => {
-      const normalized = v.replace(/^v/, '')
-      return /^\d+(\.\d+)*$/.test(normalized)
-    }
-
     if (!isValidVersion(version.value)) {
       throw new Error('Cannot check for updates: current version is unknown')
     }
