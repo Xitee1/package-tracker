@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { getAdminRoutes, getUserRoutes } from '@/core/moduleRegistry'
+import { getAdminRoutes, getUserRoutes, getNotifierUserRoutes } from '@/core/moduleRegistry'
 
 // Import module manifests to trigger registration
 import '@/modules/analysers/llm'
 import '@/modules/providers/email-global'
 import '@/modules/providers/email-user'
+import '@/modules/notifiers/notify-email'
+import '@/modules/notifiers/notify-webhook'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +56,19 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: getUserRoutes(),
     },
+    // Notifier user routes (dynamically from modules)
+    {
+      path: '/notifications',
+      component: () => import('@/views/NotificationsView.vue'),
+      meta: { requiresAuth: true },
+      children: getNotifierUserRoutes(),
+    },
+    {
+      path: '/verify-email/:token',
+      name: 'verify-email',
+      component: () => import('@/views/VerifyEmailView.vue'),
+      meta: { requiresAuth: true },
+    },
     {
       path: '/profile',
       name: 'profile',
@@ -92,6 +107,11 @@ const router = createRouter({
           path: 'analysers',
           name: 'analysers-settings',
           component: () => import('@/views/admin/AnalysersView.vue'),
+        },
+        {
+          path: 'smtp',
+          name: 'smtp-settings',
+          component: () => import('@/views/admin/AdminSmtpSettingsView.vue'),
         },
         // Module admin routes (dynamically from modules)
         ...getAdminRoutes(),

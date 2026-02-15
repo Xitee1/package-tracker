@@ -7,7 +7,7 @@
       :enabled="moduleEnabled"
       @update:enabled="moduleEnabled = $event"
     />
-    <div :class="{ 'opacity-50 pointer-events-none': !moduleEnabled }">
+    <div :class="{ 'opacity-50 pointer-events-none': !moduleEnabled }" class="space-y-6">
       <!-- Load Error -->
       <div
         v-if="loadError"
@@ -374,7 +374,7 @@ async function handleSaveSettings() {
 
 onMounted(async () => {
   await fetchSettings()
-  if (configExists.value) {
+  if (configExists.value && moduleEnabled.value) {
     await fetchFolders()
   }
 })

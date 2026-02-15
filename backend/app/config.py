@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     database_url: str
     secret_key: str
     encryption_key: str
+    frontend_url: str = "http://localhost:5173"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 1440  # 24 hours
 

@@ -3,7 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 export interface ModuleManifest {
   key: string
   name: string
-  type: 'analyser' | 'provider'
+  type: 'analyser' | 'provider' | 'notifier'
   adminRoutes: { path: string; component: () => Promise<unknown>; label?: string }[]
   userRoutes?: { path: string; component: () => Promise<unknown>; label: string }[]
 }
@@ -18,7 +18,7 @@ export function getModules(): ModuleManifest[] {
   return modules
 }
 
-export function getModulesByType(type: 'analyser' | 'provider'): ModuleManifest[] {
+export function getModulesByType(type: 'analyser' | 'provider' | 'notifier'): ModuleManifest[] {
   return modules.filter((m) => m.type === type)
 }
 
@@ -48,6 +48,7 @@ export function getAdminSidebarItems(): {
 }[] {
   const analysers = getModulesByType('analyser')
   const providers = getModulesByType('provider')
+  const notifiers = getModulesByType('notifier')
 
   const groups = []
 
@@ -77,15 +78,50 @@ export function getAdminSidebarItems(): {
     })
   }
 
+  if (notifiers.length > 0) {
+    groups.push({
+      group: 'notifier',
+      items: notifiers.flatMap((m) =>
+        m.adminRoutes.map((r) => ({
+          to: `/admin/settings/${r.path}`,
+          label: r.label || m.name,
+          moduleKey: m.key,
+        })),
+      ),
+    })
+  }
+
   return groups
 }
 
 export function getUserSidebarItems(): { to: string; label: string; moduleKey: string }[] {
-  return modules.flatMap((m) =>
+  return modules
+    .filter((m) => m.type !== 'notifier')
+    .flatMap((m) =>
+      (m.userRoutes || []).map((r) => ({
+        to: `/providers/${r.path}`,
+        label: r.label,
+        moduleKey: m.key,
+      })),
+    )
+}
+
+export function getNotifierSidebarItems(): { to: string; label: string; moduleKey: string }[] {
+  return getModulesByType('notifier').flatMap((m) =>
     (m.userRoutes || []).map((r) => ({
-      to: `/providers/${r.path}`,
+      to: `/notifications/${r.path}`,
       label: r.label,
       moduleKey: m.key,
+    })),
+  )
+}
+
+export function getNotifierUserRoutes(): RouteRecordRaw[] {
+  return getModulesByType('notifier').flatMap((m) =>
+    (m.userRoutes || []).map((r) => ({
+      path: r.path,
+      component: r.component,
+      meta: { moduleKey: m.key },
     })),
   )
 }

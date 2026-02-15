@@ -68,6 +68,7 @@ from app.api.queue import router as queue_router
 from app.api.queue_settings import router as queue_settings_router
 from app.api.modules import router as modules_router
 from app.api.version import router as version_router
+from app.api.smtp import router as smtp_router
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(orders_router)
@@ -77,6 +78,7 @@ app.include_router(queue_router)
 app.include_router(queue_settings_router)
 app.include_router(modules_router)
 app.include_router(version_router)
+app.include_router(smtp_router)
 
 # Module routes (auto-discovered)
 for key, info in get_all_modules().items():

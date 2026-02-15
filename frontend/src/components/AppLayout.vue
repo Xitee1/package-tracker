@@ -85,6 +85,46 @@
           </template>
         </template>
 
+        <!-- Notifications Section -->
+        <template v-if="notifierItems.length > 0">
+          <button
+            @click="notifiersExpanded = !notifiersExpanded"
+            class="flex items-center justify-between w-full px-3 py-2 mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            {{ $t('nav.notifications') }}
+            <svg
+              class="w-3.5 h-3.5 transition-transform duration-200"
+              :class="{ 'rotate-180': !notifiersExpanded }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          <template v-if="notifiersExpanded">
+            <router-link
+              v-for="item in notifierItems"
+              :key="item.to"
+              :to="item.to"
+              class="flex items-center gap-3 px-3 py-2.5 pl-6 text-sm font-medium rounded-lg transition-colors"
+              :class="
+                isActive(item.to)
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              "
+              @click="sidebarOpen = false"
+            >
+              {{ $t(item.label) }}
+            </router-link>
+          </template>
+        </template>
+
         <!-- Admin Section -->
         <template v-if="auth.isAdmin">
           <div class="pt-4 pb-1 px-3">
@@ -222,7 +262,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useModulesStore } from '@/stores/modules'
-import { getUserSidebarItems } from '@/core/moduleRegistry'
+import { getUserSidebarItems, getNotifierSidebarItems } from '@/core/moduleRegistry'
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
@@ -238,6 +278,13 @@ const providerItems = computed(() => {
 })
 
 const providersExpanded = ref(true)
+
+const notifierItems = computed(() => {
+  return getNotifierSidebarItems().filter(
+    (item) => modulesStore.isEnabled(item.moduleKey) && modulesStore.isConfigured(item.moduleKey),
+  )
+})
+const notifiersExpanded = ref(true)
 
 const navItems = computed(() => [
   {
@@ -279,6 +326,7 @@ function isActive(path: string): boolean {
   if (path === '/orders' && route.path.startsWith('/orders/')) return true
   if (path === '/admin/settings' && route.path.startsWith('/admin/settings')) return true
   if (path.startsWith('/providers/') && route.path === path) return true
+  if (path.startsWith('/notifications/') && route.path === path) return true
   return route.path === path
 }
 
