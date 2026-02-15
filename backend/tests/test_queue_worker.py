@@ -270,7 +270,7 @@ async def test_process_queued_item_creates_order(db_session, test_user):
 
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_processor.analyze_email", new_callable=AsyncMock) as mock_analyze,
+        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
         patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
     ):
         mock_analyze.return_value = (analysis, raw_response)
@@ -324,7 +324,7 @@ async def test_process_irrelevant_item(db_session, test_user):
 
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_processor.analyze_email", new_callable=AsyncMock) as mock_analyze,
+        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
         patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
     ):
         mock_analyze.return_value = (analysis, raw_response)
@@ -383,7 +383,7 @@ async def test_process_updates_existing_order(db_session, test_user):
 
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_processor.analyze_email", new_callable=AsyncMock) as mock_analyze,
+        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
         patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
     ):
         mock_analyze.return_value = (analysis, raw_response)
@@ -415,7 +415,7 @@ async def test_process_failed_llm(db_session, test_user):
 
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_processor.analyze_email", new_callable=AsyncMock) as mock_analyze,
+        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
         patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
     ):
         mock_analyze.side_effect = RuntimeError("LLM unavailable")
