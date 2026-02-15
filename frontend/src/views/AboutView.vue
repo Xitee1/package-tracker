@@ -7,7 +7,9 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+        <div
+          class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0"
+        >
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
@@ -123,6 +125,7 @@ const latestVersion = ref('')
 const latestReleaseUrl = ref('')
 
 const GITHUB_REPO = 'Xitee1/package-tracker'
+const INVALID_VERSIONS = ['?', 'unknown']
 
 const links = computed(() => [
   {
@@ -147,7 +150,34 @@ const links = computed(() => [
   },
 ])
 
+function isValidVersion(v: string): boolean {
+  const normalized = v.replace(/^v/, '')
+  return /^\d+(\.\d+)*$/.test(normalized)
+}
+
+async function fetchVersion() {
+  try {
+    const { data } = await api.get('/version')
+    version.value = data.version
+  } catch {
+    version.value = '?'
+  }
+}
+
 function compareVersions(a: string, b: string): number {
+  // Handle invalid versions (non-numeric like "?", "unknown", etc.)
+  // Treat invalid versions as older than any valid version
+  const aValid = isValidVersion(a)
+  const bValid = isValidVersion(b)
+
+  // If neither is valid, consider them equal
+  if (!aValid && !bValid) return 0
+  // If only a is invalid, it's older
+  if (!aValid) return -1
+  // If only b is invalid, a is newer
+  if (!bValid) return 1
+
+  // Both valid, compare numerically
   const pa = a.replace(/^v/, '').split('.').map(Number)
   const pb = b.replace(/^v/, '').split('.').map(Number)
   for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
@@ -162,12 +192,29 @@ function compareVersions(a: string, b: string): number {
 async function checkForUpdates() {
   updateStatus.value = 'checking'
   try {
+    // Check if current version is valid before attempting comparison
+    if (!isValidVersion(version.value)) {
+      throw new Error('Cannot check for updates: current version is unknown')
+    }
+
     const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
     if (!resp.ok) throw new Error('GitHub API error')
     const data = await resp.json()
-    const latest = data.tag_name as string
+
+    // Validate GitHub API response structure
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid GitHub API response')
+    }
+
+    const latest = (data as any).tag_name
+    const latestUrl = (data as any).html_url
+
+    if (typeof latest !== 'string' || typeof latestUrl !== 'string') {
+      throw new Error('Missing required fields in GitHub API response')
+    }
+
     latestVersion.value = latest
-    latestReleaseUrl.value = data.html_url as string
+    latestReleaseUrl.value = latestUrl
 
     if (compareVersions(version, latest) >= 0) {
       updateStatus.value = 'up-to-date'
