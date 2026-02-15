@@ -6,7 +6,7 @@ from typing import Optional
 from app.database import get_db
 from app.models.user import User
 from app.models.queue_item import QueueItem
-from app.schemas.queue_item import QueueItemResponse, QueueItemListResponse, QueueStatsResponse
+from app.schemas.queue_item import QueueItemResponse, QueueItemSummaryResponse, QueueItemListResponse, QueueStatsResponse
 from app.api.deps import get_current_user, get_admin_user
 
 router = APIRouter(prefix="/api/v1/queue", tags=["queue"])
@@ -37,7 +37,7 @@ async def list_queue_items(
     items = result.scalars().all()
 
     return QueueItemListResponse(
-        items=[QueueItemResponse.model_validate(i) for i in items],
+        items=[QueueItemSummaryResponse.model_validate(i) for i in items],
         total=total,
         page=page,
         per_page=per_page,

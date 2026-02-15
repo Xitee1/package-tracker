@@ -225,5 +225,4 @@ async function checkForUpdates() {
     updateStatus.value = 'error'
   }
 }
-
 </script>

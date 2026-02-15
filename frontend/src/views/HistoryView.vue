@@ -299,81 +299,104 @@
 
           <!-- Tabs: Raw Data / Extracted Data / Error -->
           <div>
-            <nav
-              class="flex space-x-4 border-b border-gray-200 dark:border-gray-700 -mb-px"
-              aria-label="Detail tabs"
-            >
-              <button
-                @click="detailTab = 'raw'"
-                class="py-2 px-1 border-b-2 text-sm font-medium whitespace-nowrap"
-                :class="
-                  detailTab === 'raw'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'
-                "
-              >
-                {{ t('queue.rawData') }}
-              </button>
-              <button
-                @click="detailTab = 'extracted'"
-                class="py-2 px-1 border-b-2 text-sm font-medium whitespace-nowrap"
-                :class="
-                  detailTab === 'extracted'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'
-                "
-              >
-                {{ t('queue.extractedData') }}
-              </button>
-              <button
-                v-if="detailItem.status === 'failed'"
-                @click="detailTab = 'error'"
-                class="py-2 px-1 border-b-2 text-sm font-medium whitespace-nowrap"
-                :class="
-                  detailTab === 'error'
-                    ? 'border-red-500 text-red-600 dark:text-red-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'
-                "
-              >
-                {{ t('queue.error') }}
-              </button>
-            </nav>
+            <!-- Loading state -->
+            <div v-if="detailLoading" class="flex items-center justify-center py-8">
+              <svg class="animate-spin h-6 w-6 text-blue-500 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('queue.detailLoading') }}</span>
+            </div>
 
-            <div class="mt-3">
-              <!-- Raw Data Tab -->
-              <div v-if="detailTab === 'raw'">
-                <pre
-                  class="text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-x-auto max-h-64 overflow-y-auto text-gray-800 dark:text-gray-200"
-                  >{{ JSON.stringify(detailItem.raw_data, null, 2) }}</pre
+            <!-- Error state -->
+            <div v-else-if="detailError" class="text-center py-8">
+              <p class="text-sm text-red-600 dark:text-red-400 mb-3">{{ t('queue.detailLoadFailed') }}</p>
+              <button
+                @click="openDetail(detailItem!)"
+                class="text-xs px-3 py-1.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800"
+              >
+                {{ t('queue.retryLoad') }}
+              </button>
+            </div>
+
+            <!-- Loaded content -->
+            <template v-else-if="detailFull">
+              <nav
+                class="flex space-x-4 border-b border-gray-200 dark:border-gray-700 -mb-px"
+                aria-label="Detail tabs"
+              >
+                <button
+                  @click="detailTab = 'raw'"
+                  class="py-2 px-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                  :class="
+                    detailTab === 'raw'
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'
+                  "
                 >
-              </div>
+                  {{ t('queue.rawData') }}
+                </button>
+                <button
+                  @click="detailTab = 'extracted'"
+                  class="py-2 px-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                  :class="
+                    detailTab === 'extracted'
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'
+                  "
+                >
+                  {{ t('queue.extractedData') }}
+                </button>
+                <button
+                  v-if="detailItem?.status === 'failed'"
+                  @click="detailTab = 'error'"
+                  class="py-2 px-1 border-b-2 text-sm font-medium whitespace-nowrap"
+                  :class="
+                    detailTab === 'error'
+                      ? 'border-red-500 text-red-600 dark:text-red-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'
+                  "
+                >
+                  {{ t('queue.error') }}
+                </button>
+              </nav>
 
-              <!-- Extracted Data Tab -->
-              <div v-if="detailTab === 'extracted'">
-                <div v-if="detailItem.extracted_data">
+              <div class="mt-3">
+                <!-- Raw Data Tab -->
+                <div v-if="detailTab === 'raw'">
                   <pre
                     class="text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-x-auto max-h-64 overflow-y-auto text-gray-800 dark:text-gray-200"
-                    >{{ JSON.stringify(detailItem.extracted_data, null, 2) }}</pre
+                    >{{ JSON.stringify(detailFull.raw_data, null, 2) }}</pre
                   >
                 </div>
-                <p v-else class="text-sm text-gray-400 dark:text-gray-500">
-                  {{ t('queue.noExtractedData') }}
-                </p>
-              </div>
 
-              <!-- Error Tab -->
-              <div v-if="detailTab === 'error'">
-                <div
-                  v-if="detailItem.error_message"
-                  class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3"
-                >
-                  {{ detailItem.error_message }}
+                <!-- Extracted Data Tab -->
+                <div v-if="detailTab === 'extracted'">
+                  <div v-if="detailFull.extracted_data">
+                    <pre
+                      class="text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-x-auto max-h-64 overflow-y-auto text-gray-800 dark:text-gray-200"
+                      >{{ JSON.stringify(detailFull.extracted_data, null, 2) }}</pre
+                    >
+                  </div>
+                  <p v-else class="text-sm text-gray-400 dark:text-gray-500">
+                    {{ t('queue.noExtractedData') }}
+                  </p>
                 </div>
-                <p v-else class="text-sm text-gray-400 dark:text-gray-500">
-                  {{ t('queue.noError') }}
-                </p>
+
+                <!-- Error Tab -->
+                <div v-if="detailTab === 'error'">
+                  <div
+                    v-if="detailItem?.error_message"
+                    class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3"
+                  >
+                    {{ detailItem.error_message }}
+                  </div>
+                  <p v-else class="text-sm text-gray-400 dark:text-gray-500">
+                    {{ t('queue.noError') }}
+                  </p>
+                </div>
               </div>
-            </div>
+            </template>
           </div>
 
           <!-- Actions -->
@@ -400,7 +423,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useQueueStore, type QueueItem } from '@/stores/queue'
+import { useQueueStore, type QueueItem, type QueueItemSummary } from '@/stores/queue'
 
 const { t } = useI18n()
 const queueStore = useQueueStore()
@@ -416,8 +439,12 @@ const totalPages = computed(() => {
 })
 
 // --- Detail Modal State ---
-const detailItem = ref<QueueItem | null>(null)
+const detailItem = ref<QueueItemSummary | null>(null)
+const detailFull = ref<QueueItem | null>(null)
+const detailLoading = ref(false)
+const detailError = ref(false)
 const detailTab = ref<'raw' | 'extracted' | 'error'>('raw')
+let detailFetchGeneration = 0
 
 // --- Data Fetching ---
 
@@ -451,18 +478,38 @@ function goToPage(page: number) {
 
 // --- Detail Modal ---
 
-function openDetail(item: QueueItem) {
+async function openDetail(item: QueueItemSummary) {
+  const gen = ++detailFetchGeneration
   detailItem.value = item
+  detailFull.value = null
+  detailLoading.value = true
+  detailError.value = false
   detailTab.value = 'raw'
+  try {
+    const result = await queueStore.fetchItem(item.id)
+    if (gen !== detailFetchGeneration) return
+    detailFull.value = result
+  } catch {
+    if (gen !== detailFetchGeneration) return
+    detailError.value = true
+  } finally {
+    if (gen === detailFetchGeneration) {
+      detailLoading.value = false
+    }
+  }
 }
 
 function closeDetail() {
+  ++detailFetchGeneration
   detailItem.value = null
+  detailFull.value = null
+  detailLoading.value = false
+  detailError.value = false
 }
 
 // --- Actions ---
 
-async function handleRetry(item: QueueItem) {
+async function handleRetry(item: QueueItemSummary) {
   try {
     await queueStore.retryItem(item.id)
     await loadItems()
@@ -471,7 +518,7 @@ async function handleRetry(item: QueueItem) {
   }
 }
 
-async function handleDelete(item: QueueItem) {
+async function handleDelete(item: QueueItemSummary) {
   if (!window.confirm(t('queue.confirmDelete'))) return
   try {
     await queueStore.deleteItem(item.id)

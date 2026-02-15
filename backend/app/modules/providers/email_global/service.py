@@ -1,5 +1,6 @@
 import asyncio
 import email
+import hashlib
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -80,6 +81,10 @@ async def _fetch_global_emails(
 
         subject = decode_header_value(msg.get("Subject", ""))
         message_id = msg.get("Message-ID", "")
+        if not message_id or not message_id.strip():
+            uidvalidity_part = str(config.uidvalidity) if config.uidvalidity is not None else "no-uidvalidity"
+            folder_hash = hashlib.sha256(config.watched_folder_path.encode()).hexdigest()[:16]
+            message_id = f"fallback:{config.id}:{folder_hash}:{uidvalidity_part}:{uid}"
         body = extract_body(msg)
 
         email_date = None
