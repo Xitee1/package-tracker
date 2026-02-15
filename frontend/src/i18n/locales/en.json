@@ -38,7 +38,8 @@
     "history": "History",
     "providers": "Providers",
     "analysers": "Analysers",
-    "logout": "Logout"
+    "logout": "Logout",
+    "about": "About"
   },
   "app": {
     "title": "Package Tracker"
@@ -505,5 +506,21 @@
     "configSaved": "IMAP settings saved successfully.",
     "loadFailed": "Failed to load IMAP settings.",
     "saveFailed": "Failed to save IMAP settings."
+  },
+  "about": {
+    "title": "About",
+    "appInfo": "App Info",
+    "version": "Version",
+    "checkUpdates": "Check for updates",
+    "checking": "Checking...",
+    "upToDate": "Up to date",
+    "updateAvailable": "Update available: {version}",
+    "viewRelease": "View release",
+    "checkFailed": "Could not check for updates",
+    "links": "Links",
+    "githubRepo": "GitHub Repository",
+    "issues": "Issues",
+    "releases": "Releases",
+    "license": "License"
   }
 }

@@ -110,6 +110,30 @@
         </template>
       </nav>
 
+      <!-- About -->
+      <div class="px-3 pb-2">
+        <router-link
+          to="/about"
+          class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+          :class="
+            isActive('/about')
+              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+          "
+          @click="sidebarOpen = false"
+        >
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          {{ $t('nav.about') }}
+        </router-link>
+      </div>
+
       <!-- User Info -->
       <div class="border-t border-gray-200 dark:border-gray-700 p-4">
         <div class="flex items-center gap-3">

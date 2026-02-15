@@ -13,10 +13,7 @@
       <div
         class="sticky top-0 bg-white dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 z-10"
       >
-        <h2
-          id="order-form-modal-title"
-          class="text-lg font-semibold text-gray-900 dark:text-white"
-        >
+        <h2 id="order-form-modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">
           {{ mode === 'create' ? $t('orders.newOrder') : $t('orders.editOrder') }}
         </h2>
       </div>
