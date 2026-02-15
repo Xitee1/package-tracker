@@ -7,7 +7,9 @@
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+        <div
+          class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0"
+        >
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
@@ -178,5 +180,4 @@ async function checkForUpdates() {
     updateStatus.value = 'error'
   }
 }
-
 </script>
