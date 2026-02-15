@@ -1,6 +1,13 @@
-from typing import Optional
+from enum import Enum
+from typing import Literal, Optional
 
 from pydantic import BaseModel, EmailStr
+
+
+class SmtpSecurity(str, Enum):
+    TLS = "tls"
+    STARTTLS = "starttls"
+    NONE = "none"
 
 
 class SmtpConfigRequest(BaseModel):
@@ -8,7 +15,7 @@ class SmtpConfigRequest(BaseModel):
     port: int = 587
     username: Optional[str] = None
     password: Optional[str] = None
-    use_tls: bool = True
+    security: Literal["tls", "starttls", "none"] = "starttls"
     sender_address: EmailStr
     sender_name: str = "Package Tracker"
 
@@ -18,7 +25,7 @@ class SmtpConfigResponse(BaseModel):
     host: str
     port: int
     username: Optional[str] = None
-    use_tls: bool
+    security: str
     sender_address: str
     sender_name: str
 

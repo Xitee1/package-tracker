@@ -31,7 +31,7 @@ async def save_smtp_config(req: SmtpConfigRequest, db: AsyncSession = Depends(ge
             port=req.port,
             username=req.username,
             password_encrypted=encrypt_value(req.password) if req.password else None,
-            use_tls=req.use_tls,
+            security=req.security,
             sender_address=req.sender_address,
             sender_name=req.sender_name,
         )
@@ -42,7 +42,7 @@ async def save_smtp_config(req: SmtpConfigRequest, db: AsyncSession = Depends(ge
         config.username = req.username
         if req.password:
             config.password_encrypted = encrypt_value(req.password)
-        config.use_tls = req.use_tls
+        config.security = req.security
         config.sender_address = req.sender_address
         config.sender_name = req.sender_name
     await db.commit()

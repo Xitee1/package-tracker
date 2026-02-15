@@ -93,17 +93,19 @@
             />
           </div>
 
-          <!-- Use TLS -->
-          <div class="flex items-start gap-3">
-            <input
-              id="use_tls"
-              v-model="form.use_tls"
-              type="checkbox"
-              class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
-            />
-            <label for="use_tls" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
-              $t('smtp.useTls')
+          <!-- Security -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
+              $t('smtp.security')
             }}</label>
+            <select
+              v-model="form.security"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="starttls">STARTTLS ({{ $t('smtp.securityStarttls') }})</option>
+              <option value="tls">TLS ({{ $t('smtp.securityTls') }})</option>
+              <option value="none">{{ $t('smtp.securityNone') }}</option>
+            </select>
           </div>
 
           <!-- Sender Address -->
@@ -211,7 +213,7 @@ const form = ref({
   port: 587,
   username: '',
   password: '',
-  use_tls: true,
+  security: 'starttls',
   sender_address: '',
   sender_name: '',
 })
@@ -236,7 +238,7 @@ async function fetchConfig() {
       form.value.port = res.data.port ?? 587
       form.value.username = res.data.username || ''
       form.value.password = ''
-      form.value.use_tls = res.data.use_tls ?? true
+      form.value.security = res.data.security || 'starttls'
       form.value.sender_address = res.data.sender_address || ''
       form.value.sender_name = res.data.sender_name || ''
     }
