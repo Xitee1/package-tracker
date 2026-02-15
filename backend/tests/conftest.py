@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 os.environ.setdefault("PT_DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 os.environ.setdefault("PT_SECRET_KEY", "test-secret-key")
 os.environ.setdefault("PT_ENCRYPTION_KEY", "test-encryption-key")
+os.environ.setdefault("PT_FRONTEND_URL", "http://localhost:5173")
 
 import pytest
 import pytest_asyncio

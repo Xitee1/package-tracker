@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 logger = logging.getLogger(__name__)
 
 from app.api.deps import get_current_user
+from app.config import settings
 from app.database import get_db
 from app.models.notification import UserNotificationConfig, EmailVerification
 from app.services.email_service import send_email, is_smtp_configured
@@ -57,7 +58,8 @@ async def set_email(req: NotifyEmailConfigRequest, user=Depends(get_current_user
         verification = EmailVerification(user_id=user.id, email=req.email, token=token, expires_at=datetime.utcnow() + timedelta(hours=24))
         db.add(verification)
         await db.commit()
-        verify_link = f"/verify-email/{token}"
+        base = settings.frontend_url.rstrip("/")
+        verify_link = f"{base}/verify-email/{token}"
         await send_email(to=req.email, subject="Package Tracker — Verify your email", html_body=f'<div style="font-family: sans-serif; max-width: 600px;"><h2>Verify your email address</h2><p>Click the link below to verify your email for Package Tracker notifications:</p><p><a href="{verify_link}">{verify_link}</a></p><p>This link expires in 24 hours.</p></div>', db=db)
         return {"status": "verification_sent"}
     except HTTPException:
