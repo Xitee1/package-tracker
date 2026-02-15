@@ -225,8 +225,12 @@ function buildParams() {
 }
 
 async function loadOrders() {
-  const params = buildParams()
-  await Promise.all([ordersStore.fetchOrders(params), ordersStore.fetchCounts(params.search ? { search: params.search as string } : undefined)])
+  await ordersStore.fetchOrders(buildParams())
+}
+
+async function loadCounts() {
+  const search = searchQuery.value.trim()
+  await ordersStore.fetchCounts(search ? { search } : undefined)
 }
 
 // Debounced search
@@ -237,6 +241,7 @@ watch(searchQuery, () => {
   searchTimeout = setTimeout(() => {
     ordersStore.page = 1
     loadOrders()
+    loadCounts()
   }, 300)
 })
 
@@ -264,6 +269,7 @@ function onOrderCreated(_id: number) {
   showCreateModal.value = false
   ordersStore.page = 1
   loadOrders()
+  loadCounts()
 }
 
 function formatDate(dateStr: string): string {
@@ -279,5 +285,6 @@ function formatAmount(amount: number | null, currency: string | null): string {
 
 onMounted(() => {
   loadOrders()
+  loadCounts()
 })
 </script>
