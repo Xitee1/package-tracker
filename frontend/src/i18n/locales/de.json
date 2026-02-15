@@ -126,7 +126,10 @@
     "sectionShipping": "Versand",
     "sectionCost": "Kosten",
     "sectionItems": "Artikel",
-    "editOrder": "Bestellung bearbeiten"
+    "editOrder": "Bestellung bearbeiten",
+    "pageInfo": "Seite {page} von {totalPages}",
+    "previousPage": "Zurück",
+    "nextPage": "Weiter"
   },
   "queue": {
     "title": "Warteschlange",

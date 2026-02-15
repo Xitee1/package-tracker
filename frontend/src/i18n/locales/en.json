@@ -126,7 +126,10 @@
     "sectionShipping": "Shipping",
     "sectionCost": "Cost",
     "sectionItems": "Items",
-    "editOrder": "Edit Order"
+    "editOrder": "Edit Order",
+    "pageInfo": "Page {page} of {totalPages}",
+    "previousPage": "Previous",
+    "nextPage": "Next"
   },
   "queue": {
     "title": "Queue",
