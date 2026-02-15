@@ -2,14 +2,12 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/api/client'
 
-export interface QueueItem {
+export interface QueueItemSummary {
   id: number
   user_id: number
   status: string
   source_type: string
   source_info: string
-  raw_data: Record<string, unknown>
-  extracted_data: Record<string, unknown> | null
   error_message: string | null
   order_id: number | null
   cloned_from_id: number | null
@@ -17,8 +15,13 @@ export interface QueueItem {
   updated_at: string
 }
 
+export interface QueueItem extends QueueItemSummary {
+  raw_data: Record<string, unknown>
+  extracted_data: Record<string, unknown> | null
+}
+
 export interface QueueItemList {
-  items: QueueItem[]
+  items: QueueItemSummary[]
   total: number
   page: number
   per_page: number
