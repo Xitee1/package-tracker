@@ -129,6 +129,7 @@ const latestVersion = ref('')
 const latestReleaseUrl = ref('')
 
 const GITHUB_REPO = 'Xitee1/package-tracker'
+const INVALID_VERSIONS = ['?', 'unknown']
 
 const links = computed(() => [
   {
@@ -178,7 +179,7 @@ async function checkForUpdates() {
   updateStatus.value = 'checking'
   try {
     // Check if current version is valid before attempting update check
-    if (version.value === '?' || version.value === 'unknown') {
+    if (INVALID_VERSIONS.includes(version.value)) {
       throw new Error('Current version is unknown')
     }
 
