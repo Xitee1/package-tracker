@@ -9,7 +9,7 @@ class ModuleInfo:
     """Manifest that every module must provide as MODULE_INFO."""
     key: str
     name: str
-    type: str  # "analyser" or "provider"
+    type: str  # "analyser", "provider", or "notifier"
     version: str
     description: str
     router: APIRouter
@@ -19,3 +19,4 @@ class ModuleInfo:
     shutdown: Callable[[], Awaitable[None]] | None = None
     is_configured: Callable[[], Awaitable[bool]] | None = None
     status: Callable[[AsyncSession], Awaitable[dict | None]] | None = None
+    notify: Callable[[int, str, dict, dict | None, AsyncSession], Awaitable[None]] | None = None

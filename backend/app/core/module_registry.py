@@ -28,11 +28,11 @@ def get_modules_by_type(module_type: str) -> dict[str, ModuleInfo]:
 
 
 def discover_modules() -> dict[str, ModuleInfo]:
-    """Scan app/modules/analysers/ and app/modules/providers/ for MODULE_INFO."""
+    """Scan app/modules/analysers/, app/modules/providers/, and app/modules/notifiers/ for MODULE_INFO."""
     _registered_modules.clear()
     modules_dir = Path(__file__).parent.parent / "modules"
 
-    for module_type in ("analysers", "providers"):
+    for module_type in ("analysers", "providers", "notifiers"):
         type_dir = modules_dir / module_type
         if not type_dir.is_dir():
             continue
