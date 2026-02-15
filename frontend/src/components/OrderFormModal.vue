@@ -363,7 +363,7 @@ async function submit() {
       if (form.value.currency) data.currency = form.value.currency
       if (form.value.items.length > 0) data.items = form.value.items
 
-      const order = await ordersStore.createOrder(data as CreateOrderData)
+      const order = await ordersStore.createOrder(data as unknown as CreateOrderData)
       emit('saved', order.id)
     } else {
       const data: Record<string, unknown> = {}

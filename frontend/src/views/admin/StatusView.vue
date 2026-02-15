@@ -689,7 +689,7 @@ interface ModuleEntry {
   description: string
   enabled: boolean
   configured: boolean
-  status: Record<string, unknown> | null
+  status: unknown
 }
 
 interface SystemInfo {

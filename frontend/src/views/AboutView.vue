@@ -116,10 +116,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import api from '@/api/client'
 
 const { t } = useI18n()
 
-const version = __APP_VERSION__
+const version = ref(__APP_VERSION__)
 const updateStatus = ref<'idle' | 'checking' | 'up-to-date' | 'update-available' | 'error'>('idle')
 const latestVersion = ref('')
 const latestReleaseUrl = ref('')
@@ -216,7 +217,7 @@ async function checkForUpdates() {
     latestVersion.value = latest
     latestReleaseUrl.value = latestUrl
 
-    if (compareVersions(version, latest) >= 0) {
+    if (compareVersions(version.value, latest) >= 0) {
       updateStatus.value = 'up-to-date'
     } else {
       updateStatus.value = 'update-available'
