@@ -129,6 +129,7 @@ const latestVersion = ref('')
 const latestReleaseUrl = ref('')
 
 const GITHUB_REPO = 'Xitee1/package-tracker'
+const INVALID_VERSIONS = ['?', 'unknown']
 
 const links = computed(() => [
   {
