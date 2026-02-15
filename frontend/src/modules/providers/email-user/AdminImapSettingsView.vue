@@ -101,8 +101,8 @@ const { t } = useI18n()
 
 const modulesStore = useModulesStore()
 const moduleKey = 'email-user'
-const moduleName = 'Email - User IMAP'
-const moduleDescription = 'Allow users to connect their own IMAP email accounts'
+const moduleName = computed(() => t('modules.email-user.title'))
+const moduleDescription = computed(() => t('modules.email-user.description'))
 const moduleEnabled = computed({
   get: () => modulesStore.isEnabled(moduleKey),
   set: () => {},

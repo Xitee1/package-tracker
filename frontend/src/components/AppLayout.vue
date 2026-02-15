@@ -80,7 +80,7 @@
               "
               @click="sidebarOpen = false"
             >
-              {{ item.label }}
+              {{ $t(item.label) }}
             </router-link>
           </template>
         </template>

@@ -240,8 +240,8 @@ const { t } = useI18n()
 
 const modulesStore = useModulesStore()
 const moduleKey = 'email-global'
-const moduleName = 'Email - Global/Redirect'
-const moduleDescription = 'Shared global email inbox with sender-based routing'
+const moduleName = computed(() => t('modules.email-global.title'))
+const moduleDescription = computed(() => t('modules.email-global.description'))
 const moduleEnabled = computed({
   get: () => modulesStore.isEnabled(moduleKey),
   set: () => {},

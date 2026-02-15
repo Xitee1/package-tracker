@@ -40,7 +40,7 @@
               @click="toggleGroup(group.group)"
               class="flex items-center justify-between w-full px-3 py-2 mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300"
             >
-              {{ group.group }}
+              {{ $t('system.moduleType.' + group.group) }}
               <svg
                 class="w-3.5 h-3.5 transition-transform duration-200"
                 :class="{ 'rotate-180': !collapsedGroups[group.group] }"
@@ -68,7 +68,7 @@
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 "
               >
-                {{ item.label }}
+                {{ $t(item.label) }}
               </router-link>
             </template>
           </template>

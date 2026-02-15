@@ -212,7 +212,7 @@
               <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                   <h3 class="text-base font-semibold text-gray-900 dark:text-white">
-                    {{ mod.name }}
+                    {{ t('modules.' + mod.key + '.title') }}
                   </h3>
                   <div class="flex items-center gap-2">
                     <span
@@ -255,12 +255,16 @@
               <div class="px-5 py-4">
                 <!-- Disabled module -->
                 <template v-if="!mod.enabled">
-                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ mod.description }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ t('modules.' + mod.key + '.description') }}
+                  </p>
                 </template>
 
                 <!-- Unconfigured module -->
                 <template v-else-if="!mod.configured">
-                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ mod.description }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ t('modules.' + mod.key + '.description') }}
+                  </p>
                 </template>
 
                 <!-- No status data -->
@@ -594,7 +598,9 @@
 
                 <!-- ===== Unknown module fallback ===== -->
                 <template v-else>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ mod.description }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ t('modules.' + mod.key + '.description') }}
+                  </p>
                 </template>
               </div>
             </div>
