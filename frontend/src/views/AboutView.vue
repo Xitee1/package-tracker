@@ -180,7 +180,7 @@ async function checkForUpdates() {
   try {
     // Check if current version is valid before attempting update check
     if (INVALID_VERSIONS.includes(version.value)) {
-      throw new Error('Current version is unknown')
+      throw new Error('Cannot check for updates: current version is invalid or unknown')
     }
 
     const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
