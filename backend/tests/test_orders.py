@@ -143,7 +143,11 @@ async def test_create_order_unauthenticated(client):
 async def test_list_orders_empty(client, admin_token):
     resp = await client.get("/api/v1/orders", headers=auth(admin_token))
     assert resp.status_code == 200
-    assert resp.json() == []
+    data = resp.json()
+    assert data["items"] == []
+    assert data["total"] == 0
+    assert data["page"] == 1
+    assert data["per_page"] == 25
 
 
 @pytest.mark.asyncio
@@ -155,9 +159,38 @@ async def test_list_orders(client, db_session, admin_token):
     resp = await client.get("/api/v1/orders", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 2
-    order_numbers = {o["order_number"] for o in data}
+    assert data["total"] == 2
+    assert len(data["items"]) == 2
+    order_numbers = {o["order_number"] for o in data["items"]}
     assert order_numbers == {"ORD-001", "ORD-002"}
+
+
+@pytest.mark.asyncio
+async def test_list_orders_pagination(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    for i in range(5):
+        await _create_order(db_session, user_id, order_number=f"ORD-P{i:03d}")
+
+    # Page 1 with per_page=2
+    resp = await client.get("/api/v1/orders?page=1&per_page=2", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 5
+    assert data["page"] == 1
+    assert data["per_page"] == 2
+    assert len(data["items"]) == 2
+
+    # Page 3 with per_page=2 (last page, only 1 item)
+    resp = await client.get("/api/v1/orders?page=3&per_page=2", headers=auth(admin_token))
+    data = resp.json()
+    assert data["total"] == 5
+    assert len(data["items"]) == 1
+
+    # Page beyond range returns empty items
+    resp = await client.get("/api/v1/orders?page=10&per_page=2", headers=auth(admin_token))
+    data = resp.json()
+    assert data["total"] == 5
+    assert len(data["items"]) == 0
 
 
 # --- Get Order Detail ---
@@ -358,11 +391,30 @@ async def test_filter_by_status(client, db_session, admin_token):
     await _create_order(db_session, user_id, order_number="ORD-402", status="delivered")
     await _create_order(db_session, user_id, order_number="ORD-403", status="shipped")
 
+    # Single status
     resp = await client.get("/api/v1/orders?status=shipped", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 2
-    assert all(o["status"] == "shipped" for o in data)
+    assert data["total"] == 2
+    assert len(data["items"]) == 2
+    assert all(o["status"] == "shipped" for o in data["items"])
+
+
+@pytest.mark.asyncio
+async def test_filter_by_multiple_statuses(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    await _create_order(db_session, user_id, order_number="ORD-410", status="ordered")
+    await _create_order(db_session, user_id, order_number="ORD-411", status="shipped")
+    await _create_order(db_session, user_id, order_number="ORD-412", status="shipment_preparing")
+    await _create_order(db_session, user_id, order_number="ORD-413", status="delivered")
+
+    resp = await client.get("/api/v1/orders?status=shipped,shipment_preparing", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 2
+    assert len(data["items"]) == 2
+    statuses = {o["status"] for o in data["items"]}
+    assert statuses == {"shipped", "shipment_preparing"}
 
 
 # --- Search ---
@@ -377,8 +429,9 @@ async def test_search_by_order_number(client, db_session, admin_token):
     resp = await client.get("/api/v1/orders?search=ABC", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 1
-    assert data[0]["order_number"] == "ABC-123"
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["order_number"] == "ABC-123"
 
 
 @pytest.mark.asyncio
@@ -390,8 +443,9 @@ async def test_search_by_vendor_name(client, db_session, admin_token):
     resp = await client.get("/api/v1/orders?search=eBay", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 1
-    assert data[0]["vendor_name"] == "eBay"
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["vendor_name"] == "eBay"
 
 
 @pytest.mark.asyncio
@@ -403,8 +457,21 @@ async def test_search_by_tracking_number(client, db_session, admin_token):
     resp = await client.get("/api/v1/orders?search=1Z999", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 1
-    assert data[0]["tracking_number"] == "1Z999AA1"
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["tracking_number"] == "1Z999AA1"
+
+
+@pytest.mark.asyncio
+async def test_search_case_insensitive(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    await _create_order(db_session, user_id, order_number="ORD-610", vendor_name="Amazon")
+
+    resp = await client.get("/api/v1/orders?search=amazon", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 1
+    assert data["items"][0]["vendor_name"] == "Amazon"
 
 
 # --- Link Orders ---
@@ -478,17 +545,19 @@ async def test_user_isolation(client, db_session, admin_token, user_token):
     resp = await client.get("/api/v1/orders", headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 1
-    assert data[0]["order_number"] == "ADMIN-001"
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["order_number"] == "ADMIN-001"
 
     # User sees only user's orders
     resp = await client.get("/api/v1/orders", headers=auth(user_token))
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 1
-    assert data[0]["order_number"] == "USER-001"
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["order_number"] == "USER-001"
 
-    # Admin can't access user's order by ID
+    # The rest of the isolation tests (get/update/delete by ID) remain unchanged
     resp = await client.get(f"/api/v1/orders/{user_order.id}", headers=auth(admin_token))
     assert resp.status_code == 404
 
