@@ -39,7 +39,8 @@
     "providers": "Anbieter",
     "analysers": "Analyser",
     "logout": "Abmelden",
-    "about": "Über"
+    "about": "Über",
+    "notifications": "Benachrichtigungen"
   },
   "app": {
     "title": "Package Tracker"
@@ -415,7 +416,8 @@
     "modules": "Module",
     "moduleType": {
       "analyser": "Analysator",
-      "provider": "Anbieter"
+      "provider": "Anbieter",
+      "notifier": "Benachrichtigung"
     },
     "moduleDisabled": "Deaktiviert",
     "moduleNotConfigured": "Nicht konfiguriert",
@@ -468,6 +470,36 @@
       "description": "Benutzern erlauben, eigene IMAP-E-Mail-Konten zu verbinden",
       "userTitle": "E-Mail IMAP"
     },
+    "notify-email": {
+      "title": "E-Mail-Benachrichtigungen",
+      "description": "E-Mail-Benachrichtigungen für Bestellereignisse senden",
+      "userTitle": "E-Mail",
+      "smtpRequired": "E-Mail-Benachrichtigungen erfordern eine SMTP-Konfiguration. Bitten Sie Ihren Administrator, SMTP in den Einstellungen einzurichten.",
+      "emailAddress": "Benachrichtigungs-E-Mail",
+      "emailPlaceholder": "ihre@email.de",
+      "sendVerification": "Verifizierung senden",
+      "verificationSent": "Verifizierungs-E-Mail gesendet. Prüfen Sie Ihren Posteingang.",
+      "verified": "Verifiziert",
+      "notVerified": "Nicht verifiziert",
+      "pendingVerification": "Verifizierung ausstehend — prüfen Sie Ihre E-Mails",
+      "verifySuccess": "E-Mail erfolgreich verifiziert!",
+      "verifyFailed": "Verifizierung fehlgeschlagen.",
+      "verifyExpired": "Verifizierungslink ist abgelaufen."
+    },
+    "notify-webhook": {
+      "title": "Webhook-Benachrichtigungen",
+      "description": "Webhook-Benachrichtigungen für Bestellereignisse senden",
+      "userTitle": "Webhook",
+      "webhookUrl": "Webhook-URL",
+      "webhookUrlPlaceholder": "https://beispiel.de/webhook",
+      "authHeader": "Authorization-Header",
+      "authHeaderPlaceholder": "Bearer ihr-token (optional)",
+      "saveWebhook": "Webhook speichern",
+      "testWebhook": "Test senden",
+      "testSuccess": "Test-Webhook erfolgreich gesendet (HTTP {code}).",
+      "testFailed": "Test-Webhook fehlgeschlagen.",
+      "configSaved": "Webhook-Konfiguration gespeichert."
+    },
     "toggleFailed": "Modul konnte nicht aktualisiert werden."
   },
   "globalMail": {
@@ -497,7 +529,8 @@
     "imap": "IMAP",
     "queue": "Warteschlange",
     "email": "E-Mail",
-    "analysers": "Analyser"
+    "analysers": "Analyser",
+    "smtp": "E-Mail (SMTP)"
   },
   "imap": {
     "title": "IMAP-Einstellungen",
@@ -525,5 +558,42 @@
     "issues": "Probleme melden",
     "releases": "Versionen",
     "license": "Lizenz"
+  },
+  "smtp": {
+    "title": "E-Mail (SMTP)",
+    "host": "SMTP-Host",
+    "hostPlaceholder": "smtp.beispiel.de",
+    "port": "Port",
+    "username": "Benutzername",
+    "usernamePlaceholder": "benutzer@beispiel.de",
+    "password": "Passwort",
+    "passwordKeepCurrent": "(leer lassen, um aktuelles beizubehalten)",
+    "useTls": "TLS verwenden",
+    "senderAddress": "Absenderadresse",
+    "senderAddressPlaceholder": "noreply@beispiel.de",
+    "senderName": "Absendername",
+    "senderNamePlaceholder": "Package Tracker",
+    "saveConfig": "Konfiguration speichern",
+    "testConnection": "Test-E-Mail senden",
+    "testRecipient": "Testempfänger",
+    "testRecipientPlaceholder": "ihre@email.de",
+    "testSuccess": "Test-E-Mail erfolgreich gesendet.",
+    "testFailed": "Test-E-Mail konnte nicht gesendet werden.",
+    "configSaved": "SMTP-Konfiguration gespeichert.",
+    "saveFailed": "SMTP-Konfiguration konnte nicht gespeichert werden.",
+    "loadFailed": "SMTP-Konfiguration konnte nicht geladen werden.",
+    "notConfigured": "SMTP ist noch nicht konfiguriert. Konfigurieren Sie es, um E-Mail-Benachrichtigungen zu aktivieren."
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "noModulesEnabled": "Derzeit sind keine Benachrichtigungsmodule aktiviert. Wenden Sie sich an Ihren Administrator.",
+    "events": "Benachrichtigen bei",
+    "eventNewOrder": "Neue Bestellung erkannt",
+    "eventTrackingUpdate": "Tracking-Update",
+    "eventPackageDelivered": "Paket zugestellt",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "saveFailed": "Benachrichtigungseinstellungen konnten nicht gespeichert werden.",
+    "configSaved": "Benachrichtigungseinstellungen gespeichert."
   }
 }

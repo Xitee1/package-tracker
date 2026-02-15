@@ -39,7 +39,8 @@
     "providers": "Providers",
     "analysers": "Analysers",
     "logout": "Logout",
-    "about": "About"
+    "about": "About",
+    "notifications": "Notifications"
   },
   "app": {
     "title": "Package Tracker"
@@ -415,7 +416,8 @@
     "modules": "Modules",
     "moduleType": {
       "analyser": "Analyser",
-      "provider": "Provider"
+      "provider": "Provider",
+      "notifier": "Notifier"
     },
     "moduleDisabled": "Disabled",
     "moduleNotConfigured": "Not configured",
@@ -468,6 +470,36 @@
       "description": "Allow users to connect their own IMAP email accounts",
       "userTitle": "Email IMAP"
     },
+    "notify-email": {
+      "title": "Email Notifications",
+      "description": "Send email notifications for order events",
+      "userTitle": "Email",
+      "smtpRequired": "Email notifications require SMTP to be configured. Ask your administrator to set up SMTP in Settings.",
+      "emailAddress": "Notification Email",
+      "emailPlaceholder": "your@email.com",
+      "sendVerification": "Send Verification",
+      "verificationSent": "Verification email sent. Check your inbox.",
+      "verified": "Verified",
+      "notVerified": "Not verified",
+      "pendingVerification": "Verification pending — check your email",
+      "verifySuccess": "Email verified successfully!",
+      "verifyFailed": "Verification failed.",
+      "verifyExpired": "Verification link has expired."
+    },
+    "notify-webhook": {
+      "title": "Webhook Notifications",
+      "description": "Send webhook notifications for order events",
+      "userTitle": "Webhook",
+      "webhookUrl": "Webhook URL",
+      "webhookUrlPlaceholder": "https://example.com/webhook",
+      "authHeader": "Authorization Header",
+      "authHeaderPlaceholder": "Bearer your-token (optional)",
+      "saveWebhook": "Save Webhook",
+      "testWebhook": "Send Test",
+      "testSuccess": "Test webhook sent successfully (HTTP {code}).",
+      "testFailed": "Test webhook failed.",
+      "configSaved": "Webhook configuration saved."
+    },
     "toggleFailed": "Failed to update module."
   },
   "globalMail": {
@@ -497,7 +529,8 @@
     "imap": "IMAP",
     "queue": "Queue",
     "email": "Email",
-    "analysers": "Analysers"
+    "analysers": "Analysers",
+    "smtp": "E-Mail (SMTP)"
   },
   "imap": {
     "title": "IMAP Settings",
@@ -525,5 +558,42 @@
     "issues": "Issues",
     "releases": "Releases",
     "license": "License"
+  },
+  "smtp": {
+    "title": "E-Mail (SMTP)",
+    "host": "SMTP Host",
+    "hostPlaceholder": "smtp.example.com",
+    "port": "Port",
+    "username": "Username",
+    "usernamePlaceholder": "user@example.com",
+    "password": "Password",
+    "passwordKeepCurrent": "(leave blank to keep current)",
+    "useTls": "Use TLS",
+    "senderAddress": "Sender Address",
+    "senderAddressPlaceholder": "noreply@example.com",
+    "senderName": "Sender Name",
+    "senderNamePlaceholder": "Package Tracker",
+    "saveConfig": "Save Configuration",
+    "testConnection": "Send Test Email",
+    "testRecipient": "Test Recipient",
+    "testRecipientPlaceholder": "your@email.com",
+    "testSuccess": "Test email sent successfully.",
+    "testFailed": "Failed to send test email.",
+    "configSaved": "SMTP configuration saved.",
+    "saveFailed": "Failed to save SMTP configuration.",
+    "loadFailed": "Failed to load SMTP configuration.",
+    "notConfigured": "SMTP is not configured yet. Configure it to enable email notifications."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noModulesEnabled": "No notification modules are currently enabled. Contact your administrator.",
+    "events": "Notify me about",
+    "eventNewOrder": "New order detected",
+    "eventTrackingUpdate": "Tracking update",
+    "eventPackageDelivered": "Package delivered",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "saveFailed": "Failed to save notification settings.",
+    "configSaved": "Notification settings saved."
   }
 }
