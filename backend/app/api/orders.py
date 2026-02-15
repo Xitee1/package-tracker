@@ -8,10 +8,44 @@ from app.database import get_db
 from app.models.user import User
 from app.models.order import Order
 from app.models.order_state import OrderState
-from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest
+from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest, CreateOrderRequest
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
+
+
+@router.post("", response_model=OrderResponse, status_code=201)
+async def create_order(
+    req: CreateOrderRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    order = Order(
+        user_id=user.id,
+        vendor_name=req.vendor_name,
+        order_number=req.order_number,
+        tracking_number=req.tracking_number,
+        carrier=req.carrier,
+        vendor_domain=req.vendor_domain,
+        status=req.status,
+        order_date=req.order_date,
+        total_amount=req.total_amount,
+        currency=req.currency,
+        estimated_delivery=req.estimated_delivery,
+        items=[item.model_dump() for item in req.items] if req.items else None,
+    )
+    db.add(order)
+    await db.flush()
+
+    state = OrderState(
+        order_id=order.id,
+        status=req.status,
+        source_type="manual",
+    )
+    db.add(state)
+    await db.commit()
+    await db.refresh(order)
+    return order
 
 
 @router.get("", response_model=list[OrderResponse])
