@@ -12,6 +12,13 @@ class ItemCreate(BaseModel):
     quantity: int = 1
     price: Optional[float] = None
 
+    @field_validator("quantity")
+    @classmethod
+    def validate_quantity(cls, v: int) -> int:
+        if v < 1:
+            raise ValueError("Quantity must be at least 1")
+        return v
+
 
 class OrderItemSchema(BaseModel):
     name: str
