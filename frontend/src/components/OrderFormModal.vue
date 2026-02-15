@@ -3,12 +3,20 @@
     <div class="fixed inset-0 bg-black/50" @click="$emit('close')"></div>
     <div
       class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="order-form-modal-title"
+      tabindex="-1"
+      @keydown.esc="$emit('close')"
     >
       <!-- Header -->
       <div
         class="sticky top-0 bg-white dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 z-10"
       >
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+        <h2
+          id="order-form-modal-title"
+          class="text-lg font-semibold text-gray-900 dark:text-white"
+        >
           {{ mode === 'create' ? $t('orders.newOrder') : $t('orders.editOrder') }}
         </h2>
       </div>
