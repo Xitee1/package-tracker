@@ -261,6 +261,70 @@ async def test_update_order_not_found(client, admin_token):
     assert resp.status_code == 404
 
 
+@pytest.mark.asyncio
+async def test_update_order_extended_fields(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-250", vendor_name="Amazon")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={
+            "vendor_domain": "amazon.com",
+            "order_date": "2026-01-15",
+            "total_amount": 99.99,
+            "currency": "EUR",
+            "estimated_delivery": "2026-02-01",
+            "items": [{"name": "Widget", "quantity": 2, "price": 49.99}],
+        },
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["vendor_domain"] == "amazon.com"
+    assert data["order_date"] == "2026-01-15"
+    assert data["total_amount"] == "99.99"
+    assert data["currency"] == "EUR"
+    assert data["estimated_delivery"] == "2026-02-01"
+    assert len(data["items"]) == 1
+    assert data["items"][0]["name"] == "Widget"
+    # Original fields unchanged
+    assert data["order_number"] == "ORD-250"
+    assert data["vendor_name"] == "Amazon"
+
+
+@pytest.mark.asyncio
+async def test_update_order_replace_items(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(
+        db_session, user_id, order_number="ORD-260",
+        items=[{"name": "OldItem", "quantity": 1}],
+    )
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"items": [{"name": "NewItem", "quantity": 3, "price": 10.00}]},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["items"]) == 1
+    assert data["items"][0]["name"] == "NewItem"
+    assert data["items"][0]["quantity"] == 3
+
+
+@pytest.mark.asyncio
+async def test_update_order_invalid_status_rejected(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-270")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"status": "bogus"},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+
+
 # --- Delete Order ---
 
 
