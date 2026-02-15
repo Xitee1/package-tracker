@@ -354,7 +354,12 @@
     "saveFailed": "Failed to save configuration.",
     "testFailed": "Connection test failed.",
     "modelNameFallback": "model-name",
-    "apiKeyFallback": "API key"
+    "apiKeyFallback": "API key",
+    "systemPrompt": "System Prompt",
+    "systemPromptHelp": "The instruction sent to the LLM that controls how emails are analysed. Leave as default unless you need custom extraction behaviour.",
+    "resetToDefault": "Reset to Default",
+    "promptResetSuccess": "Prompt reset to default.",
+    "usingDefaultPrompt": "Using default prompt"
   },
   "system": {
     "title": "System Status",

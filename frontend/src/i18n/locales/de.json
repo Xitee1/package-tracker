@@ -354,7 +354,12 @@
     "saveFailed": "Konfiguration konnte nicht gespeichert werden.",
     "testFailed": "Verbindungstest fehlgeschlagen.",
     "modelNameFallback": "Modellname",
-    "apiKeyFallback": "API-Schlüssel"
+    "apiKeyFallback": "API-Schlüssel",
+    "systemPrompt": "System-Prompt",
+    "systemPromptHelp": "Die Anweisung an das LLM, die steuert, wie E-Mails analysiert werden. Standard beibehalten, sofern kein benutzerdefiniertes Extraktionsverhalten benötigt wird.",
+    "resetToDefault": "Standard wiederherstellen",
+    "promptResetSuccess": "Prompt auf Standard zurückgesetzt.",
+    "usingDefaultPrompt": "Standard-Prompt wird verwendet"
   },
   "system": {
     "title": "Systemstatus",
