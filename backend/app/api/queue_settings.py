@@ -30,7 +30,7 @@ async def get_queue_settings(db: AsyncSession = Depends(get_db)):
     return await _get_or_create_settings(db)
 
 
-@router.put("/", response_model=QueueSettingsResponse)
+@router.patch("/", response_model=QueueSettingsResponse)
 async def update_queue_settings(
     body: UpdateQueueSettingsRequest,
     db: AsyncSession = Depends(get_db),

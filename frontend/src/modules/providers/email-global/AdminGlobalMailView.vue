@@ -329,7 +329,7 @@ async function handleSaveConnection() {
     if (!payload.imap_password) {
       delete payload.imap_password
     }
-    await api.put('/modules/providers/email-global/config', payload)
+    await api.patch('/modules/providers/email-global/config', payload)
     connectionSaveSuccess.value = true
     configExists.value = true
     setTimeout(() => {
@@ -359,7 +359,7 @@ async function handleSaveSettings() {
     if (!payload.imap_password) {
       delete payload.imap_password
     }
-    await api.put('/modules/providers/email-global/config', payload)
+    await api.patch('/modules/providers/email-global/config', payload)
     settingsSaveSuccess.value = true
     setTimeout(() => {
       settingsSaveSuccess.value = false
