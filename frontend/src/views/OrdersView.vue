@@ -2,6 +2,12 @@
   <div>
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('orders.title') }}</h1>
+      <button
+        @click="showCreateModal = true"
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        + {{ $t('orders.newOrder') }}
+      </button>
     </div>
 
     <!-- Search and Filters -->
@@ -137,6 +143,13 @@
         </table>
       </div>
     </div>
+
+    <!-- Create Order Modal -->
+    <CreateOrderModal
+      v-if="showCreateModal"
+      @close="showCreateModal = false"
+      @created="onOrderCreated"
+    />
   </div>
 </template>
 
@@ -145,12 +158,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useOrdersStore } from '@/stores/orders'
 import StatusBadge from '@/components/StatusBadge.vue'
+import CreateOrderModal from '@/components/CreateOrderModal.vue'
 
 const { t } = useI18n()
 const ordersStore = useOrdersStore()
 
 const searchQuery = ref('')
 const activeTab = ref('')
+const showCreateModal = ref(false)
 
 const tabs = computed(() => {
   const all = ordersStore.orders.length
@@ -209,6 +224,11 @@ function debouncedSearch() {
   searchTimeout = setTimeout(() => {
     // Client-side filtering is already reactive via computed
   }, 300)
+}
+
+function onOrderCreated(_id: number) {
+  showCreateModal.value = false
+  ordersStore.fetchOrders()
 }
 
 function selectTab(value: string) {
