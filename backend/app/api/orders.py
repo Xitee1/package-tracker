@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import asc, desc, func, nullslast, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from typing import Optional
@@ -8,10 +8,20 @@ from app.database import get_db
 from app.models.user import User
 from app.models.order import Order
 from app.models.order_state import OrderState
-from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest, CreateOrderRequest
+from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest, CreateOrderRequest, OrderListResponse, OrderCountsResponse
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
+
+SORTABLE_COLUMNS = {
+    "order_number": Order.order_number,
+    "vendor_name": Order.vendor_name,
+    "carrier": Order.carrier,
+    "status": Order.status,
+    "order_date": Order.order_date,
+    "total_amount": Order.total_amount,
+    "updated_at": Order.updated_at,
+}
 
 
 @router.post("", response_model=OrderResponse, status_code=201)
@@ -48,24 +58,87 @@ async def create_order(
     return order
 
 
-@router.get("", response_model=list[OrderResponse])
+@router.get("", response_model=OrderListResponse)
 async def list_orders(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(25, ge=1, le=200),
     status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    sort_by: str = Query("order_date"),
+    sort_dir: str = Query("desc"),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Order).where(Order.user_id == user.id)
+
+    if status:
+        statuses = [s.strip() for s in status.split(",")]
+        query = query.where(Order.status.in_(statuses))
+    if search:
+        search_filter = f"%{search}%"
+        query = query.where(
+            (Order.order_number.ilike(search_filter))
+            | (Order.vendor_name.ilike(search_filter))
+            | (Order.tracking_number.ilike(search_filter))
+            | (Order.carrier.ilike(search_filter))
+            | (Order.vendor_domain.ilike(search_filter))
+        )
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total = (await db.execute(count_query)).scalar() or 0
+
+    if sort_by not in SORTABLE_COLUMNS:
+        raise HTTPException(status_code=422, detail=f"Invalid sort_by. Must be one of: {', '.join(sorted(SORTABLE_COLUMNS))}")
+    if sort_dir not in ("asc", "desc"):
+        raise HTTPException(status_code=422, detail="Invalid sort_dir. Must be 'asc' or 'desc'")
+
+    column = SORTABLE_COLUMNS[sort_by]
+    direction = asc if sort_dir == "asc" else desc
+    query = query.order_by(nullslast(direction(column)))
+    query = query.offset((page - 1) * per_page).limit(per_page)
+    result = await db.execute(query)
+    items = result.scalars().all()
+
+    return OrderListResponse(
+        items=[OrderResponse.model_validate(i) for i in items],
+        total=total,
+        page=page,
+        per_page=per_page,
+    )
+
+
+@router.get("/counts", response_model=OrderCountsResponse)
+async def order_counts(
     search: Optional[str] = Query(None),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Order).where(Order.user_id == user.id).order_by(Order.updated_at.desc())
-    if status:
-        query = query.where(Order.status == status)
+    query = select(Order.status, func.count()).where(Order.user_id == user.id)
+
     if search:
+        search_filter = f"%{search}%"
         query = query.where(
-            (Order.order_number.contains(search))
-            | (Order.vendor_name.contains(search))
-            | (Order.tracking_number.contains(search))
+            (Order.order_number.ilike(search_filter))
+            | (Order.vendor_name.ilike(search_filter))
+            | (Order.tracking_number.ilike(search_filter))
+            | (Order.carrier.ilike(search_filter))
+            | (Order.vendor_domain.ilike(search_filter))
         )
+
+    query = query.group_by(Order.status)
     result = await db.execute(query)
-    return result.scalars().all()
+    counts = dict(result.all())
+
+    total = sum(counts.values())
+    return OrderCountsResponse(
+        total=total,
+        ordered=counts.get("ordered", 0),
+        shipment_preparing=counts.get("shipment_preparing", 0),
+        shipped=counts.get("shipped", 0),
+        in_transit=counts.get("in_transit", 0),
+        out_for_delivery=counts.get("out_for_delivery", 0),
+        delivered=counts.get("delivered", 0),
+    )
 
 
 @router.get("/{order_id}", response_model=OrderDetailResponse)

@@ -96,3 +96,20 @@ class CreateOrderRequest(BaseModel):
         if v not in VALID_STATUSES:
             raise ValueError(f"Invalid status. Must be one of: {', '.join(sorted(VALID_STATUSES))}")
         return v
+
+
+class OrderListResponse(BaseModel):
+    items: list[OrderResponse]
+    total: int
+    page: int
+    per_page: int
+
+
+class OrderCountsResponse(BaseModel):
+    total: int
+    ordered: int
+    shipment_preparing: int
+    shipped: int
+    in_transit: int
+    out_for_delivery: int
+    delivered: int

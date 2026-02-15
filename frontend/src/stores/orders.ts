@@ -51,18 +51,57 @@ export interface CreateOrderData {
   items?: OrderItem[] | null
 }
 
+export interface OrderCounts {
+  total: number
+  ordered: number
+  shipment_preparing: number
+  shipped: number
+  in_transit: number
+  out_for_delivery: number
+  delivered: number
+}
+
 export const useOrdersStore = defineStore('orders', () => {
   const orders = ref<Order[]>([])
   const loading = ref(false)
+  const total = ref(0)
+  const page = ref(1)
+  const perPage = ref(25)
+  const sortBy = ref('order_date')
+  const sortDir = ref<'asc' | 'desc'>('desc')
+  const counts = ref<OrderCounts>({
+    total: 0,
+    ordered: 0,
+    shipment_preparing: 0,
+    shipped: 0,
+    in_transit: 0,
+    out_for_delivery: 0,
+    delivered: 0,
+  })
 
-  async function fetchOrders(params?: { status?: string; search?: string }) {
+  async function fetchOrders(params?: {
+    status?: string
+    search?: string
+    page?: number
+    per_page?: number
+    sort_by?: string
+    sort_dir?: string
+  }) {
     loading.value = true
     try {
       const res = await api.get('/orders', { params })
-      orders.value = res.data
+      orders.value = res.data.items
+      total.value = res.data.total
+      page.value = res.data.page
+      perPage.value = res.data.per_page
     } finally {
       loading.value = false
     }
+  }
+
+  async function fetchCounts(params?: { search?: string }) {
+    const res = await api.get('/orders/counts', { params })
+    counts.value = res.data
   }
 
   async function fetchOrder(id: number): Promise<OrderDetail> {
@@ -84,5 +123,20 @@ export const useOrdersStore = defineStore('orders', () => {
     return res.data
   }
 
-  return { orders, loading, fetchOrders, fetchOrder, updateOrder, deleteOrder, createOrder }
+  return {
+    orders,
+    loading,
+    total,
+    page,
+    perPage,
+    sortBy,
+    sortDir,
+    counts,
+    fetchOrders,
+    fetchCounts,
+    fetchOrder,
+    updateOrder,
+    deleteOrder,
+    createOrder,
+  }
 })
