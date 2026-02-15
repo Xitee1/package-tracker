@@ -154,6 +154,11 @@ const links = computed(() => [
   },
 ])
 
+function isValidVersion(v: string): boolean {
+  const normalized = v.replace(/^v/, '')
+  return /^\d+(\.\d+)*$/.test(normalized)
+}
+
 async function fetchVersion() {
   try {
     const { data } = await api.get('/version')
@@ -164,6 +169,19 @@ async function fetchVersion() {
 }
 
 function compareVersions(a: string, b: string): number {
+  // Handle invalid versions (non-numeric like "?", "unknown", etc.)
+  // Treat invalid versions as older than any valid version
+  const aValid = isValidVersion(a)
+  const bValid = isValidVersion(b)
+
+  // If neither is valid, consider them equal
+  if (!aValid && !bValid) return 0
+  // If only a is invalid, it's older
+  if (!aValid) return -1
+  // If only b is invalid, a is newer
+  if (!bValid) return 1
+
+  // Both valid, compare numerically
   const pa = a.replace(/^v/, '').split('.').map(Number)
   const pb = b.replace(/^v/, '').split('.').map(Number)
   for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
@@ -178,9 +196,9 @@ function compareVersions(a: string, b: string): number {
 async function checkForUpdates() {
   updateStatus.value = 'checking'
   try {
-    // Check if current version is valid before attempting update check
-    if (INVALID_VERSIONS.includes(version.value)) {
-      throw new Error('Cannot check for updates: current version is invalid or unknown')
+    // Check if current version is valid before attempting comparison
+    if (!isValidVersion(version.value)) {
+      throw new Error('Cannot check for updates: current version is unknown')
     }
 
     const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
