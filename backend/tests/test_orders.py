@@ -136,6 +136,34 @@ async def test_create_order_unauthenticated(client):
     assert resp.status_code in (401, 403)
 
 
+@pytest.mark.asyncio
+async def test_create_order_with_zero_quantity(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={
+            "vendor_name": "Amazon",
+            "items": [{"name": "Widget", "quantity": 0}],
+        },
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
+
+
+@pytest.mark.asyncio
+async def test_create_order_with_negative_quantity(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={
+            "vendor_name": "Amazon",
+            "items": [{"name": "Widget", "quantity": -5}],
+        },
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
+
+
 # --- List Orders ---
 
 
@@ -323,6 +351,34 @@ async def test_update_order_invalid_status_rejected(client, db_session, admin_to
         headers=auth(admin_token),
     )
     assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_update_order_with_zero_quantity(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-275")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"items": [{"name": "Widget", "quantity": 0}]},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
+
+
+@pytest.mark.asyncio
+async def test_update_order_with_negative_quantity(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-276")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"items": [{"name": "Widget", "quantity": -1}]},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
 
 
 # --- Delete Order ---
