@@ -120,6 +120,34 @@
             />
           </div>
 
+          <!-- System Prompt -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {{ $t('llm.systemPrompt') }}
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              {{ $t('llm.systemPromptHelp') }}
+            </p>
+            <textarea
+              v-model="displayPrompt"
+              rows="14"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
+            ></textarea>
+            <div class="mt-1 flex items-center gap-2">
+              <button
+                v-if="!isUsingDefault"
+                type="button"
+                @click="handleResetPrompt"
+                class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                {{ $t('llm.resetToDefault') }}
+              </button>
+              <span v-if="isUsingDefault" class="text-xs text-gray-400 dark:text-gray-500 italic">
+                {{ $t('llm.usingDefaultPrompt') }}
+              </span>
+            </div>
+          </div>
+
           <!-- Buttons -->
           <div class="flex items-center gap-3 pt-2">
             <button
@@ -194,7 +222,10 @@ const form = ref({
   model_name: '',
   api_key: '',
   api_base_url: '',
+  system_prompt: null as string | null,
 })
+
+const defaultSystemPrompt = ref('')
 
 const knownProviders = ['openai', 'anthropic', 'ollama']
 
@@ -220,6 +251,15 @@ const basePlaceholder = computed(() => {
   return 'https://api.example.com/v1'
 })
 
+const displayPrompt = computed({
+  get: () => form.value.system_prompt ?? defaultSystemPrompt.value,
+  set: (val: string) => {
+    form.value.system_prompt = val === defaultSystemPrompt.value ? null : val
+  },
+})
+
+const isUsingDefault = computed(() => form.value.system_prompt === null)
+
 function handleProviderChange() {
   if (providerSelect.value !== 'custom') {
     form.value.provider = providerSelect.value
@@ -229,6 +269,10 @@ function handleProviderChange() {
   // Clear fields that don't apply to the new provider
   if (!showApiKey.value) form.value.api_key = ''
   if (!showBaseUrl.value) form.value.api_base_url = ''
+}
+
+function handleResetPrompt() {
+  form.value.system_prompt = null
 }
 
 async function fetchConfig() {
@@ -242,6 +286,8 @@ async function fetchConfig() {
       form.value.api_key = ''
       form.value.api_base_url = res.data.api_base_url || ''
       hasExistingKey.value = res.data.has_api_key || false
+      defaultSystemPrompt.value = res.data.default_system_prompt || ''
+      form.value.system_prompt = res.data.system_prompt ?? null
 
       if (knownProviders.includes(form.value.provider)) {
         providerSelect.value = form.value.provider
@@ -262,9 +308,10 @@ async function handleSave() {
   saveSuccess.value = false
   saving.value = true
   try {
-    const payload: Record<string, string> = {
+    const payload: Record<string, string | null> = {
       provider: form.value.provider,
       model_name: form.value.model_name,
+      system_prompt: form.value.system_prompt,
     }
     if (showApiKey.value && form.value.api_key) {
       payload.api_key = form.value.api_key
