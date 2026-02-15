@@ -9,7 +9,7 @@
         class="sticky top-0 bg-white dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 z-10"
       >
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-          {{ $t('orders.newOrder') }}
+          {{ mode === 'create' ? $t('orders.newOrder') : $t('orders.editOrder') }}
         </h2>
       </div>
 
@@ -249,7 +249,7 @@
             :disabled="submitting"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            {{ submitting ? $t('orders.creating') : $t('orders.createOrder') }}
+            {{ submitting ? (mode === 'create' ? $t('orders.creating') : $t('common.saving')) : (mode === 'create' ? $t('orders.createOrder') : $t('orderDetail.saveChanges')) }}
           </button>
         </div>
       </form>
@@ -260,11 +260,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useOrdersStore } from '@/stores/orders'
+import { useOrdersStore, type OrderDetail } from '@/stores/orders'
+
+const props = defineProps<{
+  mode: 'create' | 'edit'
+  order?: OrderDetail
+}>()
 
 const emit = defineEmits<{
   close: []
-  created: [id: number]
+  saved: [id: number]
 }>()
 
 const { t } = useI18n()
@@ -293,6 +298,24 @@ const form = ref({
   items: [] as FormItem[],
 })
 
+if (props.mode === 'edit' && props.order) {
+  form.value = {
+    vendor_name: props.order.vendor_name || '',
+    vendor_domain: props.order.vendor_domain || '',
+    order_number: props.order.order_number || '',
+    order_date: props.order.order_date?.split('T')[0] || '',
+    status: props.order.status,
+    tracking_number: props.order.tracking_number || '',
+    carrier: props.order.carrier || '',
+    estimated_delivery: props.order.estimated_delivery?.split('T')[0] || '',
+    total_amount: props.order.total_amount !== null && props.order.total_amount !== undefined ? Number(props.order.total_amount) : null,
+    currency: props.order.currency || 'EUR',
+    items: props.order.items
+      ? props.order.items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price }))
+      : [],
+  }
+}
+
 function addItem() {
   form.value.items.push({ name: '', quantity: 1, price: null })
 }
@@ -305,25 +328,57 @@ async function submit() {
   submitting.value = true
   error.value = ''
   try {
-    const data: Record<string, unknown> = {
-      vendor_name: form.value.vendor_name,
-      status: form.value.status,
-    }
-    if (form.value.vendor_domain) data.vendor_domain = form.value.vendor_domain
-    if (form.value.order_number) data.order_number = form.value.order_number
-    if (form.value.order_date) data.order_date = form.value.order_date
-    if (form.value.tracking_number) data.tracking_number = form.value.tracking_number
-    if (form.value.carrier) data.carrier = form.value.carrier
-    if (form.value.estimated_delivery) data.estimated_delivery = form.value.estimated_delivery
-    if (form.value.total_amount !== null) data.total_amount = form.value.total_amount
-    if (form.value.currency) data.currency = form.value.currency
-    if (form.value.items.length > 0) data.items = form.value.items
+    if (props.mode === 'create') {
+      const data: Record<string, unknown> = {
+        vendor_name: form.value.vendor_name,
+        status: form.value.status,
+      }
+      if (form.value.vendor_domain) data.vendor_domain = form.value.vendor_domain
+      if (form.value.order_number) data.order_number = form.value.order_number
+      if (form.value.order_date) data.order_date = form.value.order_date
+      if (form.value.tracking_number) data.tracking_number = form.value.tracking_number
+      if (form.value.carrier) data.carrier = form.value.carrier
+      if (form.value.estimated_delivery) data.estimated_delivery = form.value.estimated_delivery
+      if (form.value.total_amount !== null) data.total_amount = form.value.total_amount
+      if (form.value.currency) data.currency = form.value.currency
+      if (form.value.items.length > 0) data.items = form.value.items
 
-    const order = await ordersStore.createOrder(data as any)
-    emit('created', order.id)
+      const order = await ordersStore.createOrder(data as any)
+      emit('saved', order.id)
+    } else {
+      const data: Record<string, unknown> = {}
+      const o = props.order!
+
+      if (form.value.vendor_name !== (o.vendor_name || '')) data.vendor_name = form.value.vendor_name || null
+      if (form.value.vendor_domain !== (o.vendor_domain || '')) data.vendor_domain = form.value.vendor_domain || null
+      if (form.value.order_number !== (o.order_number || '')) data.order_number = form.value.order_number || null
+      if (form.value.order_date !== (o.order_date?.split('T')[0] || '')) data.order_date = form.value.order_date || null
+      if (form.value.status !== o.status) data.status = form.value.status
+      if (form.value.tracking_number !== (o.tracking_number || '')) data.tracking_number = form.value.tracking_number || null
+      if (form.value.carrier !== (o.carrier || '')) data.carrier = form.value.carrier || null
+      if (form.value.estimated_delivery !== (o.estimated_delivery?.split('T')[0] || '')) data.estimated_delivery = form.value.estimated_delivery || null
+
+      const origAmount = o.total_amount !== null && o.total_amount !== undefined ? Number(o.total_amount) : null
+      if (form.value.total_amount !== origAmount) data.total_amount = form.value.total_amount
+
+      if (form.value.currency !== (o.currency || 'EUR')) data.currency = form.value.currency || null
+
+      const origItems = o.items ? JSON.stringify(o.items) : '[]'
+      const newItems = JSON.stringify(form.value.items)
+      if (newItems !== origItems) {
+        data.items = form.value.items.length > 0 ? form.value.items : null
+      }
+
+      if (Object.keys(data).length > 0) {
+        await ordersStore.updateOrder(o.id, data)
+      }
+      emit('saved', o.id)
+    }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('orders.createFailed')
+    error.value = err.response?.data?.detail || t(
+      props.mode === 'create' ? 'orders.createFailed' : 'orderDetail.saveFailed'
+    )
   } finally {
     submitting.value = false
   }
