@@ -1,9 +1,12 @@
+import logging
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.api.deps import get_current_user
 from app.database import get_db
@@ -41,21 +44,27 @@ async def get_config(user=Depends(get_current_user), db: AsyncSession = Depends(
 
 @user_router.post("/config/email")
 async def set_email(req: NotifyEmailConfigRequest, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    if not await is_smtp_configured(db):
-        raise HTTPException(status_code=400, detail="SMTP is not configured")
-    config = await _get_user_config(user.id, db)
-    if not config:
-        config = UserNotificationConfig(user_id=user.id, module_key="notify-email", enabled=False, config={"email": req.email, "verified": False}, events=[])
-        db.add(config)
-    else:
-        config.config = {"email": req.email, "verified": False}
-    token = str(uuid.uuid4())
-    verification = EmailVerification(user_id=user.id, email=req.email, token=token, expires_at=datetime.now(timezone.utc) + timedelta(hours=24))
-    db.add(verification)
-    await db.commit()
-    verify_link = f"/verify-email/{token}"
-    await send_email(to=req.email, subject="Package Tracker — Verify your email", html_body=f'<div style="font-family: sans-serif; max-width: 600px;"><h2>Verify your email address</h2><p>Click the link below to verify your email for Package Tracker notifications:</p><p><a href="{verify_link}">{verify_link}</a></p><p>This link expires in 24 hours.</p></div>', db=db)
-    return {"status": "verification_sent"}
+    try:
+        if not await is_smtp_configured(db):
+            raise HTTPException(status_code=400, detail="SMTP is not configured")
+        config = await _get_user_config(user.id, db)
+        if not config:
+            config = UserNotificationConfig(user_id=user.id, module_key="notify-email", enabled=False, config={"email": req.email, "verified": False}, events=[])
+            db.add(config)
+        else:
+            config.config = {"email": req.email, "verified": False}
+        token = str(uuid.uuid4())
+        verification = EmailVerification(user_id=user.id, email=req.email, token=token, expires_at=datetime.utcnow() + timedelta(hours=24))
+        db.add(verification)
+        await db.commit()
+        verify_link = f"/verify-email/{token}"
+        await send_email(to=req.email, subject="Package Tracker — Verify your email", html_body=f'<div style="font-family: sans-serif; max-width: 600px;"><h2>Verify your email address</h2><p>Click the link below to verify your email for Package Tracker notifications:</p><p><a href="{verify_link}">{verify_link}</a></p><p>This link expires in 24 hours.</p></div>', db=db)
+        return {"status": "verification_sent"}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Failed to send verification email")
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
 
 
 @user_router.post("/verify/{token}")
@@ -64,11 +73,8 @@ async def verify_email(token: str, user=Depends(get_current_user), db: AsyncSess
     verification = result.scalar_one_or_none()
     if not verification:
         raise HTTPException(status_code=404, detail="Verification not found")
-    now = datetime.now(timezone.utc)
-    expires_at = verification.expires_at
-    if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=timezone.utc)
-    if expires_at < now:
+    now = datetime.utcnow()
+    if verification.expires_at < now:
         raise HTTPException(status_code=400, detail="Verification link expired")
     if verification.verified_at:
         raise HTTPException(status_code=400, detail="Already verified")
