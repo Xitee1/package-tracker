@@ -94,14 +94,14 @@
         {{ $t('about.links') }}
       </h2>
 
-      <div class="space-y-3">
+      <div class="flex flex-col items-start gap-3">
         <a
           v-for="link in links"
           :key="link.url"
           :href="link.url"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          class="inline-flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 hover:underline"
         >
           <span
             v-html="link.icon"
