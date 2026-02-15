@@ -69,6 +69,8 @@ All API routes are under `/api/v1/`. Routers live in `api/`, each included in `m
 
 **Layout:** `AppLayout.vue` wraps all authenticated views with sidebar + mobile-responsive top bar.
 
+**i18n:** Vue-i18n with locale files in `i18n/locales/` (en.json, de.json). **Never hardcode user-visible strings** in templates or scripts. Always use `$t('key')` (templates) or `t('key')` (script setup with `const { t } = useI18n()`). Module manifests store i18n keys (e.g., `'modules.llm.title'`) that are resolved at render time via `$t()`. When adding new UI text, add translation keys to both `en.json` and `de.json`.
+
 ### Vite Proxy
 
 In dev, Vite proxies `/api` requests to `http://backend:8000` (Docker service name). When running outside Docker, update `vite.config.ts` proxy target to `http://localhost:8000`.
