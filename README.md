@@ -1,4 +1,4 @@
-# Package Tracker
+# WIP: Package Tracker
 
 > [!NOTE]
 > This tool was at least 99% written by AI. Although I have tested it and it seems to work as it should, use with care and expect things to go really wrong.
