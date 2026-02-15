@@ -45,8 +45,7 @@
         </div>
         <div class="flex items-center gap-2">
           <button
-            v-if="!editing"
-            @click="startEditing"
+            @click="showEditModal = true"
             class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {{ $t('common.edit') }}
@@ -77,63 +76,7 @@
             {{ $t('orderDetail.orderDetails') }}
           </h3>
 
-          <template v-if="editing">
-            <div class="space-y-3">
-              <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
-                  $t('orderDetail.orderNumber')
-                }}</label>
-                <input
-                  v-model="editForm.order_number"
-                  type="text"
-                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
-                  $t('orderDetail.status')
-                }}</label>
-                <select
-                  v-model="editForm.status"
-                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="ordered">{{ $t('orderDetail.statusOrdered') }}</option>
-                  <option value="shipment_preparing">
-                    {{ $t('orderDetail.statusShipmentPreparing') }}
-                  </option>
-                  <option value="shipped">{{ $t('orderDetail.statusShipped') }}</option>
-                  <option value="in_transit">{{ $t('orderDetail.statusInTransit') }}</option>
-                  <option value="out_for_delivery">
-                    {{ $t('orderDetail.statusOutForDelivery') }}
-                  </option>
-                  <option value="delivered">{{ $t('orderDetail.statusDelivered') }}</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
-                  $t('orderDetail.vendor')
-                }}</label>
-                <input
-                  v-model="editForm.vendor_name"
-                  type="text"
-                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
-                  $t('orderDetail.orderDate')
-                }}</label>
-                <input
-                  v-model="editForm.order_date"
-                  type="date"
-                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </template>
-
-          <template v-else>
-            <dl class="space-y-3">
+          <dl class="space-y-3">
               <div>
                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
                   {{ $t('orderDetail.orderNumber') }}
@@ -167,7 +110,6 @@
                 </dd>
               </div>
             </dl>
-          </template>
         </div>
 
         <!-- Shipping Details Card -->
@@ -180,59 +122,7 @@
             {{ $t('orderDetail.shippingDetails') }}
           </h3>
 
-          <template v-if="editing">
-            <div class="space-y-3">
-              <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
-                  $t('orderDetail.trackingNumber')
-                }}</label>
-                <input
-                  v-model="editForm.tracking_number"
-                  type="text"
-                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
-                  $t('orderDetail.carrier')
-                }}</label>
-                <input
-                  v-model="editForm.carrier"
-                  type="text"
-                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{
-                  $t('orderDetail.estimatedDelivery')
-                }}</label>
-                <input
-                  v-model="editForm.estimated_delivery"
-                  type="date"
-                  class="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div class="flex gap-2 mt-5">
-              <button
-                @click="saveEdit"
-                :disabled="saving"
-                class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {{ saving ? $t('common.saving') : $t('orderDetail.saveChanges') }}
-              </button>
-              <button
-                @click="cancelEditing"
-                class="px-4 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700"
-              >
-                {{ $t('common.cancel') }}
-              </button>
-            </div>
-          </template>
-
-          <template v-else>
-            <dl class="space-y-3">
+          <dl class="space-y-3">
               <div>
                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
                   {{ $t('orderDetail.trackingNumber') }}
@@ -258,7 +148,6 @@
                 </dd>
               </div>
             </dl>
-          </template>
         </div>
       </div>
 
@@ -383,6 +272,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Edit Order Modal -->
+    <OrderFormModal
+      v-if="showEditModal && order"
+      mode="edit"
+      :order="order"
+      @close="showEditModal = false"
+      @saved="onOrderSaved"
+    />
   </div>
 </template>
 
@@ -392,6 +290,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useOrdersStore, type OrderDetail } from '@/stores/orders'
 import StatusBadge from '@/components/StatusBadge.vue'
+import OrderFormModal from '@/components/OrderFormModal.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -401,30 +300,9 @@ const ordersStore = useOrdersStore()
 const order = ref<OrderDetail | null>(null)
 const loading = ref(true)
 const error = ref('')
-const editing = ref(false)
-const saving = ref(false)
+const showEditModal = ref(false)
 const showDeleteConfirm = ref(false)
 const deleting = ref(false)
-
-interface EditForm {
-  order_number: string
-  tracking_number: string
-  carrier: string
-  vendor_name: string
-  status: string
-  order_date: string
-  estimated_delivery: string
-}
-
-const editForm = ref<EditForm>({
-  order_number: '',
-  tracking_number: '',
-  carrier: '',
-  vendor_name: '',
-  status: '',
-  order_date: '',
-  estimated_delivery: '',
-})
 
 const sortedStates = computed(() => {
   if (!order.value) return []
@@ -433,65 +311,9 @@ const sortedStates = computed(() => {
   )
 })
 
-function startEditing() {
-  if (!order.value) return
-  editForm.value = {
-    order_number: order.value.order_number || '',
-    tracking_number: order.value.tracking_number || '',
-    carrier: order.value.carrier || '',
-    vendor_name: order.value.vendor_name || '',
-    status: order.value.status,
-    order_date: order.value.order_date?.split('T')[0] || '',
-    estimated_delivery: order.value.estimated_delivery?.split('T')[0] || '',
-  }
-  editing.value = true
-}
-
-function cancelEditing() {
-  editing.value = false
-}
-
-async function saveEdit() {
-  if (!order.value) return
-  saving.value = true
-  try {
-    const data: Record<string, string | null> = {}
-    if (editForm.value.order_number !== (order.value.order_number || '')) {
-      data.order_number = editForm.value.order_number || null
-    }
-    if (editForm.value.tracking_number !== (order.value.tracking_number || '')) {
-      data.tracking_number = editForm.value.tracking_number || null
-    }
-    if (editForm.value.carrier !== (order.value.carrier || '')) {
-      data.carrier = editForm.value.carrier || null
-    }
-    if (editForm.value.vendor_name !== (order.value.vendor_name || '')) {
-      data.vendor_name = editForm.value.vendor_name || null
-    }
-    if (editForm.value.status !== order.value.status) {
-      data.status = editForm.value.status
-    }
-    if (editForm.value.order_date !== (order.value.order_date?.split('T')[0] || '')) {
-      data.order_date = editForm.value.order_date || null
-    }
-    if (
-      editForm.value.estimated_delivery !== (order.value.estimated_delivery?.split('T')[0] || '')
-    ) {
-      data.estimated_delivery = editForm.value.estimated_delivery || null
-    }
-
-    if (Object.keys(data).length > 0) {
-      await ordersStore.updateOrder(order.value.id, data)
-      // Re-fetch to get updated data with states
-      order.value = await ordersStore.fetchOrder(order.value.id)
-    }
-    editing.value = false
-  } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('orderDetail.saveFailed')
-  } finally {
-    saving.value = false
-  }
+async function onOrderSaved(id: number) {
+  showEditModal.value = false
+  order.value = await ordersStore.fetchOrder(id)
 }
 
 async function confirmDelete() {

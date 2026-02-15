@@ -1,7 +1,16 @@
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+
+
+VALID_STATUSES = {"ordered", "shipment_preparing", "shipped", "in_transit", "out_for_delivery", "delivered"}
+
+
+class ItemCreate(BaseModel):
+    name: str
+    quantity: int = Field(default=1, ge=1)
+    price: Optional[float] = None
 
 
 class OrderItemSchema(BaseModel):
@@ -48,8 +57,42 @@ class UpdateOrderRequest(BaseModel):
     tracking_number: Optional[str] = None
     carrier: Optional[str] = None
     vendor_name: Optional[str] = None
+    vendor_domain: Optional[str] = None
     status: Optional[str] = None
+    order_date: Optional[date] = None
+    total_amount: Optional[Decimal] = None
+    currency: Optional[str] = None
+    estimated_delivery: Optional[date] = None
+    items: Optional[list[ItemCreate]] = None
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_STATUSES:
+            raise ValueError(f"Invalid status. Must be one of: {', '.join(sorted(VALID_STATUSES))}")
+        return v
 
 
 class LinkOrderRequest(BaseModel):
     target_order_id: int
+
+
+class CreateOrderRequest(BaseModel):
+    vendor_name: str
+    order_number: Optional[str] = None
+    tracking_number: Optional[str] = None
+    carrier: Optional[str] = None
+    vendor_domain: Optional[str] = None
+    status: str = "ordered"
+    order_date: Optional[date] = None
+    total_amount: Optional[Decimal] = None
+    currency: Optional[str] = None
+    estimated_delivery: Optional[date] = None
+    items: Optional[list[ItemCreate]] = None
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v: str) -> str:
+        if v not in VALID_STATUSES:
+            raise ValueError(f"Invalid status. Must be one of: {', '.join(sorted(VALID_STATUSES))}")
+        return v

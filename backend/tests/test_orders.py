@@ -47,6 +47,123 @@ async def _create_order(db, user_id, **kwargs):
     return order
 
 
+# --- Create Order ---
+
+
+@pytest.mark.asyncio
+async def test_create_order_all_fields(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={
+            "vendor_name": "Amazon",
+            "order_number": "ORD-NEW-001",
+            "tracking_number": "1Z999AA1",
+            "carrier": "UPS",
+            "vendor_domain": "amazon.com",
+            "status": "shipped",
+            "order_date": "2026-02-15",
+            "total_amount": 49.99,
+            "currency": "EUR",
+            "estimated_delivery": "2026-02-20",
+            "items": [
+                {"name": "Widget", "quantity": 2, "price": 24.99},
+                {"name": "Gadget", "quantity": 1},
+            ],
+        },
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["vendor_name"] == "Amazon"
+    assert data["order_number"] == "ORD-NEW-001"
+    assert data["tracking_number"] == "1Z999AA1"
+    assert data["carrier"] == "UPS"
+    assert data["status"] == "shipped"
+    assert data["total_amount"] == "49.99"
+    assert data["currency"] == "EUR"
+    assert len(data["items"]) == 2
+    assert data["items"][0]["name"] == "Widget"
+
+    # Verify OrderState was created
+    detail_resp = await client.get(f"/api/v1/orders/{data['id']}", headers=auth(admin_token))
+    detail = detail_resp.json()
+    assert len(detail["states"]) == 1
+    assert detail["states"][0]["status"] == "shipped"
+    assert detail["states"][0]["source_type"] == "manual"
+
+
+@pytest.mark.asyncio
+async def test_create_order_minimal(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={"vendor_name": "eBay"},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["vendor_name"] == "eBay"
+    assert data["status"] == "ordered"
+    assert data["order_number"] is None
+    assert data["items"] is None
+
+
+@pytest.mark.asyncio
+async def test_create_order_missing_vendor_name(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={"order_number": "ORD-123"},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_create_order_invalid_status(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={"vendor_name": "Amazon", "status": "bogus"},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_create_order_unauthenticated(client):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={"vendor_name": "Amazon"},
+    )
+    assert resp.status_code in (401, 403)
+
+
+@pytest.mark.asyncio
+async def test_create_order_with_zero_quantity(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={
+            "vendor_name": "Amazon",
+            "items": [{"name": "Widget", "quantity": 0}],
+        },
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
+
+
+@pytest.mark.asyncio
+async def test_create_order_with_negative_quantity(client, admin_token):
+    resp = await client.post(
+        "/api/v1/orders",
+        json={
+            "vendor_name": "Amazon",
+            "items": [{"name": "Widget", "quantity": -5}],
+        },
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
+
+
 # --- List Orders ---
 
 
@@ -170,6 +287,98 @@ async def test_update_order_not_found(client, admin_token):
         headers=auth(admin_token),
     )
     assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_update_order_extended_fields(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-250", vendor_name="Amazon")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={
+            "vendor_domain": "amazon.com",
+            "order_date": "2026-01-15",
+            "total_amount": 99.99,
+            "currency": "EUR",
+            "estimated_delivery": "2026-02-01",
+            "items": [{"name": "Widget", "quantity": 2, "price": 49.99}],
+        },
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["vendor_domain"] == "amazon.com"
+    assert data["order_date"] == "2026-01-15"
+    assert data["total_amount"] == "99.99"
+    assert data["currency"] == "EUR"
+    assert data["estimated_delivery"] == "2026-02-01"
+    assert len(data["items"]) == 1
+    assert data["items"][0]["name"] == "Widget"
+    # Original fields unchanged
+    assert data["order_number"] == "ORD-250"
+    assert data["vendor_name"] == "Amazon"
+
+
+@pytest.mark.asyncio
+async def test_update_order_replace_items(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(
+        db_session, user_id, order_number="ORD-260",
+        items=[{"name": "OldItem", "quantity": 1}],
+    )
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"items": [{"name": "NewItem", "quantity": 3, "price": 10.00}]},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["items"]) == 1
+    assert data["items"][0]["name"] == "NewItem"
+    assert data["items"][0]["quantity"] == 3
+
+
+@pytest.mark.asyncio
+async def test_update_order_invalid_status_rejected(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-270")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"status": "bogus"},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_update_order_with_zero_quantity(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-275")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"items": [{"name": "Widget", "quantity": 0}]},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
+
+
+@pytest.mark.asyncio
+async def test_update_order_with_negative_quantity(client, db_session, admin_token):
+    user_id = await _get_user_id(client, admin_token)
+    order = await _create_order(db_session, user_id, order_number="ORD-276")
+
+    resp = await client.patch(
+        f"/api/v1/orders/{order.id}",
+        json={"items": [{"name": "Widget", "quantity": -1}]},
+        headers=auth(admin_token),
+    )
+    assert resp.status_code == 422
+    assert "greater than or equal to 1" in resp.json()["detail"][0]["msg"]
 
 
 # --- Delete Order ---
