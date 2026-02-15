@@ -8,6 +8,7 @@ from app.modules.analysers.llm.service import analyze
 from app.services.orders.order_matcher import DefaultOrderMatcher
 from app.services.orders.order_service import create_or_update_order
 from app.core.module_registry import has_available_analyser
+from app.services.notification_service import notify_user, NotificationEvent
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,34 @@ async def process_next_item() -> None:
             )
 
             item.order_id = order.id
+
+            # Determine notification event type
+            if existing_order:
+                if order.status == "delivered":
+                    notification_event = NotificationEvent.PACKAGE_DELIVERED
+                else:
+                    notification_event = NotificationEvent.TRACKING_UPDATE
+            else:
+                notification_event = NotificationEvent.NEW_ORDER
+
+            # Send notifications (fire-and-forget, errors are logged)
+            try:
+                await notify_user(
+                    user_id=item.user_id,
+                    event_type=notification_event,
+                    event_data={
+                        "order_id": order.id,
+                        "order_number": order.order_number,
+                        "tracking_number": order.tracking_number,
+                        "vendor_name": order.vendor_name,
+                        "status": order.status,
+                        "carrier": order.carrier,
+                        "items": [i.get("name", "") for i in (order.items or [])],
+                    },
+                )
+            except Exception as e:
+                logger.error(f"Notification dispatch failed for order {order.id}: {e}")
+
             item.status = "completed"
             await db.commit()
 
