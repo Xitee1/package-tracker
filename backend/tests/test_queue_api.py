@@ -100,6 +100,31 @@ async def test_list_queue_items(client, admin_token, queue_items):
 
 
 @pytest.mark.asyncio
+async def test_list_queue_items_excludes_heavy_fields(client, admin_token, queue_items):
+    """List endpoint should not include raw_data or extracted_data."""
+    resp = await client.get("/api/v1/queue", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    for item in data["items"]:
+        assert "raw_data" not in item
+        assert "extracted_data" not in item
+        # error_message should still be present
+        assert "error_message" in item
+
+
+@pytest.mark.asyncio
+async def test_get_queue_item_detail_includes_all_fields(client, admin_token, queue_items):
+    """Detail endpoint should include raw_data and extracted_data."""
+    item = queue_items[0]
+    resp = await client.get(f"/api/v1/queue/{item.id}", headers=auth(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "raw_data" in data
+    assert "extracted_data" in data
+    assert data["raw_data"]["subject"] == "Order #0"
+
+
+@pytest.mark.asyncio
 async def test_list_queue_items_filter_status(client, admin_token, queue_items):
     resp = await client.get(
         "/api/v1/queue?status=queued", headers=auth(admin_token)
