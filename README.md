@@ -1,18 +1,24 @@
-# WIP: Package Tracker
+# Package Tracker
 
-> [!NOTE]  
-> This tool was at least 99% written by AI. Altough I have tested it and it seems to work as it should, use with care and expect things to go really wrong.
+> [!NOTE]
+> This tool was at least 99% written by AI. Although I have tested it and it seems to work as it should, use with care and expect things to go really wrong.
 
 A self-hosted application that monitors your email inboxes and automatically tracks your online orders and shipments. It uses an LLM to analyze incoming emails and extract order details, tracking numbers, and delivery status updates into a unified dashboard.
 
 ## Features
 
-- **Automatic email monitoring** — connects to email accounts via IMAP and watches specified folders for new messages
-- **LLM-powered extraction** — uses AI to identify purchase confirmations, shipping notifications, and delivery updates from email content
-- **Multi-provider LLM support** — works with OpenAI, Anthropic, Ollama, or any custom OpenAI-compatible endpoint (via LiteLLM)
-- **Order tracking dashboard** — view all orders with status, tracking numbers, carriers, items, and a timeline of events
-- **Multi-user** — supports multiple users, each with their own email accounts and orders
-- **Admin controls** — manage users, configure the LLM provider, and monitor system status
+- **Modular architecture** — pluggable module system with three types: providers (email sources), analysers (LLM extraction), and notifiers (alerts). Modules can be enabled/disabled and configured at runtime.
+- **Dual email provider modes** — per-user IMAP accounts or a shared global inbox with sender-based routing (users register sender addresses, emails are routed by "From" match)
+- **IMAP IDLE + polling** — real-time push notifications via IMAP IDLE with automatic fallback to configurable polling intervals. Auto-detects server capabilities.
+- **Queue-based processing** — emails are queued and processed asynchronously with status tracking, retry for failed items, and configurable retention policies
+- **Multi-provider LLM support** — works with OpenAI, Anthropic, Ollama, or any custom OpenAI-compatible endpoint via LiteLLM. Custom system prompts supported.
+- **3-tier order matching** — prevents duplicates by matching incoming emails to existing orders: exact order number → exact tracking number → fuzzy vendor + item similarity
+- **Notifications** — email (SMTP with verification flow) and webhook notifications, configurable per event type (new order, tracking update, delivered)
+- **API keys** — long-lived tokens (`pt_xxx` format) for programmatic access alongside JWT auth
+- **Multi-user with roles** — per-user data isolation, admin controls for user management, module configuration, and system monitoring
+- **Encrypted credential storage** — IMAP and SMTP passwords encrypted at rest with Fernet
+- **Internationalization** — English and German, switchable per user
+- **Dark mode** — light, dark, and system theme
 
 ## Quick Start
 
@@ -45,14 +51,7 @@ You can generate random strings with `openssl rand -hex 32`.
 docker compose -f docker-compose.prod.yaml up -d
 ```
 
-The application is available at `http://localhost` (port 80, configurable via `PORT` in `.env`).
-
-### API Documentation
-
-The backend provides interactive API docs powered by FastAPI:
-
-- **Swagger UI** — `/api/docs`
-- **ReDoc** — `/api/redoc`
+The application is available at `http://localhost` (port 80).
 
 ### 3. Initial setup
 
@@ -60,7 +59,7 @@ Open the application in your browser. On first launch you'll be directed to a se
 
 ### 4. Configure the LLM
 
-Go to **Admin > LLM Configuration** and set up your LLM provider:
+Go to **Admin > Analysers** and configure the LLM module:
 
 | Provider | Required fields |
 |----------|----------------|
@@ -81,12 +80,21 @@ Go to **Accounts** and add an email account:
 
 The application will begin monitoring the watched folders for new emails. When it finds a purchase or shipping-related email, it analyzes it with the LLM and creates or updates an order on your dashboard.
 
+### API Documentation
+
+The backend provides interactive API docs powered by FastAPI:
+
+- **Swagger UI** — `/api/docs`
+- **ReDoc** — `/api/redoc`
+
 ## How It Works
 
-1. **IMAP worker** — a background task per watched folder uses IMAP IDLE (push notifications) with a polling fallback to detect new emails
-2. **Email analysis** — new emails are sent to the configured LLM, which extracts structured data (order number, tracking number, carrier, vendor, items, status, etc.)
-3. **Order matching** — the system matches the analysis to existing orders by order number, tracking number, or vendor + item similarity
-4. **Order updates** — if a matching order is found it updates the status; otherwise it creates a new order. Every change is recorded as an event with the raw LLM response for auditability
+1. **Email provider** — a background worker per watched folder uses IMAP IDLE (push notifications) with a polling fallback to detect new emails
+2. **Processing queue** — new emails are added to a queue and processed asynchronously by a scheduled worker (every 5 seconds)
+3. **LLM analysis** — the configured LLM extracts structured data (order number, tracking number, carrier, vendor, items, status, etc.) from the email
+4. **Order matching** — the system matches the analysis to existing orders by order number, tracking number, or vendor + item similarity
+5. **Order updates** — if a matching order is found it updates the status; otherwise it creates a new order. Every status change is recorded as a state entry for auditability.
+6. **Notifications** — configured notifiers (email, webhook) are triggered for relevant events
 
 ## Order Statuses
 
@@ -131,9 +139,8 @@ Tests use an in-memory SQLite database and don't require PostgreSQL.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `PT_SECRET_KEY` | Production | Secret key for signing JWT tokens |
-| `PT_ENCRYPTION_KEY` | Production | Key for encrypting stored IMAP passwords |
+| `PT_SECRET_KEY` | Yes | Secret key for signing JWT tokens |
+| `PT_ENCRYPTION_KEY` | Yes | Key for encrypting stored IMAP/SMTP passwords |
 | `PT_DATABASE_URL` | No | PostgreSQL connection string (default set in Docker) |
-| `POSTGRES_PASSWORD` | Production | Database password |
-| `PORT` | No | Frontend port in production (default: `80`) |
-
+| `PT_FRONTEND_URL` | No | Frontend URL used in email verification links (default: `http://localhost:5173`) |
+| `POSTGRES_PASSWORD` | Yes | Database password |
