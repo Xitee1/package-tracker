@@ -30,14 +30,14 @@ async def get_queue_settings(db: AsyncSession = Depends(get_db)):
     return await _get_or_create_settings(db)
 
 
-@router.put("/", response_model=QueueSettingsResponse)
+@router.patch("/", response_model=QueueSettingsResponse)
 async def update_queue_settings(
     body: UpdateQueueSettingsRequest,
     db: AsyncSession = Depends(get_db),
 ):
     settings = await _get_or_create_settings(db)
-    settings.max_age_days = body.max_age_days
-    settings.max_per_user = body.max_per_user
+    for key, value in body.model_dump(exclude_unset=True).items():
+        setattr(settings, key, value)
     await db.commit()
     await db.refresh(settings)
     return settings

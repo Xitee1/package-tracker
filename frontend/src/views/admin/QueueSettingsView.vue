@@ -114,7 +114,7 @@ async function handleSave() {
   saveSuccess.value = false
   saving.value = true
   try {
-    await api.put('/settings/queue/', form.value)
+    await api.patch('/settings/queue/', form.value)
     saveSuccess.value = true
     setTimeout(() => {
       saveSuccess.value = false
