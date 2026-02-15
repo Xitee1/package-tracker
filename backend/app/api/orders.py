@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from sqlalchemy import asc, desc, func, nullslast, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from typing import Optional
@@ -12,6 +12,16 @@ from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderReq
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
+
+SORTABLE_COLUMNS = {
+    "order_number": Order.order_number,
+    "vendor_name": Order.vendor_name,
+    "carrier": Order.carrier,
+    "status": Order.status,
+    "order_date": Order.order_date,
+    "total_amount": Order.total_amount,
+    "updated_at": Order.updated_at,
+}
 
 
 @router.post("", response_model=OrderResponse, status_code=201)
@@ -54,6 +64,8 @@ async def list_orders(
     per_page: int = Query(25, ge=1, le=200),
     status: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
+    sort_by: str = Query("order_date"),
+    sort_dir: str = Query("desc"),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -75,7 +87,14 @@ async def list_orders(
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar() or 0
 
-    query = query.order_by(Order.updated_at.desc())
+    if sort_by not in SORTABLE_COLUMNS:
+        raise HTTPException(status_code=422, detail=f"Invalid sort_by. Must be one of: {', '.join(sorted(SORTABLE_COLUMNS))}")
+    if sort_dir not in ("asc", "desc"):
+        raise HTTPException(status_code=422, detail="Invalid sort_dir. Must be 'asc' or 'desc'")
+
+    column = SORTABLE_COLUMNS[sort_by]
+    direction = asc if sort_dir == "asc" else desc
+    query = query.order_by(nullslast(direction(column)))
     query = query.offset((page - 1) * per_page).limit(per_page)
     result = await db.execute(query)
     items = result.scalars().all()
