@@ -227,7 +227,7 @@ function debouncedSearch() {
   }, 300)
 }
 
-function onOrderCreated(_id: number) {
+function onOrderCreated() {
   showCreateModal.value = false
   ordersStore.fetchOrders()
 }
