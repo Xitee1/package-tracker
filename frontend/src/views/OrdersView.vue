@@ -96,12 +96,47 @@
             <tr
               class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
             >
-              <th class="px-5 py-3">{{ $t('orders.order') }}</th>
-              <th class="px-5 py-3">{{ $t('orders.vendor') }}</th>
-              <th class="px-5 py-3">{{ $t('orders.carrier') }}</th>
-              <th class="px-5 py-3">{{ $t('orders.status') }}</th>
-              <th class="px-5 py-3">{{ $t('orders.date') }}</th>
-              <th class="px-5 py-3 text-right">{{ $t('orders.amount') }}</th>
+              <th
+                v-for="col in [
+                  { key: 'order', label: $t('orders.order') },
+                  { key: 'vendor', label: $t('orders.vendor') },
+                  { key: 'carrier', label: $t('orders.carrier') },
+                  { key: 'status', label: $t('orders.status') },
+                  { key: 'date', label: $t('orders.date') },
+                  { key: 'amount', label: $t('orders.amount') },
+                ]"
+                :key="col.key"
+                @click="toggleSort(col.key)"
+                class="px-5 py-3 cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                :class="{ 'text-right': col.key === 'amount' }"
+              >
+                <span class="inline-flex items-center gap-1">
+                  {{ col.label }}
+                  <svg
+                    v-if="ordersStore.sortBy === SORT_COLUMN_MAP[col.key]"
+                    class="w-3.5 h-3.5 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    :aria-label="ordersStore.sortDir === 'asc' ? $t('orders.sortAsc') : $t('orders.sortDesc')"
+                  >
+                    <path
+                      v-if="ordersStore.sortDir === 'asc'"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 15l7-7 7 7"
+                    />
+                    <path
+                      v-else
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </span>
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -200,6 +235,15 @@ const STATUS_MAP: Record<string, string> = {
   delivered: 'delivered',
 }
 
+const SORT_COLUMN_MAP: Record<string, string> = {
+  order: 'order_number',
+  vendor: 'vendor_name',
+  carrier: 'carrier',
+  status: 'status',
+  date: 'order_date',
+  amount: 'total_amount',
+}
+
 const tabs = computed(() => {
   const c = ordersStore.counts
   return [
@@ -217,6 +261,8 @@ function buildParams() {
   const params: Record<string, string | number> = {
     page: ordersStore.page,
     per_page: ordersStore.perPage,
+    sort_by: ordersStore.sortBy,
+    sort_dir: ordersStore.sortDir,
   }
   const status = STATUS_MAP[activeTab.value]
   if (status) params.status = status
@@ -247,6 +293,21 @@ watch(searchQuery, () => {
 
 function selectTab(value: string) {
   activeTab.value = value
+  ordersStore.page = 1
+  ordersStore.sortBy = 'order_date'
+  ordersStore.sortDir = 'desc'
+  loadOrders()
+}
+
+function toggleSort(column: string) {
+  const backendColumn = SORT_COLUMN_MAP[column]
+  if (!backendColumn) return
+  if (ordersStore.sortBy === backendColumn) {
+    ordersStore.sortDir = ordersStore.sortDir === 'asc' ? 'desc' : 'asc'
+  } else {
+    ordersStore.sortBy = backendColumn
+    ordersStore.sortDir = 'desc'
+  }
   ordersStore.page = 1
   loadOrders()
 }

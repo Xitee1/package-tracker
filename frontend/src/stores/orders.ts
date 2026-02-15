@@ -67,6 +67,8 @@ export const useOrdersStore = defineStore('orders', () => {
   const total = ref(0)
   const page = ref(1)
   const perPage = ref(25)
+  const sortBy = ref('order_date')
+  const sortDir = ref<'asc' | 'desc'>('desc')
   const counts = ref<OrderCounts>({
     total: 0,
     ordered: 0,
@@ -82,6 +84,8 @@ export const useOrdersStore = defineStore('orders', () => {
     search?: string
     page?: number
     per_page?: number
+    sort_by?: string
+    sort_dir?: string
   }) {
     loading.value = true
     try {
@@ -125,6 +129,8 @@ export const useOrdersStore = defineStore('orders', () => {
     total,
     page,
     perPage,
+    sortBy,
+    sortDir,
     counts,
     fetchOrders,
     fetchCounts,

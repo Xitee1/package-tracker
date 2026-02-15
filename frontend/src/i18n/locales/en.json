@@ -129,7 +129,9 @@
     "editOrder": "Edit Order",
     "pageInfo": "Page {page} of {totalPages}",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "sortAsc": "Sorted ascending",
+    "sortDesc": "Sorted descending"
   },
   "queue": {
     "title": "Queue",
