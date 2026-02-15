@@ -3,12 +3,20 @@
     <div class="fixed inset-0 bg-black/50" @click="$emit('close')"></div>
     <div
       class="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="order-form-modal-title"
+      tabindex="-1"
+      @keydown.esc="$emit('close')"
     >
       <!-- Header -->
       <div
         class="sticky top-0 bg-white dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 z-10"
       >
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+        <h2
+          id="order-form-modal-title"
+          class="text-lg font-semibold text-gray-900 dark:text-white"
+        >
           {{ mode === 'create' ? $t('orders.newOrder') : $t('orders.editOrder') }}
         </h2>
       </div>
@@ -208,6 +216,7 @@
                 type="button"
                 @click="removeItem(idx)"
                 class="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                :aria-label="$t('orders.removeItem')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -287,11 +296,19 @@ interface FormItem {
   price: number | null
 }
 
+const getLocalDateISO = (): string => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const form = ref({
   vendor_name: '',
   vendor_domain: '',
   order_number: '',
-  order_date: new Date().toISOString().split('T')[0],
+  order_date: getLocalDateISO(),
   status: 'ordered',
   tracking_number: '',
   carrier: '',
