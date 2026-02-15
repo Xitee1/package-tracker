@@ -5,7 +5,7 @@ WORKDIR /app
 ARG APP_VERSION=0.0.0-dev
 
 COPY pyproject.toml .
-RUN SETUPTOOLS_SCM_PRETEND_VERSION=${APP_VERSION} pip install --no-cache-dir .
+RUN mkdir -p app && SETUPTOOLS_SCM_PRETEND_VERSION=${APP_VERSION} pip install --no-cache-dir .
 
 COPY . .
 
