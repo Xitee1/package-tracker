@@ -69,6 +69,7 @@ async def test_put_config_updates_existing(client, admin_token):
     assert data["provider"] == "anthropic"
     assert data["model_name"] == "claude-3-haiku"
     assert data["api_base_url"] == "https://api.anthropic.com/v1"
+    # API key is write-only so we can only verify it exists, not that it changed
     assert data["has_api_key"] is True
 
 
