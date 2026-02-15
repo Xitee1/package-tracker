@@ -53,7 +53,7 @@ export function getAdminSidebarItems(): {
 
   if (analysers.length > 0) {
     groups.push({
-      group: 'Analysers',
+      group: 'analyser',
       items: analysers.flatMap((m) =>
         m.adminRoutes.map((r) => ({
           to: `/admin/settings/${r.path}`,
@@ -66,7 +66,7 @@ export function getAdminSidebarItems(): {
 
   if (providers.length > 0) {
     groups.push({
-      group: 'Providers',
+      group: 'provider',
       items: providers.flatMap((m) =>
         m.adminRoutes.map((r) => ({
           to: `/admin/settings/${r.path}`,

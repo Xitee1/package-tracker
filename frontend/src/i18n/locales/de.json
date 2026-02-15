@@ -401,7 +401,9 @@
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
     "notConfigured": "Nicht konfiguriert",
-    "configured": "Konfiguriert"
+    "configured": "Konfiguriert",
+    "loadFailed": "Analyser-Module konnten nicht geladen werden.",
+    "savePriorityFailed": "Prioritätsreihenfolge konnte nicht gespeichert werden."
   },
   "forwarding": {
     "infoText": "Leiten Sie Ihre Bestellbestätigungen weiter an:",
@@ -420,11 +422,13 @@
     },
     "email-global": {
       "title": "E-Mail - Global/Weiterleitung",
-      "description": "Gemeinsames globales E-Mail-Postfach mit absenderbasierter Zuordnung"
+      "description": "Gemeinsames globales E-Mail-Postfach mit absenderbasierter Zuordnung",
+      "userTitle": "E-Mail-Weiterleitung"
     },
     "email-user": {
       "title": "E-Mail - Benutzer IMAP",
-      "description": "Benutzern erlauben, eigene IMAP-E-Mail-Konten zu verbinden"
+      "description": "Benutzern erlauben, eigene IMAP-E-Mail-Konten zu verbinden",
+      "userTitle": "E-Mail IMAP"
     },
     "toggleFailed": "Modul konnte nicht aktualisiert werden."
   },

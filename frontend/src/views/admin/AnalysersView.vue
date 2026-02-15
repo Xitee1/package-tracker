@@ -69,8 +69,12 @@
 
             <!-- Module info -->
             <div class="min-w-0">
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ mod.name }}</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ mod.description }}</p>
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                {{ t('modules.' + mod.module_key + '.title') }}
+              </h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {{ t('modules.' + mod.module_key + '.description') }}
+              </p>
             </div>
           </div>
 
@@ -98,14 +102,18 @@
         <div class="flex items-center justify-between">
           <div class="min-w-0 opacity-50">
             <div class="flex items-center gap-2">
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ mod.name }}</h3>
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+                {{ t('modules.' + mod.module_key + '.title') }}
+              </h3>
               <span
                 class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
               >
                 {{ t('system.moduleDisabled') }}
               </span>
             </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ mod.description }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ t('modules.' + mod.module_key + '.description') }}
+            </p>
           </div>
 
           <div class="flex items-center gap-3 ml-4">
@@ -168,7 +176,7 @@ async function fetchAnalysers() {
     const res = await api.get<AnalyserModule[]>('/modules')
     analysers.value = res.data.filter((m) => m.type === 'analyser')
   } catch {
-    error.value = 'Failed to load analyser modules.'
+    error.value = t('analysers.loadFailed')
   } finally {
     loading.value = false
   }
@@ -181,7 +189,7 @@ async function saveOrder() {
     const keys = enabledAnalysers.value.map((m) => m.module_key)
     await api.patch('/modules/priority', { module_keys: keys })
   } catch {
-    error.value = 'Failed to save priority order.'
+    error.value = t('analysers.savePriorityFailed')
   } finally {
     reordering.value = false
   }

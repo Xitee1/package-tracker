@@ -2,20 +2,20 @@ import { registerModule } from '@/core/moduleRegistry'
 
 registerModule({
   key: 'email-global',
-  name: 'Email - Global/Redirect',
+  name: 'modules.email-global.title',
   type: 'provider',
   adminRoutes: [
     {
       path: 'email-global',
       component: () => import('./AdminGlobalMailView.vue'),
-      label: 'Email - Global/Redirect',
+      label: 'modules.email-global.title',
     },
   ],
   userRoutes: [
     {
       path: 'email-global',
       component: () => import('./UserForwardingView.vue'),
-      label: 'Email Redirect',
+      label: 'modules.email-global.userTitle',
     },
   ],
 })

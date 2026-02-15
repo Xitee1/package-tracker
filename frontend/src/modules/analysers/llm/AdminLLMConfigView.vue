@@ -171,8 +171,8 @@ const { t } = useI18n()
 
 const modulesStore = useModulesStore()
 const moduleKey = 'llm'
-const moduleName = 'LLM Config'
-const moduleDescription = 'Analyse emails using LLM to extract order information'
+const moduleName = computed(() => t('modules.llm.title'))
+const moduleDescription = computed(() => t('modules.llm.description'))
 const moduleEnabled = computed({
   get: () => modulesStore.isEnabled(moduleKey),
   set: () => {},

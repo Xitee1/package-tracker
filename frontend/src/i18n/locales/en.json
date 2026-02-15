@@ -401,7 +401,9 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "notConfigured": "Not configured",
-    "configured": "Configured"
+    "configured": "Configured",
+    "loadFailed": "Failed to load analyser modules.",
+    "savePriorityFailed": "Failed to save priority order."
   },
   "forwarding": {
     "infoText": "Forward your order confirmation emails to:",
@@ -420,11 +422,13 @@
     },
     "email-global": {
       "title": "Email - Global/Redirect",
-      "description": "Shared global email inbox with sender-based routing"
+      "description": "Shared global email inbox with sender-based routing",
+      "userTitle": "Email Redirect"
     },
     "email-user": {
       "title": "Email - User IMAP",
-      "description": "Allow users to connect their own IMAP email accounts"
+      "description": "Allow users to connect their own IMAP email accounts",
+      "userTitle": "Email IMAP"
     },
     "toggleFailed": "Failed to update module."
   },
