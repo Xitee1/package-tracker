@@ -8,7 +8,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.order import Order
 from app.models.order_state import OrderState
-from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest, CreateOrderRequest, OrderListResponse
+from app.schemas.order import OrderResponse, OrderDetailResponse, UpdateOrderRequest, LinkOrderRequest, CreateOrderRequest, OrderListResponse, OrderCountsResponse
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
@@ -85,6 +85,40 @@ async def list_orders(
         total=total,
         page=page,
         per_page=per_page,
+    )
+
+
+@router.get("/counts", response_model=OrderCountsResponse)
+async def order_counts(
+    search: Optional[str] = Query(None),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Order.status, func.count()).where(Order.user_id == user.id)
+
+    if search:
+        search_filter = f"%{search}%"
+        query = query.where(
+            (Order.order_number.ilike(search_filter))
+            | (Order.vendor_name.ilike(search_filter))
+            | (Order.tracking_number.ilike(search_filter))
+            | (Order.carrier.ilike(search_filter))
+            | (Order.vendor_domain.ilike(search_filter))
+        )
+
+    query = query.group_by(Order.status)
+    result = await db.execute(query)
+    counts = dict(result.all())
+
+    total = sum(counts.values())
+    return OrderCountsResponse(
+        total=total,
+        ordered=counts.get("ordered", 0),
+        shipment_preparing=counts.get("shipment_preparing", 0),
+        shipped=counts.get("shipped", 0),
+        in_transit=counts.get("in_transit", 0),
+        out_for_delivery=counts.get("out_for_delivery", 0),
+        delivered=counts.get("delivered", 0),
     )
 
 
