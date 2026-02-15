@@ -40,13 +40,15 @@ async def send_email(
 
     password = decrypt_value(config.password_encrypted) if config.password_encrypted else None
 
-    await aiosmtplib.send(
-        msg,
-        hostname=config.host,
-        port=config.port,
-        username=config.username,
-        password=password,
-        use_tls=config.security == "tls",
-        start_tls=config.security == "starttls",
-    )
+    kwargs: dict = {
+        "hostname": config.host,
+        "port": config.port,
+        "use_tls": config.security == "tls",
+        "start_tls": config.security == "starttls",
+    }
+    if config.username and password:
+        kwargs["username"] = config.username
+        kwargs["password"] = password
+
+    await aiosmtplib.send(msg, **kwargs)
     logger.info(f"Email sent to {to}: {subject}")
