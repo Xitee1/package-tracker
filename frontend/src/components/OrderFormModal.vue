@@ -215,6 +215,7 @@
                 type="button"
                 @click="removeItem(idx)"
                 class="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                :aria-label="$t('orders.removeItem')"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
