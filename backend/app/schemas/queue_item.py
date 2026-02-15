@@ -1,17 +1,14 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
 
-class QueueItemResponse(BaseModel):
+class QueueItemSummaryResponse(BaseModel):
     id: int
     user_id: int
     status: str
     source_type: str
     source_info: str
-    raw_data: dict
-    extracted_data: dict | None
     error_message: str | None
     order_id: int | None
     cloned_from_id: int | None
@@ -21,8 +18,13 @@ class QueueItemResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class QueueItemResponse(QueueItemSummaryResponse):
+    raw_data: dict
+    extracted_data: dict | None
+
+
 class QueueItemListResponse(BaseModel):
-    items: list[QueueItemResponse]
+    items: list[QueueItemSummaryResponse]
     total: int
     page: int
     per_page: int
