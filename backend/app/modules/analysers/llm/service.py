@@ -86,12 +86,18 @@ Return ONLY valid JSON matching this schema:
   "items": [{"name": "string", "quantity": number, "price": number or null}] or null
 }
 
-If the email is NOT related to a purchase order or shipment, return: {"is_relevant": false}
+Rules:
+- An email is ONLY relevant if at least an order_number OR a tracking_number can be extracted. If neither is present, return {"is_relevant": false}.
+- For marketplace platforms (eBay, Amazon Marketplace, Etsy, etc.), include the seller/shop name in vendor_name, e.g. "eBay - elektro-computershop", "Amazon - TechStore GmbH". Use the format "Platform - Seller".
+- Always extract the estimated delivery date when mentioned in the email (e.g. "voraussichtliche Lieferung", "estimated delivery", "Zustellung bis", "Lieferung zwischen"). Many order confirmations (especially eBay) include this directly.
+- For order_date: extract the order/purchase date from the email body. If no explicit date is found in the body, use the Date header from the email metadata as fallback.
+- If the email is NOT related to a purchase order or shipment, return: {"is_relevant": false}
+
 Do not include any text outside the JSON object."""
 
 
-async def analyze_email(subject: str, sender: str, body: str, db: AsyncSession) -> tuple[EmailAnalysis | None, dict]:
-    """Analyze an email using the configured LLM. Returns (parsed_result, raw_response_dict)."""
+async def analyze(raw_data: dict, db: AsyncSession) -> tuple[EmailAnalysis | None, dict]:
+    """Analyze raw input data using the configured LLM. Returns (parsed_result, raw_response_dict)."""
     result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
     config = result.scalar_one_or_none()
     if not config:
@@ -99,7 +105,7 @@ async def analyze_email(subject: str, sender: str, body: str, db: AsyncSession) 
 
     api_key = decrypt_value(config.api_key_encrypted) if config.api_key_encrypted else None
 
-    user_message = f"Subject: {subject}\nFrom: {sender}\n\n{body}"
+    user_message = json.dumps(raw_data, ensure_ascii=False, indent=2)
     prompt = config.system_prompt or SYSTEM_PROMPT
     messages = [
         {"role": "system", "content": prompt},

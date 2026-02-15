@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.database import async_session
 from app.models.queue_item import QueueItem
-from app.services.queue.queue_processor import process_raw_data
+from app.modules.analysers.llm.service import analyze
 from app.services.orders.order_matcher import DefaultOrderMatcher
 from app.services.orders.order_service import create_or_update_order
 from app.core.module_registry import has_available_analyser
@@ -44,7 +44,7 @@ async def process_next_item() -> None:
         await db.commit()
 
         try:
-            analysis, raw_response = await process_raw_data(item.raw_data, db)
+            analysis, raw_response = await analyze(item.raw_data, db)
 
             item.extracted_data = raw_response
 

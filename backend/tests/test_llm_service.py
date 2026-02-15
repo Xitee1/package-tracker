@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 
 from app.modules.analysers.llm.models import LLMConfig
 from app.core.encryption import encrypt_value
-from app.modules.analysers.llm.service import analyze_email, EmailAnalysis
+from app.modules.analysers.llm.service import analyze, EmailAnalysis
 
 
 def _make_llm_response(content: str):
@@ -55,10 +55,8 @@ async def test_analyze_relevant_order_email(db_session, llm_config):
     with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response(json.dumps(raw))
 
-        analysis, raw_resp = await analyze_email(
-            subject="Your order has been placed",
-            sender="orders@amazon.com",
-            body="Thank you for your order ORD-12345...",
+        analysis, raw_resp = await analyze(
+            {"subject": "Your order has been placed", "sender": "orders@amazon.com", "body": "Thank you for your order ORD-12345..."},
             db=db_session,
         )
 
@@ -83,10 +81,8 @@ async def test_analyze_irrelevant_email(db_session, llm_config):
     with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response(json.dumps(raw))
 
-        analysis, raw_resp = await analyze_email(
-            subject="Weekly newsletter",
-            sender="news@example.com",
-            body="Here are this week's top stories...",
+        analysis, raw_resp = await analyze(
+            {"subject": "Weekly newsletter", "sender": "news@example.com", "body": "Here are this week's top stories..."},
             db=db_session,
         )
 
@@ -120,10 +116,8 @@ async def test_analyze_malformed_json_retry(db_session, llm_config):
         return _make_llm_response(json.dumps(good_response))
 
     with patch("app.modules.analysers.llm.service.litellm.acompletion", side_effect=mock_completion):
-        analysis, raw_resp = await analyze_email(
-            subject="Your package has shipped",
-            sender="shipping@newegg.com",
-            body="Tracking: 1Z999AA10123456784",
+        analysis, raw_resp = await analyze(
+            {"subject": "Your package has shipped", "sender": "shipping@newegg.com", "body": "Tracking: 1Z999AA10123456784"},
             db=db_session,
         )
 
@@ -140,10 +134,8 @@ async def test_analyze_malformed_json_both_attempts_fail(db_session, llm_config)
     with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response("not json at all")
 
-        analysis, raw_resp = await analyze_email(
-            subject="Order update",
-            sender="orders@shop.com",
-            body="Some body text",
+        analysis, raw_resp = await analyze(
+            {"subject": "Order update", "sender": "orders@shop.com", "body": "Some body text"},
             db=db_session,
         )
 
@@ -155,10 +147,8 @@ async def test_analyze_malformed_json_both_attempts_fail(db_session, llm_config)
 @pytest.mark.asyncio
 async def test_analyze_no_llm_config(db_session):
     """Test that missing LLM config returns None with error."""
-    analysis, raw_resp = await analyze_email(
-        subject="Your order",
-        sender="shop@example.com",
-        body="Order details...",
+    analysis, raw_resp = await analyze(
+        {"subject": "Your order", "sender": "shop@example.com", "body": "Order details..."},
         db=db_session,
     )
 
@@ -172,10 +162,8 @@ async def test_analyze_llm_api_error(db_session, llm_config):
     with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.side_effect = Exception("API rate limit exceeded")
 
-        analysis, raw_resp = await analyze_email(
-            subject="Your order",
-            sender="shop@example.com",
-            body="Order details...",
+        analysis, raw_resp = await analyze(
+            {"subject": "Your order", "sender": "shop@example.com", "body": "Order details..."},
             db=db_session,
         )
 
@@ -194,10 +182,8 @@ async def test_analyze_uses_custom_system_prompt(db_session, llm_config):
     with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response(json.dumps(raw))
 
-        await analyze_email(
-            subject="Test email",
-            sender="test@example.com",
-            body="Test body",
+        await analyze(
+            {"subject": "Test email", "sender": "test@example.com", "body": "Test body"},
             db=db_session,
         )
 
@@ -221,10 +207,8 @@ async def test_analyze_uses_default_prompt_when_none(db_session, llm_config):
     with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response(json.dumps(raw))
 
-        await analyze_email(
-            subject="Test email",
-            sender="test@example.com",
-            body="Test body",
+        await analyze(
+            {"subject": "Test email", "sender": "test@example.com", "body": "Test body"},
             db=db_session,
         )
 
