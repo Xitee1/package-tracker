@@ -192,6 +192,7 @@
                 v-model.number="item.quantity"
                 type="number"
                 min="1"
+                required
                 :placeholder="$t('orders.itemQuantity')"
                 class="w-16 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
