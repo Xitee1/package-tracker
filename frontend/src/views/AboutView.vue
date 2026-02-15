@@ -6,9 +6,26 @@
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        {{ $t('about.appInfo') }}
-      </h2>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+            />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ $t('app.title') }}
+          </h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ $t('about.appInfo') }}
+          </p>
+        </div>
+      </div>
 
       <div class="space-y-3">
         <div class="flex items-center gap-2">
@@ -37,7 +54,12 @@
             class="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
             {{ $t('about.upToDate') }}
           </span>
@@ -57,10 +79,7 @@
             </a>
           </span>
 
-          <span
-            v-if="updateStatus === 'error'"
-            class="text-sm text-red-600 dark:text-red-400"
-          >
+          <span v-if="updateStatus === 'error'" class="text-sm text-red-600 dark:text-red-400">
             {{ $t('about.checkFailed') }}
           </span>
         </div>
@@ -84,7 +103,10 @@
           rel="noopener noreferrer"
           class="flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 hover:underline"
         >
-          <span v-html="link.icon" class="w-5 h-5 flex-shrink-0 text-gray-400 dark:text-gray-500"></span>
+          <span
+            v-html="link.icon"
+            class="w-5 h-5 flex-shrink-0 text-gray-400 dark:text-gray-500"
+          ></span>
           {{ link.label }}
         </a>
       </div>
