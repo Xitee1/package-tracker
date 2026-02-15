@@ -32,11 +32,8 @@
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ $t('about.version') }}:
           </span>
-          <span v-if="version" class="text-sm text-gray-900 dark:text-white font-mono">
+          <span class="text-sm text-gray-900 dark:text-white font-mono">
             {{ version }}
-          </span>
-          <span v-else class="text-sm text-gray-400 dark:text-gray-500">
-            {{ $t('common.loading') }}
           </span>
         </div>
 
@@ -115,13 +112,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import api from '@/api/client'
 
 const { t } = useI18n()
 
-const version = ref('')
+const version = __APP_VERSION__
 const updateStatus = ref<'idle' | 'checking' | 'up-to-date' | 'update-available' | 'error'>('idle')
 const latestVersion = ref('')
 const latestReleaseUrl = ref('')
@@ -151,15 +147,6 @@ const links = computed(() => [
   },
 ])
 
-async function fetchVersion() {
-  try {
-    const { data } = await api.get('/version')
-    version.value = data.version
-  } catch {
-    version.value = '?'
-  }
-}
-
 function compareVersions(a: string, b: string): number {
   const pa = a.replace(/^v/, '').split('.').map(Number)
   const pb = b.replace(/^v/, '').split('.').map(Number)
@@ -182,7 +169,7 @@ async function checkForUpdates() {
     latestVersion.value = latest
     latestReleaseUrl.value = data.html_url as string
 
-    if (compareVersions(version.value, latest) >= 0) {
+    if (compareVersions(version, latest) >= 0) {
       updateStatus.value = 'up-to-date'
     } else {
       updateStatus.value = 'update-available'
@@ -192,5 +179,4 @@ async function checkForUpdates() {
   }
 }
 
-onMounted(fetchVersion)
 </script>
