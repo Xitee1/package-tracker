@@ -37,6 +37,20 @@ export interface OrderDetail extends Order {
   states: OrderState[]
 }
 
+export interface CreateOrderData {
+  vendor_name: string
+  order_number?: string | null
+  tracking_number?: string | null
+  carrier?: string | null
+  vendor_domain?: string | null
+  status?: string
+  order_date?: string | null
+  total_amount?: number | null
+  currency?: string | null
+  estimated_delivery?: string | null
+  items?: OrderItem[] | null
+}
+
 export const useOrdersStore = defineStore('orders', () => {
   const orders = ref<Order[]>([])
   const loading = ref(false)
@@ -65,5 +79,10 @@ export const useOrdersStore = defineStore('orders', () => {
     await api.delete(`/orders/${id}`)
   }
 
-  return { orders, loading, fetchOrders, fetchOrder, updateOrder, deleteOrder }
+  async function createOrder(data: CreateOrderData): Promise<Order> {
+    const res = await api.post('/orders', data)
+    return res.data
+  }
+
+  return { orders, loading, fetchOrders, fetchOrder, updateOrder, deleteOrder, createOrder }
 })
