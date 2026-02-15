@@ -100,8 +100,9 @@ async def analyze_email(subject: str, sender: str, body: str, db: AsyncSession) 
     api_key = decrypt_value(config.api_key_encrypted) if config.api_key_encrypted else None
 
     user_message = f"Subject: {subject}\nFrom: {sender}\n\n{body}"
+    prompt = config.system_prompt or SYSTEM_PROMPT
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": prompt},
         {"role": "user", "content": user_message},
     ]
 

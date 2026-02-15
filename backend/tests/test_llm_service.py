@@ -181,3 +181,55 @@ async def test_analyze_llm_api_error(db_session, llm_config):
 
     assert analysis is None
     assert raw_resp == {"error": "API rate limit exceeded"}
+
+
+@pytest.mark.asyncio
+async def test_analyze_uses_custom_system_prompt(db_session, llm_config):
+    """When config has a custom system_prompt, it should be used instead of default."""
+    llm_config.system_prompt = "You are a custom analyser. Return JSON."
+    await db_session.commit()
+
+    raw = {"is_relevant": False}
+
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+        mock_llm.return_value = _make_llm_response(json.dumps(raw))
+
+        await analyze_email(
+            subject="Test email",
+            sender="test@example.com",
+            body="Test body",
+            db=db_session,
+        )
+
+    # Verify the system message used the custom prompt
+    call_args = mock_llm.call_args
+    messages = call_args.kwargs.get("messages") or call_args[1].get("messages")
+    system_msg = messages[0]
+    assert system_msg["role"] == "system"
+    assert system_msg["content"] == "You are a custom analyser. Return JSON."
+
+
+@pytest.mark.asyncio
+async def test_analyze_uses_default_prompt_when_none(db_session, llm_config):
+    """When config.system_prompt is None, the hardcoded SYSTEM_PROMPT is used."""
+    from app.modules.analysers.llm.service import SYSTEM_PROMPT
+
+    assert llm_config.system_prompt is None
+
+    raw = {"is_relevant": False}
+
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+        mock_llm.return_value = _make_llm_response(json.dumps(raw))
+
+        await analyze_email(
+            subject="Test email",
+            sender="test@example.com",
+            body="Test body",
+            db=db_session,
+        )
+
+    call_args = mock_llm.call_args
+    messages = call_args.kwargs.get("messages") or call_args[1].get("messages")
+    system_msg = messages[0]
+    assert system_msg["role"] == "system"
+    assert system_msg["content"] == SYSTEM_PROMPT

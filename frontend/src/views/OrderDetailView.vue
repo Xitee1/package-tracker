@@ -77,39 +77,39 @@
           </h3>
 
           <dl class="space-y-3">
-              <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {{ $t('orderDetail.orderNumber') }}
-                </dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
-                  {{ order.order_number || '-' }}
-                </dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {{ $t('orderDetail.vendor') }}
-                </dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
-                  {{ order.vendor_name || order.vendor_domain || '-' }}
-                </dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {{ $t('orderDetail.orderDate') }}
-                </dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
-                  {{ order.order_date ? formatDate(order.order_date) : '-' }}
-                </dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {{ $t('orderDetail.totalAmount') }}
-                </dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
-                  {{ formatAmount(order.total_amount, order.currency) }}
-                </dd>
-              </div>
-            </dl>
+            <div>
+              <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ $t('orderDetail.orderNumber') }}
+              </dt>
+              <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                {{ order.order_number || '-' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ $t('orderDetail.vendor') }}
+              </dt>
+              <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                {{ order.vendor_name || order.vendor_domain || '-' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ $t('orderDetail.orderDate') }}
+              </dt>
+              <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                {{ order.order_date ? formatDate(order.order_date) : '-' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ $t('orderDetail.totalAmount') }}
+              </dt>
+              <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                {{ formatAmount(order.total_amount, order.currency) }}
+              </dd>
+            </div>
+          </dl>
         </div>
 
         <!-- Shipping Details Card -->
@@ -123,31 +123,31 @@
           </h3>
 
           <dl class="space-y-3">
-              <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {{ $t('orderDetail.trackingNumber') }}
-                </dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
-                  {{ order.tracking_number || '-' }}
-                </dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {{ $t('orderDetail.carrier') }}
-                </dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
-                  {{ order.carrier || '-' }}
-                </dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {{ $t('orderDetail.estimatedDelivery') }}
-                </dt>
-                <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
-                  {{ order.estimated_delivery ? formatDate(order.estimated_delivery) : '-' }}
-                </dd>
-              </div>
-            </dl>
+            <div>
+              <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ $t('orderDetail.trackingNumber') }}
+              </dt>
+              <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                {{ order.tracking_number || '-' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ $t('orderDetail.carrier') }}
+              </dt>
+              <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                {{ order.carrier || '-' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ $t('orderDetail.estimatedDelivery') }}
+              </dt>
+              <dd class="text-sm text-gray-900 dark:text-white mt-0.5">
+                {{ order.estimated_delivery ? formatDate(order.estimated_delivery) : '-' }}
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
 
