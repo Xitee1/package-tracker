@@ -6,19 +6,40 @@
 A self-hosted application that monitors your email inboxes and automatically tracks your online orders and shipments. It uses an LLM to analyze incoming emails and extract order details, tracking numbers, and delivery status updates into a unified dashboard.
 
 ## Features
+### Providers
+Providers provide incoming data to package-tracker.
+For example, the IMAP provider extracts data from incoming emails from online shops or shipping services.
+- User-based IMAP\* - Users can add their own IMAP credentials and scan specific email folders directly from their account
+- Global IMAP\* - Users redirect emails to a specific email address that the admin has set up. Better security than user-based IMAP.
+- DHL _(to be implemented, according to AI they have a free push API)_
 
-- **Modular architecture** — pluggable module system with three types: providers (email sources), analysers (LLM extraction), and notifiers (alerts). Modules can be enabled/disabled and configured at runtime.
-- **Dual email provider modes** — per-user IMAP accounts or a shared global inbox with sender-based routing (users register sender addresses, emails are routed by "From" match)
-- **IMAP IDLE + polling** — real-time push notifications via IMAP IDLE with automatic fallback to configurable polling intervals. Auto-detects server capabilities.
-- **Queue-based processing** — emails are queued and processed asynchronously with status tracking, retry for failed items, and configurable retention policies
-- **Multi-provider LLM support** — works with OpenAI, Anthropic, Ollama, or any custom OpenAI-compatible endpoint via LiteLLM. Custom system prompts supported.
-- **3-tier order matching** — prevents duplicates by matching incoming emails to existing orders: exact order number → exact tracking number → fuzzy vendor + item similarity
-- **Notifications** — email (SMTP with verification flow) and webhook notifications, configurable per event type (new order, tracking update, delivered)
+\* IMAP idle and configurable polling interval is supported
+
+### Analysers
+Analysers are used to process data from providers that only provide raw and unformatted data, in example for emails.
+- LLM - Use AI to analyse data (OpenAI, Anthropic, Ollama)
+- Regex _(to be implemented)_ - Define regex templates to extract data
+
+### Notifications
+Users can enable notification to get order status update notifications.
+Currently the following methods are supported:
+- email
+- webhook
+
+# UI
+- Dark mode
+- Multi-language support
+
+### Planned features
+- Home Assistant integration
+- Native Android App
+- MCP Server
+
+### Miscellaneous
+- **order matching** — prevents duplicates by matching incoming emails to existing orders: exact order number → exact tracking number → fuzzy vendor + item similarity
 - **API keys** — long-lived tokens (`pt_xxx` format) for programmatic access alongside JWT auth
-- **Multi-user with roles** — per-user data isolation, admin controls for user management, module configuration, and system monitoring
-- **Encrypted credential storage** — IMAP and SMTP passwords encrypted at rest with Fernet
-- **Internationalization** — English and German, switchable per user
-- **Dark mode** — light, dark, and system theme
+- **Multi-user with roles** — per-user data isolation, admin controls for user management
+
 
 ## Quick Start
 
