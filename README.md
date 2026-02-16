@@ -9,16 +9,16 @@ A self-hosted application that monitors your email inboxes and automatically tra
 ### Providers
 Providers provide incoming data to package-tracker.
 For example, the IMAP provider extracts data from incoming emails from online shops or shipping services.
-- User-based IMAP\* - Users can add their own IMAP credentials and scan specific email folders directly from their account
-- Global IMAP\* - Users redirect emails to a specific email address that the admin has set up. Better security than user-based IMAP.
-- DHL _(to be implemented, according to AI they have a free push API)_
+- **User-based IMAP**\* - Users can add their own IMAP credentials and scan specific email folders directly from their account
+- **Global IMAP**\* - Users redirect emails to a specific email address that the admin has set up. Better security than user-based IMAP.
+- **DHL** _(to be implemented, according to AI they have a free push API)_
 
 \* IMAP idle and configurable polling interval is supported
 
 ### Analysers
 Analysers are used to process data from providers that only provide raw and unformatted data, in example for emails.
-- LLM - Use AI to analyse data (OpenAI, Anthropic, Ollama)
-- Regex _(to be implemented)_ - Define regex templates to extract data
+- **LLM** - Use AI to analyse data (OpenAI, Anthropic, Ollama)
+- **Regex** _(to be implemented)_ - Define regex templates to extract data
 
 ### Notifications
 Users can enable notification to get order status update notifications.
@@ -26,19 +26,17 @@ Currently the following methods are supported:
 - email
 - webhook
 
-# UI
-- Dark mode
-- Multi-language support
-
 ### Planned features
 - Home Assistant integration
 - Native Android App
 - MCP Server
 
 ### Miscellaneous
-- **order matching** — prevents duplicates by matching incoming emails to existing orders: exact order number → exact tracking number → fuzzy vendor + item similarity
-- **API keys** — long-lived tokens (`pt_xxx` format) for programmatic access alongside JWT auth
+- **order matching** — prevents duplicates by matching incoming emails to existing orders
+- **API keys** — long-lived tokens for programmatic access alongside JWT auth
 - **Multi-user with roles** — per-user data isolation, admin controls for user management
+- Dark mode
+- Multi-language support
 
 
 ## Quick Start
