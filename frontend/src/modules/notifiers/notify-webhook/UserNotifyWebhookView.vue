@@ -216,6 +216,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
 
 const { t } = useI18n()
 
@@ -264,9 +265,8 @@ async function fetchConfig() {
     events.value.tracking_update = eventList.includes('tracking_update')
     events.value.package_delivered = eventList.includes('package_delivered')
   } catch (e: unknown) {
-    const err = e as { response?: { status?: number; data?: { detail?: string } } }
-    if (err.response?.status !== 404) {
-      loadError.value = err.response?.data?.detail || t('notifications.saveFailed')
+    if (getApiErrorStatus(e) !== 404) {
+      loadError.value = getApiErrorMessage(e, t('notifications.saveFailed'))
     }
   } finally {
     loading.value = false
@@ -280,8 +280,7 @@ async function handleToggle() {
     await api.put('/notifiers/notify-webhook/config/toggle', { enabled: newVal })
     config.value.enabled = newVal
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    loadError.value = err.response?.data?.detail || t('notifications.saveFailed')
+    loadError.value = getApiErrorMessage(e, t('notifications.saveFailed'))
   } finally {
     togglingEnabled.value = false
   }
@@ -304,8 +303,7 @@ async function handleSaveWebhook() {
       saveSuccess.value = false
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    saveError.value = err.response?.data?.detail || t('notifications.saveFailed')
+    saveError.value = getApiErrorMessage(e, t('notifications.saveFailed'))
   } finally {
     savingWebhook.value = false
   }
@@ -323,8 +321,7 @@ async function handleSaveEvents() {
       eventsSaveSuccess.value = false
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    eventsError.value = err.response?.data?.detail || t('notifications.saveFailed')
+    eventsError.value = getApiErrorMessage(e, t('notifications.saveFailed'))
   } finally {
     savingEvents.value = false
   }
@@ -344,8 +341,7 @@ async function handleTest() {
       testSuccess.value = false
     }, 5000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    testError.value = err.response?.data?.detail || t('modules.notify-webhook.testFailed')
+    testError.value = getApiErrorMessage(e, t('modules.notify-webhook.testFailed'))
   } finally {
     testing.value = false
   }

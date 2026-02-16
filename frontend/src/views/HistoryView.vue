@@ -424,6 +424,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQueueStore, type QueueItem, type QueueItemSummary } from '@/stores/queue'
+import { formatDateTime as formatDate } from '@/utils/format'
 
 const { t } = useI18n()
 const queueStore = useQueueStore()
@@ -551,17 +552,6 @@ function statusLabel(status: string): string {
     failed: t('queue.statusFailed'),
   }
   return labels[status] || status
-}
-
-// --- Formatting ---
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return (
-    date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) +
-    ' ' +
-    date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-  )
 }
 
 // --- Lifecycle ---

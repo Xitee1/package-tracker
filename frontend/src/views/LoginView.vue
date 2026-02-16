@@ -161,6 +161,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { getApiErrorMessage } from '@/utils/api-error'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -191,8 +192,7 @@ async function handleSetup() {
     auth.setupCompleted = true
     router.push('/dashboard')
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('login.setupFailed')
+    error.value = getApiErrorMessage(e, t('login.setupFailed'))
   } finally {
     loading.value = false
   }
@@ -205,8 +205,7 @@ async function handleLogin() {
     await auth.login(username.value, password.value)
     router.push('/dashboard')
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('login.loginFailed')
+    error.value = getApiErrorMessage(e, t('login.loginFailed'))
   } finally {
     loading.value = false
   }

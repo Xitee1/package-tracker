@@ -291,6 +291,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useOrdersStore, type OrderDetail } from '@/stores/orders'
 import StatusBadge from '@/components/StatusBadge.vue'
 import OrderFormModal from '@/components/OrderFormModal.vue'
+import { getApiErrorMessage } from '@/utils/api-error'
+import { formatDate, formatDateTime, formatAmount } from '@/utils/format'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -323,34 +325,11 @@ async function confirmDelete() {
     await ordersStore.deleteOrder(order.value.id)
     router.push('/orders')
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('orderDetail.deleteFailed')
+    error.value = getApiErrorMessage(e, t('orderDetail.deleteFailed'))
     showDeleteConfirm.value = false
   } finally {
     deleting.value = false
   }
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function formatDateTime(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
-}
-
-function formatAmount(amount: number | null, currency: string | null): string {
-  if (amount === null) return '-'
-  const curr = currency || 'USD'
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: curr }).format(amount)
 }
 
 onMounted(async () => {

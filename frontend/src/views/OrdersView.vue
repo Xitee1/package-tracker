@@ -220,6 +220,7 @@ import { useI18n } from 'vue-i18n'
 import { useOrdersStore } from '@/stores/orders'
 import StatusBadge from '@/components/StatusBadge.vue'
 import OrderFormModal from '@/components/OrderFormModal.vue'
+import { formatDate, formatAmount } from '@/utils/format'
 
 const { t } = useI18n()
 const ordersStore = useOrdersStore()
@@ -333,17 +334,6 @@ function onOrderCreated(_id: number) {
   ordersStore.page = 1
   loadOrders()
   loadCounts()
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function formatAmount(amount: number | null, currency: string | null): string {
-  if (amount === null) return '-'
-  const curr = currency || 'USD'
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: curr }).format(amount)
 }
 
 onMounted(() => {

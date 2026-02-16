@@ -233,6 +233,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
 import ModuleHeader from '@/components/ModuleHeader.vue'
 import { useModulesStore } from '@/stores/modules'
 
@@ -295,8 +296,7 @@ async function fetchSettings() {
       idleSupported.value = res.data.idle_supported ?? null
     }
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    loadError.value = err.response?.data?.detail || t('globalMail.saveFailed')
+    loadError.value = getApiErrorMessage(e, t('globalMail.saveFailed'))
   } finally {
     loading.value = false
   }
@@ -338,8 +338,7 @@ async function handleSaveConnection() {
     // Fetch folders after saving connection
     await fetchFolders()
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    connectionSaveError.value = err.response?.data?.detail || t('globalMail.saveFailed')
+    connectionSaveError.value = getApiErrorMessage(e, t('globalMail.saveFailed'))
   } finally {
     savingConnection.value = false
   }
@@ -365,8 +364,7 @@ async function handleSaveSettings() {
       settingsSaveSuccess.value = false
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    settingsSaveError.value = err.response?.data?.detail || t('globalMail.saveFailed')
+    settingsSaveError.value = getApiErrorMessage(e, t('globalMail.saveFailed'))
   } finally {
     savingSettings.value = false
   }
