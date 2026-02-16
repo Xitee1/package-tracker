@@ -1,5 +1,7 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, AsyncMock
 import pytest
+
+from app.modules._shared.email.imap_utils import ImapFoldersResult
 
 
 @pytest.fixture
@@ -31,14 +33,13 @@ async def test_folders_returns_list(client, admin_token):
         headers=auth(admin_token),
     )
 
-    mock_mail = MagicMock()
-    mock_mail.login.return_value = ("OK", [])
-    mock_mail.capability.return_value = ("OK", [b"IMAP4rev1 IDLE"])
-    mock_mail.list.return_value = ("OK", [b'(\\HasNoChildren) "/" "INBOX"', b'(\\HasNoChildren) "/" "Sent"'])
-    mock_mail.logout.return_value = ("BYE", [])
+    mock_result = ImapFoldersResult(folders=["INBOX", "Sent"], idle_supported=True)
 
-    with patch("app.modules.providers.email_global.router.imaplib") as mock_imaplib:
-        mock_imaplib.IMAP4_SSL.return_value = mock_mail
+    with patch(
+        "app.modules.providers.email_global.router.list_imap_folders",
+        new_callable=AsyncMock,
+        return_value=mock_result,
+    ):
         resp = await client.get("/api/v1/modules/providers/email-global/folders", headers=auth(admin_token))
 
     assert resp.status_code == 200
@@ -59,8 +60,11 @@ async def test_folders_connection_failure(client, admin_token):
         headers=auth(admin_token),
     )
 
-    with patch("app.modules.providers.email_global.router.imaplib") as mock_imaplib:
-        mock_imaplib.IMAP4_SSL.side_effect = Exception("Connection refused")
+    with patch(
+        "app.modules.providers.email_global.router.list_imap_folders",
+        new_callable=AsyncMock,
+        side_effect=Exception("Connection refused"),
+    ):
         resp = await client.get("/api/v1/modules/providers/email-global/folders", headers=auth(admin_token))
 
     assert resp.status_code == 400

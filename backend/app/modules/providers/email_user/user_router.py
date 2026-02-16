@@ -1,5 +1,3 @@
-import imaplib
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.encryption import encrypt_value, decrypt_value
 from app.database import get_db
 from app.models.user import User
+from app.modules._shared.email.imap_utils import test_imap_connection, list_imap_folders
 from app.modules.providers.email_user.models import EmailAccount, WatchedFolder
 from app.modules.providers.email_user.schemas import (
     CreateAccountRequest, UpdateAccountRequest, AccountResponse,
@@ -77,20 +76,15 @@ async def test_connection(account_id: int, user: User = Depends(get_current_user
     account = await db.get(EmailAccount, account_id)
     if not account or account.user_id != user.id:
         raise HTTPException(status_code=404, detail="Account not found")
-    try:
-        password = decrypt_value(account.imap_password_encrypted)
-        if account.use_ssl:
-            mail = imaplib.IMAP4_SSL(account.imap_host, account.imap_port)
-        else:
-            mail = imaplib.IMAP4(account.imap_host, account.imap_port)
-        mail.login(account.imap_user, password)
-        _, caps = mail.capability()
-        capabilities = caps[0].decode().upper().split() if caps else []
-        idle_supported = "IDLE" in capabilities
-        mail.logout()
-        return {"success": True, "message": "Connection successful", "idle_supported": idle_supported}
-    except Exception as e:
-        return {"success": False, "message": str(e), "idle_supported": None}
+    password = decrypt_value(account.imap_password_encrypted)
+    result = await test_imap_connection(
+        host=account.imap_host,
+        port=account.imap_port,
+        user=account.imap_user,
+        password=password,
+        use_ssl=account.use_ssl,
+    )
+    return {"success": result.success, "message": result.message, "idle_supported": result.idle_supported}
 
 
 @user_router.get("/accounts/{account_id}/folders", response_model=list[str])
@@ -100,23 +94,14 @@ async def list_folders(account_id: int, user: User = Depends(get_current_user), 
         raise HTTPException(status_code=404, detail="Account not found")
     try:
         password = decrypt_value(account.imap_password_encrypted)
-        if account.use_ssl:
-            mail = imaplib.IMAP4_SSL(account.imap_host, account.imap_port)
-        else:
-            mail = imaplib.IMAP4(account.imap_host, account.imap_port)
-        mail.login(account.imap_user, password)
-        _, folder_list = mail.list()
-        mail.logout()
-        folders = []
-        for item in folder_list:
-            decoded = item.decode() if isinstance(item, bytes) else item
-            parts = decoded.rsplit('" "', 1)
-            if len(parts) == 2:
-                folders.append(parts[1].strip('"'))
-            else:
-                parts = decoded.rsplit(" ", 1)
-                folders.append(parts[-1].strip('"'))
-        return folders
+        result = await list_imap_folders(
+            host=account.imap_host,
+            port=account.imap_port,
+            user=account.imap_user,
+            password=password,
+            use_ssl=account.use_ssl,
+        )
+        return result.folders
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to list folders: {e}")
 
