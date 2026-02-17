@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.order import Order
-from app.modules.analysers.llm.service import EmailAnalysis
+from app.schemas.email_analysis import EmailAnalysis
 
 
 class OrderMatcherProtocol(Protocol):

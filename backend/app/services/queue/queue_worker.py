@@ -4,10 +4,9 @@ from sqlalchemy import select
 
 from app.database import async_session
 from app.models.queue_item import QueueItem
-from app.modules.analysers.llm.service import analyze
 from app.services.orders.order_matcher import DefaultOrderMatcher
 from app.services.orders.order_service import create_or_update_order
-from app.core.module_registry import has_available_analyser
+from app.core.module_registry import get_active_analyser
 from app.services.notification_service import notify_user, NotificationEvent
 
 logger = logging.getLogger(__name__)
@@ -20,7 +19,8 @@ async def process_next_item() -> None:
     """Pick one queued item and process it. Called by the scheduler every 5s."""
     global _no_analyser_warned
 
-    if not await has_available_analyser():
+    analyze = await get_active_analyser()
+    if analyze is None:
         if not _no_analyser_warned:
             logger.warning("No analyser module is enabled and configured — queue processing paused")
             _no_analyser_warned = True

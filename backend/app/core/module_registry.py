@@ -54,11 +54,14 @@ def discover_modules() -> dict[str, ModuleInfo]:
     return _registered_modules
 
 
-async def has_available_analyser() -> bool:
-    """Return True if at least one analyser module is enabled and configured."""
+async def get_active_analyser():
+    """Return the analyze callable from the first enabled and configured analyser module.
+
+    Returns None if no analyser is available.
+    """
     analyser_modules = get_modules_by_type("analyser")
     if not analyser_modules:
-        return False
+        return None
 
     async with async_session() as db:
         result = await db.execute(
@@ -71,17 +74,19 @@ async def has_available_analyser() -> bool:
 
     for config in enabled_configs:
         info = analyser_modules.get(config.module_key)
-        if info and info.is_configured:
+        if not info or not info.analyze:
+            continue
+        if info.is_configured:
             try:
                 if await info.is_configured():
-                    return True
+                    return info.analyze
             except Exception:
                 continue
-        elif info:
+        else:
             # Module has no is_configured hook — treat as configured
-            return True
+            return info.analyze
 
-    return False
+    return None
 
 
 async def sync_module_configs() -> None:

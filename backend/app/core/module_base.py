@@ -20,3 +20,4 @@ class ModuleInfo:
     is_configured: Callable[[], Awaitable[bool]] | None = None
     status: Callable[[AsyncSession], Awaitable[dict | None]] | None = None
     notify: Callable[[int, str, dict, dict | None, AsyncSession], Awaitable[None]] | None = None
+    analyze: Callable[[dict, AsyncSession], Awaitable[tuple]] | None = None

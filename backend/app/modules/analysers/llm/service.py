@@ -1,12 +1,12 @@
 import json
 import litellm
-from pydantic import BaseModel, ValidationError
-from typing import Optional
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.encryption import decrypt_value
 from app.modules.analysers.llm.models import LLMConfig
+from app.schemas.email_analysis import EmailAnalysis, EmailItem  # noqa: F401
 
 _active_requests: int = 0
 
@@ -43,28 +43,6 @@ async def call_llm(config: LLMConfig, api_key: str | None, messages: list[dict],
         **kwargs,
     )
     return response.choices[0].message.content
-
-
-class EmailItem(BaseModel):
-    name: str
-    quantity: int = 1
-    price: Optional[float] = None
-
-
-class EmailAnalysis(BaseModel):
-    is_relevant: bool
-    email_type: Optional[str] = None
-    order_number: Optional[str] = None
-    tracking_number: Optional[str] = None
-    carrier: Optional[str] = None
-    vendor_name: Optional[str] = None
-    vendor_domain: Optional[str] = None
-    status: Optional[str] = None
-    order_date: Optional[str] = None
-    estimated_delivery: Optional[str] = None
-    total_amount: Optional[float] = None
-    currency: Optional[str] = None
-    items: Optional[list[EmailItem]] = None
 
 
 SYSTEM_PROMPT = """You are an email analysis assistant. Analyze the provided email and extract purchase/shipping information.

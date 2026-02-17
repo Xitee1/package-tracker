@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.order import Order
 from app.models.order_state import OrderState
-from app.modules.analysers.llm.service import EmailAnalysis
+from app.schemas.email_analysis import EmailAnalysis
 from app.schemas.order import CreateOrderRequest, UpdateOrderRequest
 
 
