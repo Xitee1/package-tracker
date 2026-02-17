@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.encryption import decrypt_value
 from app.modules.analysers.llm.models import LLMConfig
-from app.schemas.email_analysis import EmailAnalysis, EmailItem  # noqa: F401
+from app.schemas.analysis import AnalysisResult, ExtractedItem  # noqa: F401
 
 _active_requests: int = 0
 
@@ -45,12 +45,12 @@ async def call_llm(config: LLMConfig, api_key: str | None, messages: list[dict],
     return response.choices[0].message.content
 
 
-SYSTEM_PROMPT = """You are an email analysis assistant. Analyze the provided email and extract purchase/shipping information.
+SYSTEM_PROMPT = """You are a data analysis assistant. Analyze the provided data and extract purchase/shipping information.
 
 Return ONLY valid JSON matching this schema:
 {
   "is_relevant": true/false,
-  "email_type": "order_confirmation" | "shipment_confirmation" | "shipment_update" | "delivery_confirmation",
+  "document_type": "order_confirmation" | "shipment_confirmation" | "shipment_update" | "delivery_confirmation",
   "order_number": "string or null",
   "tracking_number": "string or null",
   "carrier": "string or null",
@@ -65,16 +65,16 @@ Return ONLY valid JSON matching this schema:
 }
 
 Rules:
-- An email is ONLY relevant if at least an order_number OR a tracking_number can be extracted. If neither is present, return {"is_relevant": false}.
+- The data is ONLY relevant if at least an order_number OR a tracking_number can be extracted. If neither is present, return {"is_relevant": false}.
 - For marketplace platforms (eBay, Amazon Marketplace, Etsy, etc.), include the seller/shop name in vendor_name, e.g. "eBay - elektro-computershop", "Amazon - TechStore GmbH". Use the format "Platform - Seller".
-- Always extract the estimated delivery date when mentioned in the email (e.g. "voraussichtliche Lieferung", "estimated delivery", "Zustellung bis", "Lieferung zwischen"). Many order confirmations (especially eBay) include this directly.
-- For order_date: extract the order/purchase date from the email body. If no explicit date is found in the body, use the Date header from the email metadata as fallback.
-- If the email is NOT related to a purchase order or shipment, return: {"is_relevant": false}
+- Always extract the estimated delivery date when mentioned (e.g. "voraussichtliche Lieferung", "estimated delivery", "Zustellung bis", "Lieferung zwischen"). Many order confirmations (especially eBay) include this directly.
+- For order_date: extract the order/purchase date from the content. If no explicit date is found in the body, use the Date header from metadata as fallback.
+- If the data is NOT related to a purchase order or shipment, return: {"is_relevant": false}
 
 Do not include any text outside the JSON object."""
 
 
-async def analyze(raw_data: dict, db: AsyncSession) -> tuple[EmailAnalysis | None, dict]:
+async def analyze(raw_data: dict, db: AsyncSession) -> tuple[AnalysisResult | None, dict]:
     """Analyze raw input data using the configured LLM. Returns (parsed_result, raw_response_dict)."""
     result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
     config = result.scalar_one_or_none()
@@ -98,7 +98,7 @@ async def analyze(raw_data: dict, db: AsyncSession) -> tuple[EmailAnalysis | Non
             try:
                 raw_text = await call_llm(config, api_key, messages, max_tokens=2048)
                 raw_dict = json.loads(raw_text)
-                parsed = EmailAnalysis.model_validate(raw_dict)
+                parsed = AnalysisResult.model_validate(raw_dict)
                 return parsed, raw_dict
             except (json.JSONDecodeError, ValidationError):
                 if attempt == 0:

@@ -2,15 +2,15 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class EmailItem(BaseModel):
+class ExtractedItem(BaseModel):
     name: str
     quantity: int = 1
     price: Optional[float] = None
 
 
-class EmailAnalysis(BaseModel):
+class AnalysisResult(BaseModel):
     is_relevant: bool
-    email_type: Optional[str] = None
+    document_type: Optional[str] = None
     order_number: Optional[str] = None
     tracking_number: Optional[str] = None
     carrier: Optional[str] = None
@@ -21,4 +21,4 @@ class EmailAnalysis(BaseModel):
     estimated_delivery: Optional[str] = None
     total_amount: Optional[float] = None
     currency: Optional[str] = None
-    items: Optional[list[EmailItem]] = None
+    items: Optional[list[ExtractedItem]] = None

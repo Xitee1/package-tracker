@@ -54,24 +54,29 @@ def discover_modules() -> dict[str, ModuleInfo]:
     return _registered_modules
 
 
-async def get_active_analyser():
-    """Return the analyze callable from the first enabled and configured analyser module.
+async def get_active_analysers() -> list[tuple[str, callable]]:
+    """Return all enabled and configured analyser modules in priority order.
 
-    Returns None if no analyser is available.
+    Returns a list of (module_key, analyze_callable) tuples, ordered by the
+    module priority field. The caller can iterate through them to implement
+    fallback (try the first analyser, fall back to the next on failure, etc.).
     """
     analyser_modules = get_modules_by_type("analyser")
     if not analyser_modules:
-        return None
+        return []
 
     async with async_session() as db:
         result = await db.execute(
-            select(ModuleConfig).where(
+            select(ModuleConfig)
+            .where(
                 ModuleConfig.module_key.in_(analyser_modules.keys()),
                 ModuleConfig.enabled == True,
             )
+            .order_by(ModuleConfig.priority, ModuleConfig.module_key)
         )
         enabled_configs = result.scalars().all()
 
+    active = []
     for config in enabled_configs:
         info = analyser_modules.get(config.module_key)
         if not info or not info.analyze:
@@ -79,14 +84,14 @@ async def get_active_analyser():
         if info.is_configured:
             try:
                 if await info.is_configured():
-                    return info.analyze
+                    active.append((config.module_key, info.analyze))
             except Exception:
                 continue
         else:
             # Module has no is_configured hook — treat as configured
-            return info.analyze
+            active.append((config.module_key, info.analyze))
 
-    return None
+    return active
 
 
 async def sync_module_configs() -> None:

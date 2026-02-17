@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.order import Order
 from app.models.order_state import OrderState
-from app.schemas.email_analysis import EmailAnalysis
+from app.schemas.analysis import AnalysisResult
 from app.schemas.order import CreateOrderRequest, UpdateOrderRequest
 
 
@@ -287,7 +287,7 @@ async def delete_order(
 # ---------------------------------------------------------------------------
 
 async def create_or_update_order(
-    analysis: EmailAnalysis,
+    analysis: AnalysisResult,
     user_id: int,
     existing_order: Order | None,
     *,

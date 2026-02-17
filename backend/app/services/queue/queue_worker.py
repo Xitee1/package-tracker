@@ -6,7 +6,7 @@ from app.database import async_session
 from app.models.queue_item import QueueItem
 from app.services.orders.order_matcher import DefaultOrderMatcher
 from app.services.orders.order_service import create_or_update_order
-from app.core.module_registry import get_active_analyser
+from app.core.module_registry import get_active_analysers
 from app.services.notification_service import notify_user, NotificationEvent
 
 logger = logging.getLogger(__name__)
@@ -15,12 +15,24 @@ _matcher = DefaultOrderMatcher()
 _no_analyser_warned = False
 
 
+async def _run_analysis(raw_data: dict, db, analysers: list[tuple[str, callable]]):
+    """Try each analyser in priority order, falling back to the next on failure."""
+    last_error = None
+    for module_key, analyze in analysers:
+        try:
+            return await analyze(raw_data, db)
+        except Exception as e:
+            logger.warning(f"Analyser {module_key} failed: {e}, trying next")
+            last_error = e
+    raise last_error or RuntimeError("No analysers available")
+
+
 async def process_next_item() -> None:
     """Pick one queued item and process it. Called by the scheduler every 5s."""
     global _no_analyser_warned
 
-    analyze = await get_active_analyser()
-    if analyze is None:
+    analysers = await get_active_analysers()
+    if not analysers:
         if not _no_analyser_warned:
             logger.warning("No analyser module is enabled and configured — queue processing paused")
             _no_analyser_warned = True
@@ -45,7 +57,7 @@ async def process_next_item() -> None:
         await db.commit()
 
         try:
-            analysis, raw_response = await analyze(item.raw_data, db)
+            analysis, raw_response = await _run_analysis(item.raw_data, db, analysers)
 
             item.extracted_data = raw_response
 
