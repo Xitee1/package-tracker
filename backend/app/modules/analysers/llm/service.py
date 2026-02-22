@@ -6,22 +6,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.encryption import decrypt_value
 from app.modules.analysers.llm.models import LLMConfig
-from app.schemas.analysis import AnalysisResult, ExtractedItem  # noqa: F401
+from app.schemas.analysis import AnalysisResult
 
 _active_requests: int = 0
 
 
-async def check_configured() -> bool:
+async def check_configured(db: AsyncSession) -> bool:
     """Return True if at least one active LLMConfig exists."""
-    from app.database import async_session
-    async with async_session() as db:
-        result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True).limit(1))
-        return result.scalar_one_or_none() is not None
+    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active.is_(True)).limit(1))
+    return result.scalar_one_or_none() is not None
 
 
 async def get_status(db: AsyncSession) -> dict | None:
     """Status hook: return current LLM configuration summary."""
-    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
+    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active.is_(True)))
     config = result.scalar_one_or_none()
     if not config:
         return None
@@ -76,7 +74,7 @@ Do not include any text outside the JSON object."""
 
 async def analyze(raw_data: dict, db: AsyncSession) -> tuple[AnalysisResult | None, dict]:
     """Analyze raw input data using the configured LLM. Returns (parsed_result, raw_response_dict)."""
-    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
+    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active.is_(True)))
     config = result.scalar_one_or_none()
     if not config:
         return None, {"error": "No LLM configured"}

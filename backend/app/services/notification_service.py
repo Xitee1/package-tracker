@@ -33,7 +33,7 @@ async def notify_user(
         result = await db.execute(
             select(ModuleConfig).where(
                 ModuleConfig.module_key.in_(notifier_modules.keys()),
-                ModuleConfig.enabled == True,
+                ModuleConfig.enabled.is_(True),
             )
         )
         enabled_keys = {m.module_key for m in result.scalars().all()}
@@ -46,7 +46,7 @@ async def notify_user(
             select(UserNotificationConfig).where(
                 UserNotificationConfig.user_id == user_id,
                 UserNotificationConfig.module_key.in_(enabled_keys),
-                UserNotificationConfig.enabled == True,
+                UserNotificationConfig.enabled.is_(True),
             )
         )
         user_configs = result.scalars().all()
