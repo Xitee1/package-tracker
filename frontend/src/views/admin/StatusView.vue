@@ -615,6 +615,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
+import { formatTimeAgo, formatTimeUntil } from '@/utils/format'
 
 const { t } = useI18n()
 
@@ -742,41 +744,6 @@ let tickInterval: ReturnType<typeof setInterval> | null = null
 
 // --- Helper Functions ---
 
-function formatTimeAgo(isoString: string | null): string {
-  if (!isoString) return '-'
-  const now = Date.now()
-  const then = new Date(isoString).getTime()
-  const diffMs = now - then
-  if (diffMs < 0) return 'just now'
-
-  const diffSec = Math.floor(diffMs / 1000)
-  if (diffSec < 60) return 'just now'
-
-  const diffMin = Math.floor(diffSec / 60)
-  if (diffMin < 60) return `${diffMin}m ago`
-
-  const diffHour = Math.floor(diffMin / 60)
-  if (diffHour < 24) return `${diffHour}h ago`
-
-  const diffDay = Math.floor(diffHour / 24)
-  return `${diffDay}d ago`
-}
-
-function formatTimeUntil(isoString: string | null): string {
-  if (!isoString) return '-'
-  const now = Date.now()
-  const target = new Date(isoString).getTime()
-  const diffMs = target - now
-  if (diffMs <= 0) return 'now'
-
-  const diffSec = Math.floor(diffMs / 1000)
-  const minutes = Math.floor(diffSec / 60)
-  const seconds = diffSec % 60
-
-  if (minutes > 0) return `${minutes}m ${seconds}s`
-  return `${seconds}s`
-}
-
 function modeLabel(mode: string, folder?: FolderStatus): string {
   const labels: Record<string, string> = {
     idle: t('system.modeIdle'),
@@ -900,8 +867,7 @@ async function fetchStatus() {
     lastRefreshedAt.value = new Date()
     secondsSinceRefresh.value = 0
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('system.loadFailed')
+    error.value = getApiErrorMessage(e, t('system.loadFailed'))
   } finally {
     loading.value = false
   }

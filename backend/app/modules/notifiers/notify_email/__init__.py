@@ -1,14 +1,14 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.module_base import ModuleInfo
 from app.modules.notifiers.notify_email.router import router
 from app.modules.notifiers.notify_email.user_router import user_router
 from app.modules.notifiers.notify_email.service import send_notification
 from app.services.email_service import is_smtp_configured
-from app.database import async_session
 
 
-async def check_configured() -> bool:
-    async with async_session() as db:
-        return await is_smtp_configured(db)
+async def check_configured(db: AsyncSession) -> bool:
+    return await is_smtp_configured(db)
 
 
 MODULE_INFO = ModuleInfo(

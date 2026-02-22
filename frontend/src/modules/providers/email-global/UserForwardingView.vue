@@ -70,6 +70,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
 import { useSenderAddressesStore } from './store'
 
 const { t } = useI18n()
@@ -98,8 +99,7 @@ async function handleAdd() {
     await store.addAddress(newEmail.value)
     newEmail.value = ''
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('forwarding.addFailed')
+    error.value = getApiErrorMessage(e, t('forwarding.addFailed'))
   } finally {
     adding.value = false
   }
@@ -110,8 +110,7 @@ async function handleDelete(id: number) {
   try {
     await store.removeAddress(id)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('forwarding.deleteFailed')
+    error.value = getApiErrorMessage(e, t('forwarding.deleteFailed'))
   } finally {
     deletingId.value = null
   }

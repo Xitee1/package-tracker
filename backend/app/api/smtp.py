@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +10,8 @@ from app.database import get_db
 from app.models.smtp_config import SmtpConfig
 from app.schemas.smtp import SmtpConfigRequest, SmtpConfigResponse, SmtpTestRequest
 from app.services.email_service import send_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/admin/smtp", tags=["smtp"], dependencies=[Depends(get_admin_user)])
 
@@ -61,4 +65,5 @@ async def test_smtp(req: SmtpTestRequest, db: AsyncSession = Depends(get_db)):
         )
         return {"status": "ok"}
     except Exception as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        logger.warning("SMTP test failed for recipient %s: %s", req.recipient, e)
+        raise HTTPException(status_code=502, detail="Failed to send test email")

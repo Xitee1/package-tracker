@@ -270,6 +270,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useOrdersStore, type OrderDetail, type CreateOrderData } from '@/stores/orders'
+import { getApiErrorMessage } from '@/utils/api-error'
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -402,10 +403,10 @@ async function submit() {
       emit('saved', o.id)
     }
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value =
-      err.response?.data?.detail ||
-      t(props.mode === 'create' ? 'orders.createFailed' : 'orderDetail.saveFailed')
+    error.value = getApiErrorMessage(
+      e,
+      t(props.mode === 'create' ? 'orders.createFailed' : 'orderDetail.saveFailed'),
+    )
   } finally {
     submitting.value = false
   }

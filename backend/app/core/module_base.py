@@ -17,6 +17,7 @@ class ModuleInfo:
     user_router: APIRouter | None = None
     startup: Callable[[], Awaitable[None]] | None = None
     shutdown: Callable[[], Awaitable[None]] | None = None
-    is_configured: Callable[[], Awaitable[bool]] | None = None
+    is_configured: Callable[[AsyncSession], Awaitable[bool]] | None = None
     status: Callable[[AsyncSession], Awaitable[dict | None]] | None = None
     notify: Callable[[int, str, dict, dict | None, AsyncSession], Awaitable[None]] | None = None
+    analyze: Callable[[dict, AsyncSession], Awaitable[tuple]] | None = None

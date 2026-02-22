@@ -54,34 +54,44 @@ def discover_modules() -> dict[str, ModuleInfo]:
     return _registered_modules
 
 
-async def has_available_analyser() -> bool:
-    """Return True if at least one analyser module is enabled and configured."""
+async def get_active_analysers() -> list[tuple[str, callable]]:
+    """Return all enabled and configured analyser modules in priority order.
+
+    Returns a list of (module_key, analyze_callable) tuples, ordered by the
+    module priority field. The caller can iterate through them to implement
+    fallback (try the first analyser, fall back to the next on failure, etc.).
+    """
     analyser_modules = get_modules_by_type("analyser")
     if not analyser_modules:
-        return False
+        return []
 
     async with async_session() as db:
         result = await db.execute(
-            select(ModuleConfig).where(
+            select(ModuleConfig)
+            .where(
                 ModuleConfig.module_key.in_(analyser_modules.keys()),
-                ModuleConfig.enabled == True,
+                ModuleConfig.enabled.is_(True),
             )
+            .order_by(ModuleConfig.priority, ModuleConfig.module_key)
         )
         enabled_configs = result.scalars().all()
 
-    for config in enabled_configs:
-        info = analyser_modules.get(config.module_key)
-        if info and info.is_configured:
-            try:
-                if await info.is_configured():
-                    return True
-            except Exception:
+        active = []
+        for config in enabled_configs:
+            info = analyser_modules.get(config.module_key)
+            if not info or not info.analyze:
                 continue
-        elif info:
-            # Module has no is_configured hook — treat as configured
-            return True
+            if info.is_configured:
+                try:
+                    if await info.is_configured(db):
+                        active.append((config.module_key, info.analyze))
+                except Exception:
+                    logger.warning("Module %s is_configured check failed", config.module_key, exc_info=True)
+                    continue
+            else:
+                active.append((config.module_key, info.analyze))
 
-    return False
+    return active
 
 
 async def sync_module_configs() -> None:
@@ -100,7 +110,7 @@ async def sync_module_configs() -> None:
 async def startup_enabled_modules() -> None:
     """Call startup() on all enabled modules that have a startup hook."""
     async with async_session() as db:
-        result = await db.execute(select(ModuleConfig).where(ModuleConfig.enabled == True))
+        result = await db.execute(select(ModuleConfig).where(ModuleConfig.enabled.is_(True)))
         enabled_keys = {m.module_key for m in result.scalars().all()}
 
     for key, info in _registered_modules.items():
