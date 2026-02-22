@@ -10,6 +10,7 @@ from app.core.module_registry import (
     discover_modules, sync_module_configs, startup_enabled_modules,
     shutdown_all_modules, get_all_modules,
 )
+from app.core.exceptions import register_exception_handlers
 from app.services.scheduler import create_scheduler, register_schedules
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)-5s [%(name)s] %(message)s")
@@ -57,6 +58,7 @@ app = FastAPI(
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
 )
+register_exception_handlers(app)
 
 # Core routes
 from app.api.auth import router as auth_router

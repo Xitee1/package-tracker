@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from sqlalchemy import select
@@ -9,6 +11,8 @@ from app.models.notification import UserNotificationConfig
 from app.modules.notifiers.notify_webhook.schemas import (
     WebhookConfigRequest, WebhookConfigResponse, WebhookEventsRequest, WebhookToggleRequest, WebhookTestRequest,
 )
+
+logger = logging.getLogger(__name__)
 
 user_router = APIRouter(tags=["notify-webhook"])
 
@@ -72,4 +76,5 @@ async def test_webhook(req: WebhookTestRequest, user=Depends(get_current_user)):
             resp = await client.post(str(req.url), json=payload, headers=headers)
         return {"status": "ok", "response_code": resp.status_code}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        logger.warning("Webhook test failed for %s: %s", req.url.host, e)
+        raise HTTPException(status_code=502, detail="Webhook test request failed")

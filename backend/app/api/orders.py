@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
@@ -22,8 +22,6 @@ from app.services.orders.order_service import (
     update_order as svc_update_order,
     link_orders as svc_link_orders,
     delete_order as svc_delete_order,
-    OrderNotFoundError,
-    InvalidSortError,
 )
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
@@ -49,19 +47,15 @@ async def list_orders(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        result = await svc_list_orders(
-            db, user.id,
-            page=page,
-            per_page=per_page,
-            status=status,
-            search=search,
-            sort_by=sort_by,
-            sort_dir=sort_dir,
-        )
-    except InvalidSortError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-
+    result = await svc_list_orders(
+        db, user.id,
+        page=page,
+        per_page=per_page,
+        status=status,
+        search=search,
+        sort_by=sort_by,
+        sort_dir=sort_dir,
+    )
     return OrderListResponse(
         items=[OrderResponse.model_validate(i) for i in result.items],
         total=result.total,
@@ -86,10 +80,7 @@ async def get_order(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        return await svc_get_order_detail(db, user.id, order_id)
-    except OrderNotFoundError:
-        raise HTTPException(status_code=404, detail="Order not found")
+    return await svc_get_order_detail(db, user.id, order_id)
 
 
 @router.patch("/{order_id}", response_model=OrderResponse)
@@ -99,10 +90,7 @@ async def update_order(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        return await svc_update_order(db, user.id, order_id, req)
-    except OrderNotFoundError:
-        raise HTTPException(status_code=404, detail="Order not found")
+    return await svc_update_order(db, user.id, order_id, req)
 
 
 @router.post("/{order_id}/link")
@@ -112,10 +100,7 @@ async def link_orders(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        source = await svc_link_orders(db, user.id, order_id, req.target_order_id)
-    except OrderNotFoundError:
-        raise HTTPException(status_code=404, detail="Order not found")
+    source = await svc_link_orders(db, user.id, order_id, req.target_order_id)
     return {"merged_into": source.id}
 
 
@@ -125,7 +110,4 @@ async def delete_order(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        await svc_delete_order(db, user.id, order_id)
-    except OrderNotFoundError:
-        raise HTTPException(status_code=404, detail="Order not found")
+    await svc_delete_order(db, user.id, order_id)
