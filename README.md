@@ -68,11 +68,11 @@ services:
     restart: unless-stopped
 
   package-tracker:
-    image: docker pull ghcr.io/xitee1/package-tracker:latest
+    image: ghcr.io/xitee1/package-tracker:latest
     environment:
       PT_DATABASE_URL: 'postgresql+asyncpg://tracker:your-postgres-password@db:5432/tracker' # Make sure the credentials match with the ones set above
-      PT_SECRET_KEY: 'change-me-to-a-random-string'
-      PT_ENCRYPTION_KEY: 'change-me-to-a-random-string'
+      PT_SECRET_KEY: 'change-me-to-a-another-random-string'
+      PT_ENCRYPTION_KEY: 'change-me-to-a-yet-another-random-string'
       PT_FRONTEND_URL: 'http://localhost:8055' # Used for generating links, e.g. for email verifications
     ports:
       - "8055:80"
@@ -80,6 +80,9 @@ services:
       - db
     restart: unless-stopped
 ```
+
+Make sure to change the following values:
+`change-me-to-a-random-string`, `your-postgres-password`, `change-me-to-a-another-random-string`, `change-me-to-a-yet-another-random-string`
 
 ### 2. Start the application
 
