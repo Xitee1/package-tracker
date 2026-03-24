@@ -102,9 +102,56 @@ Orders progress through these statuses as emails are processed:
 
 `ordered` → `shipment_preparing` → `shipped` → `in_transit` → `out_for_delivery` → `delivered`
 
-## Development Setup (without Docker)
+## Admin CLI
 
-### Backend
+A built-in `pt-admin` command is available for user management tasks like listing users and resetting passwords.
+
+### Docker (production)
+
+```bash
+docker compose -f docker-compose.prod.yaml exec package-tracker python -m app.cli list-users
+docker compose -f docker-compose.prod.yaml exec package-tracker python -m app.cli reset-password <username>
+```
+
+### Docker (development)
+
+```bash
+docker compose exec backend python -m app.cli list-users
+docker compose exec backend python -m app.cli reset-password <username>
+```
+
+### Without Docker
+
+```bash
+cd backend
+python -m app.cli list-users
+python -m app.cli reset-password <username>
+```
+
+The `reset-password` command prompts for the new password interactively. Pass `--password <pw>` to skip the prompt.
+
+## Development Setup
+
+### With Docker (recommended)
+
+```bash
+docker compose up
+```
+
+This starts all three services:
+- **Backend** at `http://localhost:8000` (with hot-reload)
+- **Frontend** at `http://localhost:5173`
+- **PostgreSQL** at `localhost:5432`
+
+To rebuild after dependency changes:
+
+```bash
+docker compose up --build
+```
+
+### Without Docker
+
+#### Backend
 
 ```bash
 cd backend
@@ -116,7 +163,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 Requires a PostgreSQL database — set `PT_DATABASE_URL` accordingly.
 
-### Frontend
+#### Frontend
 
 ```bash
 cd frontend
