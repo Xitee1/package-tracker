@@ -173,7 +173,7 @@
             <tr
               v-for="order in recentOrders"
               :key="order.id"
-              @click="$router.push(`/orders/${order.id}`)"
+              @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
               class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
             >
               <td class="px-5 py-3">

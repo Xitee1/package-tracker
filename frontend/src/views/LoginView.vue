@@ -190,7 +190,7 @@ async function handleSetup() {
   try {
     await auth.setup(username.value, password.value)
     auth.setupCompleted = true
-    router.push('/dashboard')
+    router.push({ name: 'dashboard' })
   } catch (e: unknown) {
     error.value = getApiErrorMessage(e, t('login.setupFailed'))
   } finally {
@@ -203,7 +203,7 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.login(username.value, password.value)
-    router.push('/dashboard')
+    router.push({ name: 'dashboard' })
   } catch (e: unknown) {
     error.value = getApiErrorMessage(e, t('login.loginFailed'))
   } finally {

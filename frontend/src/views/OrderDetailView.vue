@@ -323,7 +323,7 @@ async function confirmDelete() {
   deleting.value = true
   try {
     await ordersStore.deleteOrder(order.value.id)
-    router.push('/orders')
+    router.push({ name: 'orders' })
   } catch (e: unknown) {
     error.value = getApiErrorMessage(e, t('orderDetail.deleteFailed'))
     showDeleteConfirm.value = false

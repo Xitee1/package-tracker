@@ -145,7 +145,7 @@
             <tr
               v-for="order in ordersStore.orders"
               :key="order.id"
-              @click="$router.push(`/orders/${order.id}`)"
+              @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
               class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
             >
               <td class="px-5 py-4">

@@ -102,7 +102,7 @@
               <td class="px-5 py-4 text-sm">
                 <router-link
                   v-if="item.order_id"
-                  :to="`/orders/${item.order_id}`"
+                  :to="{ name: 'order-detail', params: { id: item.order_id } }"
                   class="text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   {{ t('queue.viewOrder') }}
@@ -173,7 +173,7 @@
               </button>
               <router-link
                 v-if="item.order_id"
-                :to="`/orders/${item.order_id}`"
+                :to="{ name: 'order-detail', params: { id: item.order_id } }"
                 class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
               >
                 {{ t('queue.viewOrder') }}
@@ -287,7 +287,7 @@
             <div class="mt-1">
               <router-link
                 v-if="detailItem.order_id"
-                :to="`/orders/${detailItem.order_id}`"
+                :to="{ name: 'order-detail', params: { id: detailItem.order_id } }"
                 class="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                 @click="closeDetail"
               >
