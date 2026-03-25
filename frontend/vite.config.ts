@@ -17,6 +17,7 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   define: {
     __APP_VERSION__: JSON.stringify(getGitVersion()),
+    __REPO_URL__: JSON.stringify(process.env.REPO_URL || 'https://github.com/Xitee1/package-tracker'),
   },
   resolve: {
     alias: {

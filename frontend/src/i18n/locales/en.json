@@ -554,10 +554,9 @@
     "viewRelease": "View release",
     "checkFailed": "Could not check for updates",
     "links": "Links",
-    "githubRepo": "GitHub Repository",
+    "sourceCode": "Source Code",
     "issues": "Issues",
-    "releases": "Releases",
-    "license": "License"
+    "releases": "Releases"
   },
   "smtp": {
     "title": "E-Mail (SMTP)",
