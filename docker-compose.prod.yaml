@@ -10,8 +10,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        REPO_URL: ${REPO_URL:-https://github.com/Xitee1/package-tracker}
     env_file: .env
     ports:
       - "80:80"
