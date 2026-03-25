@@ -18,6 +18,16 @@ export const useThemeStore = defineStore('theme', () => {
 
     document.documentElement.classList.toggle('dark', isDark)
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
+
+    // Signal browser extensions (e.g. Dark Reader) to not apply their own dark theme
+    let lock = document.head.querySelector('meta[name="darkreader-lock"]')
+    if (isDark && !lock) {
+      lock = document.createElement('meta')
+      lock.setAttribute('name', 'darkreader-lock')
+      document.head.appendChild(lock)
+    } else if (!isDark && lock) {
+      lock.remove()
+    }
   }
 
   function cleanupListener() {
