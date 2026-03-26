@@ -118,7 +118,7 @@
             <div class="pt-2">
               <button
                 type="submit"
-                :disabled="savingConnection"
+                :disabled="savingConnection || !connectionDirty"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ savingConnection ? $t('common.saving') : $t('globalMail.saveConnection') }}
@@ -216,7 +216,7 @@
             <div class="pt-2">
               <button
                 type="submit"
-                :disabled="savingSettings || loadingFolders"
+                :disabled="savingSettings || loadingFolders || !settingsDirty"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ savingSettings ? $t('common.saving') : $t('globalMail.saveSettings') }}
@@ -236,6 +236,7 @@ import api from '@/api/client'
 import { getApiErrorMessage } from '@/utils/api-error'
 import ModuleHeader from '@/components/ModuleHeader.vue'
 import { useModulesStore } from '@/stores/modules'
+import { useDirtyTracking, useDirtyGuard } from '@/composables/useDirtyTracking'
 
 const { t } = useI18n()
 
@@ -269,6 +270,10 @@ const settingsForm = ref({
   watched_folder_path: 'INBOX',
   polling_interval_sec: 300,
 })
+
+const { isDirty: connectionDirty, reset: resetConnection } = useDirtyTracking(connectionForm, { guard: false })
+const { isDirty: settingsDirty, reset: resetSettings } = useDirtyTracking(settingsForm, { guard: false })
+useDirtyGuard(connectionDirty, settingsDirty)
 const savingSettings = ref(false)
 const settingsSaveError = ref('')
 const settingsSaveSuccess = ref(false)
@@ -294,6 +299,8 @@ async function fetchSettings() {
       settingsForm.value.watched_folder_path = res.data.watched_folder_path || 'INBOX'
       settingsForm.value.polling_interval_sec = res.data.polling_interval_sec ?? 300
       idleSupported.value = res.data.idle_supported ?? null
+      resetConnection()
+      resetSettings()
     }
   } catch (e: unknown) {
     loadError.value = getApiErrorMessage(e, t('globalMail.saveFailed'))
@@ -337,6 +344,7 @@ async function handleSaveConnection() {
     }, 3000)
     // Fetch folders after saving connection
     await fetchFolders()
+    resetConnection()
   } catch (e: unknown) {
     connectionSaveError.value = getApiErrorMessage(e, t('globalMail.saveFailed'))
   } finally {
@@ -360,6 +368,7 @@ async function handleSaveSettings() {
     }
     await api.patch('/modules/providers/email-global/config', payload)
     settingsSaveSuccess.value = true
+    resetSettings()
     setTimeout(() => {
       settingsSaveSuccess.value = false
     }, 3000)
