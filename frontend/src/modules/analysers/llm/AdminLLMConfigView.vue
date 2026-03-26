@@ -145,7 +145,7 @@
                 v-if="isUsingDefault"
                 type="button"
                 @click="handleCopyDefault"
-                class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                class="text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
                 {{ $t('llm.copyDefaultPrompt') }}
               </button>
@@ -153,7 +153,7 @@
                 v-if="!isUsingDefault"
                 type="button"
                 @click="handleResetPrompt"
-                class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                class="text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
                 {{ $t('llm.resetToDefault') }}
               </button>
@@ -280,8 +280,20 @@ function onPromptInput() {
   }
 }
 
-async function handleCopyDefault() {
-  await navigator.clipboard.writeText(defaultPromptText.value)
+function handleCopyDefault() {
+  const text = defaultPromptText.value
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text)
+  } else {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+  }
   copied.value = true
   setTimeout(() => {
     copied.value = false
