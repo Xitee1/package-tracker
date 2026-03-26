@@ -13,7 +13,9 @@
         document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
         if (dark) {
           document.documentElement.classList.add('dark');
-          document.head.insertAdjacentHTML('beforeend', '<meta name="darkreader-lock">');
+          var darkReaderMeta = document.createElement('meta');
+          darkReaderMeta.name = 'darkreader-lock';
+          document.head.appendChild(darkReaderMeta);
         }
       })();
     </script>
