@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/admin/smtp", tags=["smtp"], dependencies=[Depends(get_admin_user)])
 
 
-async def _get_config(db: AsyncSession) -> SmtpConfig | None:
+async def _get_config(db: AsyncSession) -> SmtpConfig:
     result = await db.execute(select(SmtpConfig))
-    return result.scalar_one_or_none()
+    return result.scalar_one()
 
 
-@router.get("", response_model=SmtpConfigResponse | None)
+@router.get("", response_model=SmtpConfigResponse)
 async def get_smtp_config(db: AsyncSession = Depends(get_db)):
     return await _get_config(db)
 
@@ -29,26 +29,14 @@ async def get_smtp_config(db: AsyncSession = Depends(get_db)):
 @router.put("", response_model=SmtpConfigResponse)
 async def save_smtp_config(req: SmtpConfigRequest, db: AsyncSession = Depends(get_db)):
     config = await _get_config(db)
-    if not config:
-        config = SmtpConfig(
-            host=req.host,
-            port=req.port,
-            username=req.username,
-            password_encrypted=encrypt_value(req.password) if req.password else None,
-            security=req.security,
-            sender_address=req.sender_address,
-            sender_name=req.sender_name,
-        )
-        db.add(config)
-    else:
-        config.host = req.host
-        config.port = req.port
-        config.username = req.username
-        if req.password:
-            config.password_encrypted = encrypt_value(req.password)
-        config.security = req.security
-        config.sender_address = req.sender_address
-        config.sender_name = req.sender_name
+    config.host = req.host
+    config.port = req.port
+    config.username = req.username
+    if req.password:
+        config.password_encrypted = encrypt_value(req.password)
+    config.security = req.security
+    config.sender_address = req.sender_address
+    config.sender_name = req.sender_name
     await db.commit()
     await db.refresh(config)
     return config

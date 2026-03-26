@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from app.database import Base, get_db
 from app.main import app
 from app.models.module_config import ModuleConfig
+from app.models.smtp_config import SmtpConfig
 from app.core.module_registry import get_all_modules
 
 
@@ -24,9 +25,10 @@ async def db_session():
         await conn.run_sync(Base.metadata.create_all)
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
     async with session_factory() as session:
-        # Seed ModuleConfig rows for all discovered modules
+        # Seed singleton config rows
         for key in get_all_modules():
             session.add(ModuleConfig(module_key=key, enabled=False))
+        session.add(SmtpConfig())
         await session.commit()
         yield session
     await engine.dispose()

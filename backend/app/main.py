@@ -4,8 +4,10 @@ from fastapi import FastAPI
 from alembic.config import Config
 from alembic import command
 import sqlalchemy as sa
-from app.database import engine, wait_for_db
+from sqlalchemy import select
+from app.database import engine, async_session, wait_for_db
 from app.models import *  # noqa: F401, F403
+from app.models.smtp_config import SmtpConfig
 from app.core.module_registry import (
     discover_modules, sync_module_configs, startup_enabled_modules,
     shutdown_all_modules, get_all_modules,
@@ -34,6 +36,14 @@ async def lifespan(app: FastAPI):
     await wait_for_db()
     async with engine.begin() as conn:
         await conn.run_sync(_run_migrations)
+
+    # Seed singleton config rows
+    async with async_session() as session:
+        result = await session.execute(select(SmtpConfig))
+        if not result.scalar_one_or_none():
+            session.add(SmtpConfig())
+            await session.commit()
+            logger.info("Seeded default SMTP config.")
 
     scheduler = await create_scheduler()
     async with scheduler:

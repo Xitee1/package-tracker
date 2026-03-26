@@ -201,7 +201,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
-import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
+import { getApiErrorMessage } from '@/utils/api-error'
 
 const { t } = useI18n()
 
@@ -233,20 +233,16 @@ async function fetchConfig() {
   loadError.value = ''
   try {
     const res = await api.get('/admin/smtp')
-    if (res.data && res.data.host) {
-      configExists.value = true
-      form.value.host = res.data.host || ''
-      form.value.port = res.data.port ?? 587
-      form.value.username = res.data.username || ''
-      form.value.password = ''
-      form.value.security = res.data.security || 'starttls'
-      form.value.sender_address = res.data.sender_address || ''
-      form.value.sender_name = res.data.sender_name || ''
-    }
+    configExists.value = res.data.configured
+    form.value.host = res.data.host || ''
+    form.value.port = res.data.port ?? 587
+    form.value.username = res.data.username || ''
+    form.value.password = ''
+    form.value.security = res.data.security || 'starttls'
+    form.value.sender_address = res.data.sender_address || ''
+    form.value.sender_name = res.data.sender_name || ''
   } catch (e: unknown) {
-    if (getApiErrorStatus(e) !== 404) {
-      loadError.value = getApiErrorMessage(e, t('smtp.loadFailed'))
-    }
+    loadError.value = getApiErrorMessage(e, t('smtp.loadFailed'))
   } finally {
     loading.value = false
   }
