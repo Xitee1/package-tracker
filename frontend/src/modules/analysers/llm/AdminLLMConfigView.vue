@@ -327,7 +327,7 @@ async function handleSave() {
     saveSuccess.value = true
     hasExistingKey.value = hasExistingKey.value || !!form.value.api_key
     form.value.api_key = ''
-    resetDirty()
+    resetDirty() // Must come after api_key clear so snapshot captures the cleared state
     setTimeout(() => {
       saveSuccess.value = false
     }, 3000)

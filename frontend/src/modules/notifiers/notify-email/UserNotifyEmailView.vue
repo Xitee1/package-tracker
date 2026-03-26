@@ -203,6 +203,7 @@ const config = ref({
   verified: false,
 })
 
+// No dirty tracking for emailForm — it triggers a verification action, not a save/revert pattern
 const emailForm = ref('')
 const sendingVerification = ref(false)
 const verificationSent = ref(false)
