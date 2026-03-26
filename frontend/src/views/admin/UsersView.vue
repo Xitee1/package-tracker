@@ -80,7 +80,7 @@
         <div class="flex items-center gap-3 pt-2">
           <button
             type="submit"
-            :disabled="formSaving"
+            :disabled="formSaving || !isDirty"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ formSaving ? $t('users.creating') : $t('users.createUser') }}
@@ -217,6 +217,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/client'
@@ -245,6 +246,7 @@ const form = ref({
   password: '',
   is_admin: false,
 })
+const { isDirty, reset: resetDirty } = useDirtyTracking(form, { guard: false })
 
 // Delete
 const showDeleteConfirm = ref(false)
@@ -267,6 +269,7 @@ async function fetchUsers() {
 function closeForm() {
   showForm.value = false
   form.value = { username: '', password: '', is_admin: false }
+  resetDirty()
   formError.value = ''
 }
 
