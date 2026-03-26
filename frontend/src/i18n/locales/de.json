@@ -25,7 +25,8 @@
     "watched": "Überwacht",
     "themeLight": "Hell",
     "themeSystem": "System",
-    "themeDark": "Dunkel"
+    "themeDark": "Dunkel",
+    "unsavedChanges": "Du hast ungespeicherte Änderungen. Möchtest du die Seite wirklich verlassen?"
   },
   "nav": {
     "dashboard": "Dashboard",

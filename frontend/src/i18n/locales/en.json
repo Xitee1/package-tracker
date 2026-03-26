@@ -25,7 +25,8 @@
     "watched": "Watched",
     "themeLight": "Light",
     "themeSystem": "System",
-    "themeDark": "Dark"
+    "themeDark": "Dark",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?"
   },
   "nav": {
     "dashboard": "Dashboard",
