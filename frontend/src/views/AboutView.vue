@@ -39,7 +39,7 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div v-if="canCheckUpdates" class="flex items-center gap-3">
           <button
             @click="checkForUpdates"
             :disabled="updateStatus === 'checking'"
@@ -85,8 +85,9 @@
       </div>
     </div>
 
-    <!-- Links Card -->
+    <!-- Links Card (hidden when no REPO_URL is configured) -->
     <div
+      v-if="REPO_URL"
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
     >
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -125,31 +126,41 @@ const updateStatus = ref<'idle' | 'checking' | 'up-to-date' | 'update-available'
 const latestVersion = ref('')
 const latestReleaseUrl = ref('')
 
-const GITHUB_REPO = 'Xitee1/package-tracker'
-const INVALID_VERSIONS = ['?', 'unknown']
+const REPO_URL = __REPO_URL__
 
-const links = computed(() => [
-  {
-    label: t('about.githubRepo'),
-    url: `https://github.com/${GITHUB_REPO}`,
-    icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>',
-  },
-  {
-    label: t('about.issues'),
-    url: `https://github.com/${GITHUB_REPO}/issues`,
-    icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
-  },
-  {
-    label: t('about.releases'),
-    url: `https://github.com/${GITHUB_REPO}/releases`,
-    icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" /></svg>',
-  },
-  {
-    label: t('about.license'),
-    url: `https://github.com/${GITHUB_REPO}/blob/main/LICENSE`,
-    icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>',
-  },
-])
+/** Extract GitHub "owner/repo" from a GitHub URL, or null if not GitHub */
+function getGitHubRepo(url: string): string | null {
+  const match = url.match(/^https?:\/\/github\.com\/([^/]+\/[^/]+)\/?$/)
+  return match ? match[1] : null
+}
+
+const githubRepo = REPO_URL ? getGitHubRepo(REPO_URL) : null
+const canCheckUpdates = !!githubRepo
+
+const links = computed(() => {
+  const items: { label: string; url: string; icon: string }[] = []
+  if (!REPO_URL) return items
+
+  items.push(
+    {
+      label: t('about.sourceCode'),
+      url: REPO_URL,
+      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>',
+    },
+    {
+      label: t('about.issues'),
+      url: `${REPO_URL}/issues`,
+      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+    },
+    {
+      label: t('about.releases'),
+      url: `${REPO_URL}/releases`,
+      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" /></svg>',
+    },
+  )
+
+  return items
+})
 
 function isValidVersion(v: string): boolean {
   const normalized = v.replace(/^v/, '')
@@ -191,18 +202,18 @@ function compareVersions(a: string, b: string): number {
 }
 
 async function checkForUpdates() {
+  if (!githubRepo) return
+
   updateStatus.value = 'checking'
   try {
-    // Check if current version is valid before attempting comparison
     if (!isValidVersion(version.value)) {
       throw new Error('Cannot check for updates: current version is unknown')
     }
 
-    const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
+    const resp = await fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`)
     if (!resp.ok) throw new Error('GitHub API error')
     const data = await resp.json()
 
-    // Validate GitHub API response structure
     if (!data || typeof data !== 'object') {
       throw new Error('Invalid GitHub API response')
     }

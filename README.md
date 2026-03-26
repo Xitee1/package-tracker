@@ -6,19 +6,38 @@
 A self-hosted application that monitors your email inboxes and automatically tracks your online orders and shipments. It uses an LLM to analyze incoming emails and extract order details, tracking numbers, and delivery status updates into a unified dashboard.
 
 ## Features
+### Providers
+Providers provide incoming data to package-tracker.
+For example, the IMAP provider extracts data from incoming emails from online shops or shipping services.
+- **User-based IMAP**\* - Users can add their own IMAP credentials and scan specific email folders directly from their account
+- **Global IMAP**\* - Users redirect emails to a specific email address that the admin has set up. Better security than user-based IMAP.
+- **DHL** _(to be implemented, according to AI they have a free push API)_
 
-- **Modular architecture** — pluggable module system with three types: providers (email sources), analysers (LLM extraction), and notifiers (alerts). Modules can be enabled/disabled and configured at runtime.
-- **Dual email provider modes** — per-user IMAP accounts or a shared global inbox with sender-based routing (users register sender addresses, emails are routed by "From" match)
-- **IMAP IDLE + polling** — real-time push notifications via IMAP IDLE with automatic fallback to configurable polling intervals. Auto-detects server capabilities.
-- **Queue-based processing** — emails are queued and processed asynchronously with status tracking, retry for failed items, and configurable retention policies
-- **Multi-provider LLM support** — works with OpenAI, Anthropic, Ollama, or any custom OpenAI-compatible endpoint via LiteLLM. Custom system prompts supported.
-- **3-tier order matching** — prevents duplicates by matching incoming emails to existing orders: exact order number → exact tracking number → fuzzy vendor + item similarity
-- **Notifications** — email (SMTP with verification flow) and webhook notifications, configurable per event type (new order, tracking update, delivered)
-- **API keys** — long-lived tokens (`pt_xxx` format) for programmatic access alongside JWT auth
-- **Multi-user with roles** — per-user data isolation, admin controls for user management, module configuration, and system monitoring
-- **Encrypted credential storage** — IMAP and SMTP passwords encrypted at rest with Fernet
-- **Internationalization** — English and German, switchable per user
-- **Dark mode** — light, dark, and system theme
+\* IMAP idle and configurable polling interval is supported
+
+### Analysers
+Analysers are used to process data from providers that only provide raw and unformatted data, in example for emails.
+- **LLM** - Use AI to analyse data (OpenAI, Anthropic, Ollama)
+- **Regex** _(to be implemented)_ - Define regex templates to extract data
+
+### Notifications
+Users can enable notification to get order status update notifications.
+Currently the following methods are supported:
+- email
+- webhook
+
+### Planned features
+- Home Assistant integration
+- Native Android App
+- MCP Server
+
+### Miscellaneous
+- **order matching** — prevents duplicates by matching incoming emails to existing orders
+- **API keys** — long-lived tokens for programmatic access alongside JWT auth
+- **Multi-user with roles** — per-user data isolation, admin controls for user management
+- Dark mode
+- Multi-language support
+
 
 ## Quick Start
 
@@ -32,57 +51,50 @@ Create a directory and download the compose file:
 
 ```bash
 mkdir package-tracker && cd package-tracker
-curl -O https://raw.githubusercontent.com/Xitee1/package-tracker/main/docker-compose.prod.yaml
 ```
 
-Create a `.env` file with secure values:
+Create a `docker-compose.yaml` file:
+```yaml
+# You can generate a random string with: openssl rand -hex 32
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: 'tracker'
+      POSTGRES_PASSWORD: 'change-me-to-a-random-string'
+      POSTGRES_DB: 'tracker'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
 
-```
-PT_SECRET_KEY=<random-string>
-PT_ENCRYPTION_KEY=<random-string>
-POSTGRES_PASSWORD=<random-string>
+  package-tracker:
+    image: ghcr.io/xitee1/package-tracker:latest
+    environment:
+      PT_DATABASE_URL: 'postgresql+asyncpg://tracker:your-postgres-password@db:5432/tracker' # Make sure the credentials match with the ones set above
+      PT_SECRET_KEY: 'change-me-to-a-another-random-string'
+      PT_ENCRYPTION_KEY: 'change-me-to-a-yet-another-random-string'
+      PT_FRONTEND_URL: 'http://localhost:8055' # Used for generating links, e.g. for email verifications
+    ports:
+      - "8055:80"
+    depends_on:
+      - db
+    restart: unless-stopped
 ```
 
-You can generate random strings with `openssl rand -hex 32`.
+Make sure to change the following values:
+`change-me-to-a-random-string`, `your-postgres-password`, `change-me-to-a-another-random-string`, `change-me-to-a-yet-another-random-string`
 
 ### 2. Start the application
 
 ```bash
-docker compose -f docker-compose.prod.yaml up -d
+docker compose up -d
 ```
 
-The application is available at `http://localhost` (port 80).
-
-### 3. Initial setup
-
-Open the application in your browser. On first launch you'll be directed to a setup page to create the admin account.
-
-### 4. Configure the LLM
-
-Go to **Admin > Analysers** and configure the LLM module:
-
-| Provider | Required fields |
-|----------|----------------|
-| **OpenAI** | Model name (e.g. `gpt-4o`), API key |
-| **Anthropic** | Model name (e.g. `claude-sonnet-4-5-20250929`), API key |
-| **Ollama** | Model name (e.g. `llama3`), Base URL (e.g. `http://host.docker.internal:11434`) |
-| **Custom** | Model name, API key and/or Base URL |
-
-Use the **Test** button to verify the connection works.
-
-### 5. Add an email account
-
-Go to **Accounts** and add an email account:
-
-1. Enter your IMAP server details (host, port, username, password)
-2. Use **Test Connection** to verify it works
-3. Browse the available folders and add one or more to watch (e.g. `INBOX`)
-
-The application will begin monitoring the watched folders for new emails. When it finds a purchase or shipping-related email, it analyzes it with the LLM and creates or updates an order on your dashboard.
+The application is available at `http://localhost:8055`.
 
 ### API Documentation
 
-The backend provides interactive API docs powered by FastAPI:
+The backend provides interactive API docs:
 
 - **Swagger UI** — `/api/docs`
 - **ReDoc** — `/api/redoc`
@@ -151,6 +163,8 @@ docker compose up --build
 
 ### Without Docker
 
+## Development Setup
+### Without Docker
 #### Backend
 
 ```bash
@@ -182,12 +196,3 @@ pytest tests/ -v
 
 Tests use an in-memory SQLite database and don't require PostgreSQL.
 
-## Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `PT_SECRET_KEY` | Yes | Secret key for signing JWT tokens |
-| `PT_ENCRYPTION_KEY` | Yes | Key for encrypting stored IMAP/SMTP passwords |
-| `PT_DATABASE_URL` | No | PostgreSQL connection string (default set in Docker) |
-| `PT_FRONTEND_URL` | No | Frontend URL used in email verification links (default: `http://localhost:5173`) |
-| `POSTGRES_PASSWORD` | Yes | Database password |
