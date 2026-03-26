@@ -370,8 +370,7 @@
     "resetToDefault": "Standard wiederherstellen",
     "promptResetSuccess": "Prompt auf Standard zurückgesetzt.",
     "usingDefaultPrompt": "Standard-Prompt wird verwendet",
-    "copyDefaultPrompt": "Standard-Prompt kopieren",
-    "copiedToClipboard": "Kopiert!"
+    "editDefaultPrompt": "Standard-Prompt bearbeiten"
   },
   "system": {
     "title": "Systemstatus",

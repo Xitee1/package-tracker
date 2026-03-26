@@ -144,10 +144,10 @@
               <button
                 v-if="isUsingDefault"
                 type="button"
-                @click="handleCopyDefault"
+                @click="handleEditDefault"
                 class="text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
-                {{ $t('llm.copyDefaultPrompt') }}
+                {{ $t('llm.editDefaultPrompt') }}
               </button>
               <button
                 v-if="!isUsingDefault"
@@ -159,9 +159,6 @@
               </button>
               <span v-if="isUsingDefault" class="text-xs text-gray-400 dark:text-gray-500 italic">
                 {{ $t('llm.usingDefaultPrompt') }}
-              </span>
-              <span v-if="copied" class="text-xs text-green-600 dark:text-green-400">
-                {{ $t('llm.copiedToClipboard') }}
               </span>
             </div>
           </div>
@@ -246,7 +243,6 @@ const form = ref({
 const promptText = ref('')
 const isUsingDefault = ref(true)
 const defaultPromptText = ref('')
-const copied = ref(false)
 
 const knownProviders = ['openai', 'anthropic', 'ollama']
 
@@ -280,24 +276,9 @@ function onPromptInput() {
   }
 }
 
-function handleCopyDefault() {
-  const text = defaultPromptText.value
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text)
-  } else {
-    const ta = document.createElement('textarea')
-    ta.value = text
-    ta.style.position = 'fixed'
-    ta.style.opacity = '0'
-    document.body.appendChild(ta)
-    ta.select()
-    document.execCommand('copy')
-    document.body.removeChild(ta)
-  }
-  copied.value = true
-  setTimeout(() => {
-    copied.value = false
-  }, 2000)
+function handleEditDefault() {
+  promptText.value = defaultPromptText.value
+  isUsingDefault.value = false
 }
 
 function handleProviderChange() {

@@ -370,8 +370,7 @@
     "resetToDefault": "Reset to Default",
     "promptResetSuccess": "Prompt reset to default.",
     "usingDefaultPrompt": "Using default prompt",
-    "copyDefaultPrompt": "Copy default prompt",
-    "copiedToClipboard": "Copied!"
+    "editDefaultPrompt": "Edit default prompt"
   },
   "system": {
     "title": "System Status",
