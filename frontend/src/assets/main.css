@@ -8,7 +8,14 @@ html.dark {
   color-scheme: dark;
 }
 
-button,
-[role='button'] {
-  cursor: pointer;
+@layer base {
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role='button'][aria-disabled='true'] {
+    cursor: default;
+  }
 }
