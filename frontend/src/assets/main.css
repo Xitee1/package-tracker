@@ -7,3 +7,8 @@ html {
 html.dark {
   color-scheme: dark;
 }
+
+button,
+[role='button'] {
+  cursor: pointer;
+}
