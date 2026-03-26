@@ -90,9 +90,10 @@ async def test_update_unknown_module(client, admin_token):
 @pytest.mark.asyncio
 async def test_reorder_module_priority(client, admin_token):
     """PATCH /modules/priority should update priority values."""
+    desired_order = ["email-global", "llm", "email-user", "notify-email", "notify-webhook"]
     resp = await client.patch(
         "/api/v1/modules/priority",
-        json={"module_keys": ["email-global", "llm", "email-user"]},
+        json={"module_keys": desired_order},
         headers=auth(admin_token),
     )
     assert resp.status_code == 200
@@ -101,7 +102,7 @@ async def test_reorder_module_priority(client, admin_token):
     resp = await client.get("/api/v1/modules", headers=auth(admin_token))
     modules = resp.json()
     keys_in_order = [m["module_key"] for m in modules]
-    assert keys_in_order == ["email-global", "llm", "email-user"]
+    assert keys_in_order == desired_order
 
 
 @pytest.mark.asyncio
