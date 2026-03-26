@@ -18,7 +18,8 @@ async def get_smtp_config(db: AsyncSession) -> SmtpConfig | None:
 
 
 async def is_smtp_configured(db: AsyncSession) -> bool:
-    return await get_smtp_config(db) is not None
+    config = await get_smtp_config(db)
+    return config is not None and config.host != ""
 
 
 async def send_email(

@@ -13,7 +13,10 @@ async def test_get_smtp_config_empty(client: AsyncClient):
     token = await _create_admin_token(client)
     resp = await client.get("/api/v1/admin/smtp", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
-    assert resp.json() is None
+    data = resp.json()
+    assert data["configured"] is False
+    assert data["host"] == ""
+    assert data["port"] == 587
 
 
 @pytest.mark.asyncio
@@ -35,6 +38,7 @@ async def test_save_smtp_config(client: AsyncClient):
     assert resp.status_code == 200
     data = resp.json()
     assert data["host"] == "smtp.example.com"
+    assert data["configured"] is True
     assert "password" not in data
 
 

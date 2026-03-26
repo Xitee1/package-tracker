@@ -1,13 +1,6 @@
-from enum import Enum
 from typing import Literal, Optional
 
-from pydantic import BaseModel, EmailStr
-
-
-class SmtpSecurity(str, Enum):
-    TLS = "tls"
-    STARTTLS = "starttls"
-    NONE = "none"
+from pydantic import BaseModel, EmailStr, computed_field
 
 
 class SmtpConfigRequest(BaseModel):
@@ -28,6 +21,11 @@ class SmtpConfigResponse(BaseModel):
     security: str
     sender_address: str
     sender_name: str
+
+    @computed_field
+    @property
+    def configured(self) -> bool:
+        return self.host != ""
 
     model_config = {"from_attributes": True}
 
