@@ -21,9 +21,12 @@ async def _get_config(db: AsyncSession) -> SmtpConfig | None:
     return result.scalar_one_or_none()
 
 
-@router.get("", response_model=SmtpConfigResponse | None)
+@router.get("", response_model=SmtpConfigResponse)
 async def get_smtp_config(db: AsyncSession = Depends(get_db)):
-    return await _get_config(db)
+    config = await _get_config(db)
+    if not config:
+        raise HTTPException(status_code=404, detail="SMTP not configured")
+    return config
 
 
 @router.put("", response_model=SmtpConfigResponse)

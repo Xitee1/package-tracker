@@ -12,8 +12,7 @@ async def _create_admin_token(client: AsyncClient) -> str:
 async def test_get_smtp_config_empty(client: AsyncClient):
     token = await _create_admin_token(client)
     resp = await client.get("/api/v1/admin/smtp", headers={"Authorization": f"Bearer {token}"})
-    assert resp.status_code == 200
-    assert resp.json() is None
+    assert resp.status_code == 404
 
 
 @pytest.mark.asyncio
