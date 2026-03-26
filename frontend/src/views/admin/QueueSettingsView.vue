@@ -66,7 +66,7 @@
       <div class="pt-2">
         <button
           type="submit"
-          :disabled="saving"
+          :disabled="saving || !isDirty"
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ saving ? $t('common.saving') : $t('queue.saveSettings') }}
@@ -81,6 +81,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
 import { getApiErrorMessage } from '@/utils/api-error'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 
 const { t } = useI18n()
 
@@ -95,6 +96,8 @@ const form = ref({
   max_per_user: 1000,
 })
 
+const { isDirty, reset: resetDirty } = useDirtyTracking(form)
+
 async function fetchSettings() {
   loading.value = true
   loadError.value = ''
@@ -102,6 +105,7 @@ async function fetchSettings() {
     const res = await api.get('/settings/queue/')
     form.value.max_age_days = res.data.max_age_days
     form.value.max_per_user = res.data.max_per_user
+    resetDirty()
   } catch (e: unknown) {
     loadError.value = getApiErrorMessage(e, t('queue.loadFailed'))
   } finally {
@@ -116,6 +120,7 @@ async function handleSave() {
   try {
     await api.patch('/settings/queue/', form.value)
     saveSuccess.value = true
+    resetDirty()
     setTimeout(() => {
       saveSuccess.value = false
     }, 3000)
