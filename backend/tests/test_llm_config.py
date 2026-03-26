@@ -99,30 +99,32 @@ async def test_unauthenticated_access_denied(client):
 
 
 @pytest.mark.asyncio
-async def test_get_config_includes_default_system_prompt(client, admin_token):
-    """GET config response always includes default_system_prompt."""
+async def test_get_config_returns_default_prompt_when_none_set(client, admin_token):
+    """GET config returns the hardcoded default prompt with is_default=True."""
     await client.patch("/api/v1/modules/analysers/llm/config", json=LLM_CONFIG, headers=auth(admin_token))
     resp = await client.get("/api/v1/modules/analysers/llm/config", headers=auth(admin_token))
     data = resp.json()
-    assert "default_system_prompt" in data
-    assert len(data["default_system_prompt"]) > 50  # non-trivial prompt
-    assert data["system_prompt"] is None  # no custom prompt set
+    assert data["is_default"] is True
+    assert len(data["system_prompt"]) > 50  # non-trivial default prompt
+    assert data["system_prompt"] == data["default_system_prompt"]
 
 
 @pytest.mark.asyncio
 async def test_patch_config_with_custom_system_prompt(client, admin_token):
-    """PATCH with system_prompt saves it; GET returns it back."""
+    """PATCH with system_prompt saves it; GET returns it with is_default=False."""
     config_with_prompt = {**LLM_CONFIG, "system_prompt": "You are a custom analyser."}
     resp = await client.patch("/api/v1/modules/analysers/llm/config", json=config_with_prompt, headers=auth(admin_token))
     assert resp.status_code == 200
     data = resp.json()
     assert data["system_prompt"] == "You are a custom analyser."
+    assert data["is_default"] is False
 
     # Verify round-trip via GET
     resp = await client.get("/api/v1/modules/analysers/llm/config", headers=auth(admin_token))
     data = resp.json()
     assert data["system_prompt"] == "You are a custom analyser."
-    assert "default_system_prompt" in data
+    assert data["is_default"] is False
+    assert len(data["default_system_prompt"]) > 50
 
 
 @pytest.mark.asyncio
@@ -136,4 +138,5 @@ async def test_patch_config_null_system_prompt_resets_to_default(client, admin_t
     config_reset = {**LLM_CONFIG, "system_prompt": None}
     resp = await client.patch("/api/v1/modules/analysers/llm/config", json=config_reset, headers=auth(admin_token))
     data = resp.json()
-    assert data["system_prompt"] is None
+    assert data["is_default"] is True
+    assert data["system_prompt"] == data["default_system_prompt"]
