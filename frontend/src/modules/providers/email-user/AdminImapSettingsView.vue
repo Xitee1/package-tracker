@@ -78,7 +78,7 @@
           <div class="pt-2">
             <button
               type="submit"
-              :disabled="saving"
+              :disabled="saving || !isDirty"
               class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ saving ? $t('common.saving') : $t('imap.saveSettings') }}
@@ -97,6 +97,7 @@ import api from '@/api/client'
 import { getApiErrorMessage } from '@/utils/api-error'
 import ModuleHeader from '@/components/ModuleHeader.vue'
 import { useModulesStore } from '@/stores/modules'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 
 const { t } = useI18n()
 
@@ -120,6 +121,8 @@ const form = ref({
   check_uidvalidity: true,
 })
 
+const { isDirty, reset: resetDirty } = useDirtyTracking(form)
+
 async function fetchSettings() {
   loading.value = true
   loadError.value = ''
@@ -127,6 +130,7 @@ async function fetchSettings() {
     const res = await api.get('/modules/providers/email-user/settings')
     form.value.max_email_age_days = res.data.max_email_age_days
     form.value.check_uidvalidity = res.data.check_uidvalidity
+    resetDirty()
   } catch (e: unknown) {
     loadError.value = getApiErrorMessage(e, t('imap.loadFailed'))
   } finally {
@@ -141,6 +145,7 @@ async function handleSave() {
   try {
     await api.put('/modules/providers/email-user/settings', form.value)
     saveSuccess.value = true
+    resetDirty()
     setTimeout(() => {
       saveSuccess.value = false
     }, 3000)
