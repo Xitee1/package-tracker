@@ -1,27 +1,25 @@
 import json
 import litellm
-from pydantic import BaseModel, ValidationError
-from typing import Optional
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.encryption import decrypt_value
 from app.modules.analysers.llm.models import LLMConfig
+from app.schemas.analysis import AnalysisResult
 
 _active_requests: int = 0
 
 
-async def check_configured() -> bool:
+async def check_configured(db: AsyncSession) -> bool:
     """Return True if at least one active LLMConfig exists."""
-    from app.database import async_session
-    async with async_session() as db:
-        result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True).limit(1))
-        return result.scalar_one_or_none() is not None
+    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active.is_(True)).limit(1))
+    return result.scalar_one_or_none() is not None
 
 
 async def get_status(db: AsyncSession) -> dict | None:
     """Status hook: return current LLM configuration summary."""
-    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
+    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active.is_(True)))
     config = result.scalar_one_or_none()
     if not config:
         return None
@@ -45,34 +43,12 @@ async def call_llm(config: LLMConfig, api_key: str | None, messages: list[dict],
     return response.choices[0].message.content
 
 
-class EmailItem(BaseModel):
-    name: str
-    quantity: int = 1
-    price: Optional[float] = None
-
-
-class EmailAnalysis(BaseModel):
-    is_relevant: bool
-    email_type: Optional[str] = None
-    order_number: Optional[str] = None
-    tracking_number: Optional[str] = None
-    carrier: Optional[str] = None
-    vendor_name: Optional[str] = None
-    vendor_domain: Optional[str] = None
-    status: Optional[str] = None
-    order_date: Optional[str] = None
-    estimated_delivery: Optional[str] = None
-    total_amount: Optional[float] = None
-    currency: Optional[str] = None
-    items: Optional[list[EmailItem]] = None
-
-
-SYSTEM_PROMPT = """You are an email analysis assistant. Analyze the provided email and extract purchase/shipping information.
+SYSTEM_PROMPT = """You are a data analysis assistant. Analyze the provided data and extract purchase/shipping information.
 
 Return ONLY valid JSON matching this schema:
 {
   "is_relevant": true/false,
-  "email_type": "order_confirmation" | "shipment_confirmation" | "shipment_update" | "delivery_confirmation",
+  "document_type": "order_confirmation" | "shipment_confirmation" | "shipment_update" | "delivery_confirmation",
   "order_number": "string or null",
   "tracking_number": "string or null",
   "carrier": "string or null",
@@ -87,18 +63,18 @@ Return ONLY valid JSON matching this schema:
 }
 
 Rules:
-- An email is ONLY relevant if at least an order_number OR a tracking_number can be extracted. If neither is present, return {"is_relevant": false}.
+- The data is ONLY relevant if at least an order_number OR a tracking_number can be extracted. If neither is present, return {"is_relevant": false}.
 - For marketplace platforms (eBay, Amazon Marketplace, Etsy, etc.), include the seller/shop name in vendor_name, e.g. "eBay - elektro-computershop", "Amazon - TechStore GmbH". Use the format "Platform - Seller".
-- Always extract the estimated delivery date when mentioned in the email (e.g. "voraussichtliche Lieferung", "estimated delivery", "Zustellung bis", "Lieferung zwischen"). Many order confirmations (especially eBay) include this directly.
-- For order_date: extract the order/purchase date from the email body. If no explicit date is found in the body, use the Date header from the email metadata as fallback.
-- If the email is NOT related to a purchase order or shipment, return: {"is_relevant": false}
+- Always extract the estimated delivery date when mentioned (e.g. "voraussichtliche Lieferung", "estimated delivery", "Zustellung bis", "Lieferung zwischen"). Many order confirmations (especially eBay) include this directly.
+- For order_date: extract the order/purchase date from the content. If no explicit date is found in the body, use the Date header from metadata as fallback.
+- If the data is NOT related to a purchase order or shipment, return: {"is_relevant": false}
 
 Do not include any text outside the JSON object."""
 
 
-async def analyze(raw_data: dict, db: AsyncSession) -> tuple[EmailAnalysis | None, dict]:
+async def analyze(raw_data: dict, db: AsyncSession) -> tuple[AnalysisResult | None, dict]:
     """Analyze raw input data using the configured LLM. Returns (parsed_result, raw_response_dict)."""
-    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active == True))
+    result = await db.execute(select(LLMConfig).where(LLMConfig.is_active.is_(True)))
     config = result.scalar_one_or_none()
     if not config:
         return None, {"error": "No LLM configured"}
@@ -120,7 +96,7 @@ async def analyze(raw_data: dict, db: AsyncSession) -> tuple[EmailAnalysis | Non
             try:
                 raw_text = await call_llm(config, api_key, messages, max_tokens=2048)
                 raw_dict = json.loads(raw_text)
-                parsed = EmailAnalysis.model_validate(raw_dict)
+                parsed = AnalysisResult.model_validate(raw_dict)
                 return parsed, raw_dict
             except (json.JSONDecodeError, ValidationError):
                 if attempt == 0:

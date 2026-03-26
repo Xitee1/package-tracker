@@ -488,7 +488,7 @@
     },
     "notify-webhook": {
       "title": "Webhook",
-      "description": "Webhook-Benachrichtigungen für Bestellereignisse senden",
+      "description": "Webhook-Benachrichtigungen für Bestellereignisse senden. Achtung: Benutzer können beliebige URLs angeben, auch interne Netzwerkadressen. Nur aktivieren, wenn Sie allen Benutzern vertrauen.",
       "userTitle": "Webhook",
       "webhookUrl": "URL",
       "webhookUrlPlaceholder": "https://example.com/webhook",

@@ -4,12 +4,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.order import Order
-from app.modules.analysers.llm.service import EmailAnalysis
+from app.schemas.analysis import AnalysisResult
 
 
 class OrderMatcherProtocol(Protocol):
     async def find_match(
-        self, analysis: EmailAnalysis, user_id: int, db: AsyncSession
+        self, analysis: AnalysisResult, user_id: int, db: AsyncSession
     ) -> Order | None: ...
 
 
@@ -17,7 +17,7 @@ class DefaultOrderMatcher:
     """3-tier matching: exact order_number → exact tracking_number → fuzzy vendor+items."""
 
     async def find_match(
-        self, analysis: EmailAnalysis, user_id: int, db: AsyncSession
+        self, analysis: AnalysisResult, user_id: int, db: AsyncSession
     ) -> Order | None:
         # Priority 1: exact order_number match
         if analysis.order_number:
@@ -57,7 +57,7 @@ class DefaultOrderMatcher:
             candidates = result.scalars().all()
 
             if analysis.items and candidates:
-                email_item_names = {
+                extracted_item_names = {
                     item.name.lower() for item in analysis.items if item.name
                 }
                 for candidate in candidates:
@@ -65,7 +65,7 @@ class DefaultOrderMatcher:
                         order_item_names = {
                             item.get("name", "").lower() for item in candidate.items
                         }
-                        if email_item_names & order_item_names:
+                        if extracted_item_names & order_item_names:
                             return candidate
 
         return None

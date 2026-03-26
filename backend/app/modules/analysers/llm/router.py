@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +10,8 @@ from app.modules.analysers.llm.models import LLMConfig
 from app.modules.analysers.llm.schemas import LLMConfigRequest, LLMConfigResponse
 from app.api.deps import get_admin_user
 from app.modules.analysers.llm.service import call_llm, SYSTEM_PROMPT
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["llm"], dependencies=[Depends(get_admin_user)])
 
@@ -69,4 +73,5 @@ async def test_llm(db: AsyncSession = Depends(get_db)):
         )
         return {"success": True, "message": f"LLM responded: {text}"}
     except Exception as e:
-        return {"success": False, "message": str(e)}
+        logger.warning("LLM test failed for %s/%s: %s", config.provider, config.model_name, e)
+        raise HTTPException(status_code=502, detail="LLM test call failed")

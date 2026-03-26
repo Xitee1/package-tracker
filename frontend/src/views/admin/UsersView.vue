@@ -220,6 +220,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
 
 const { t } = useI18n()
 
@@ -257,8 +258,7 @@ async function fetchUsers() {
     const res = await api.get('/users')
     users.value = res.data
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('users.loadFailed')
+    error.value = getApiErrorMessage(e, t('users.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -278,8 +278,7 @@ async function handleCreateUser() {
     users.value.push(res.data)
     closeForm()
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    formError.value = err.response?.data?.detail || t('users.createFailed')
+    formError.value = getApiErrorMessage(e, t('users.createFailed'))
   } finally {
     formSaving.value = false
   }
@@ -291,8 +290,7 @@ async function toggleAdmin(user: User) {
     const idx = users.value.findIndex((u) => u.id === user.id)
     if (idx !== -1) users.value[idx] = res.data
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('users.updateFailed')
+    error.value = getApiErrorMessage(e, t('users.updateFailed'))
   }
 }
 
@@ -310,8 +308,7 @@ async function confirmDelete() {
     showDeleteConfirm.value = false
     deleteTarget.value = null
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    error.value = err.response?.data?.detail || t('users.deleteFailed')
+    error.value = getApiErrorMessage(e, t('users.deleteFailed'))
     showDeleteConfirm.value = false
   } finally {
     deleting.value = false

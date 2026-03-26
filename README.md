@@ -99,6 +99,70 @@ The backend provides interactive API docs:
 - **Swagger UI** — `/api/docs`
 - **ReDoc** — `/api/redoc`
 
+## How It Works
+
+1. **Email provider** — a background worker per watched folder uses IMAP IDLE (push notifications) with a polling fallback to detect new emails
+2. **Processing queue** — new emails are added to a queue and processed asynchronously by a scheduled worker (every 5 seconds)
+3. **LLM analysis** — the configured LLM extracts structured data (order number, tracking number, carrier, vendor, items, status, etc.) from the email
+4. **Order matching** — the system matches the analysis to existing orders by order number, tracking number, or vendor + item similarity
+5. **Order updates** — if a matching order is found it updates the status; otherwise it creates a new order. Every status change is recorded as a state entry for auditability.
+6. **Notifications** — configured notifiers (email, webhook) are triggered for relevant events
+
+## Order Statuses
+
+Orders progress through these statuses as emails are processed:
+
+`ordered` → `shipment_preparing` → `shipped` → `in_transit` → `out_for_delivery` → `delivered`
+
+## Admin CLI
+
+A built-in `pt-admin` command is available for user management tasks like listing users and resetting passwords.
+
+### Docker (production)
+
+```bash
+docker compose -f docker-compose.prod.yaml exec package-tracker python -m app.cli list-users
+docker compose -f docker-compose.prod.yaml exec package-tracker python -m app.cli reset-password <username>
+```
+
+### Docker (development)
+
+```bash
+docker compose exec backend python -m app.cli list-users
+docker compose exec backend python -m app.cli reset-password <username>
+```
+
+### Without Docker
+
+```bash
+cd backend
+python -m app.cli list-users
+python -m app.cli reset-password <username>
+```
+
+The `reset-password` command prompts for the new password interactively. Pass `--password <pw>` to skip the prompt.
+
+## Development Setup
+
+### With Docker (recommended)
+
+```bash
+docker compose up
+```
+
+This starts all three services:
+- **Backend** at `http://localhost:8000` (with hot-reload)
+- **Frontend** at `http://localhost:5173`
+- **PostgreSQL** at `localhost:5432`
+
+To rebuild after dependency changes:
+
+```bash
+docker compose up --build
+```
+
+### Without Docker
+
 ## Development Setup
 ### Without Docker
 #### Backend

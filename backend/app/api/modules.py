@@ -27,7 +27,7 @@ async def list_modules(
         configured = True
         if info and info.is_configured:
             try:
-                configured = await info.is_configured()
+                configured = await info.is_configured(db)
             except Exception:
                 configured = False
         response.append(ModuleResponse(

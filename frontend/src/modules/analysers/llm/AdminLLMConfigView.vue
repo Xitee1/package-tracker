@@ -192,6 +192,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
 import ModuleHeader from '@/components/ModuleHeader.vue'
 import { useModulesStore } from '@/stores/modules'
 
@@ -296,8 +297,7 @@ async function fetchConfig() {
       }
     }
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    loadError.value = err.response?.data?.detail || t('llm.loadFailed')
+    loadError.value = getApiErrorMessage(e, t('llm.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -327,8 +327,7 @@ async function handleSave() {
       saveSuccess.value = false
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    saveError.value = err.response?.data?.detail || t('llm.saveFailed')
+    saveError.value = getApiErrorMessage(e, t('llm.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -341,10 +340,9 @@ async function handleTest() {
     const res = await api.post('/modules/analysers/llm/test')
     testResult.value = res.data
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
     testResult.value = {
       success: false,
-      message: err.response?.data?.detail || t('llm.testFailed'),
+      message: getApiErrorMessage(e, t('llm.testFailed')),
     }
   } finally {
     testing.value = false

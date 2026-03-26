@@ -332,7 +332,7 @@ function isActive(path: string): boolean {
 
 function handleLogout() {
   auth.logout()
-  router.push('/login')
+  router.push({ name: 'login' })
 }
 
 onMounted(async () => {

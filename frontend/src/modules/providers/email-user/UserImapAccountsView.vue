@@ -565,6 +565,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore, type EmailAccount, type IMAPFolder, type WatchedFolder } from './store'
+import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
 
 const { t } = useI18n()
 const accountsStore = useAccountsStore()
@@ -672,8 +673,7 @@ async function handleSubmit() {
     }
     closeForm()
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    formError.value = err.response?.data?.detail || t('accounts.saveFailed')
+    formError.value = getApiErrorMessage(e, t('accounts.saveFailed'))
   } finally {
     formSaving.value = false
   }
@@ -691,10 +691,9 @@ async function handleTest(id: number) {
         : t('accounts.connectionTestFailed'),
     }
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
     testResults.value[id] = {
       success: false,
-      message: err.response?.data?.detail || t('accounts.connectionTestFailed'),
+      message: getApiErrorMessage(e, t('accounts.connectionTestFailed')),
     }
   } finally {
     testingId.value = null
@@ -717,8 +716,7 @@ async function confirmDelete() {
       expandedId.value = null
     }
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    formError.value = err.response?.data?.detail || t('accounts.deleteFailed')
+    formError.value = getApiErrorMessage(e, t('accounts.deleteFailed'))
   } finally {
     deletingId.value = null
   }
@@ -747,8 +745,7 @@ async function loadFolders(id: number) {
     availableFolders.value = folders
     watchedFolders.value = watched
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value = err.response?.data?.detail || t('accounts.loadFoldersFailed')
+    folderError.value = getApiErrorMessage(e, t('accounts.loadFoldersFailed'))
   } finally {
     foldersLoading.value = false
   }
@@ -777,8 +774,7 @@ async function handleOverrideChange(
     const idx = watchedFolders.value.findIndex((f) => f.id === wf.id)
     if (idx !== -1) watchedFolders.value[idx] = updated
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value = err.response?.data?.detail || t('accounts.overrideUpdateFailed')
+    folderError.value = getApiErrorMessage(e, t('accounts.overrideUpdateFailed'))
   }
 }
 
@@ -787,8 +783,7 @@ async function handleAddWatched(accountId: number, folderName: string) {
     const wf = await accountsStore.addWatchedFolder(accountId, folderName)
     watchedFolders.value.push(wf)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value = err.response?.data?.detail || t('accounts.addWatchedFailed')
+    folderError.value = getApiErrorMessage(e, t('accounts.addWatchedFailed'))
   }
 }
 
@@ -797,8 +792,7 @@ async function handleRemoveWatched(accountId: number, folderId: number) {
     await accountsStore.removeWatchedFolder(accountId, folderId)
     watchedFolders.value = watchedFolders.value.filter((wf) => wf.id !== folderId)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    folderError.value = err.response?.data?.detail || t('accounts.removeWatchedFailed')
+    folderError.value = getApiErrorMessage(e, t('accounts.removeWatchedFailed'))
   }
 }
 
@@ -815,11 +809,10 @@ async function handleScan(accountId: number, folderId: number) {
     await accountsStore.scanFolder(accountId, folderId)
     folderError.value = ''
   } catch (e: unknown) {
-    const err = e as { response?: { status?: number; data?: { detail?: string } } }
-    if (err.response?.status === 409) {
+    if (getApiErrorStatus(e) === 409) {
       folderError.value = t('accounts.scanAlreadyRunning')
     } else {
-      folderError.value = err.response?.data?.detail || t('accounts.scanTriggered')
+      folderError.value = getApiErrorMessage(e, t('accounts.scanTriggered'))
     }
   } finally {
     scanningFolderId.value = null

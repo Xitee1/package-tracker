@@ -25,6 +25,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -37,9 +38,8 @@ onMounted(async () => {
     await api.post(`/notifiers/notify-email/verify/${route.params.token}`)
     success.value = true
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
     error.value =
-      err.response?.data?.detail === 'Verification link expired'
+      getApiErrorMessage(e, '') === 'Verification link expired'
         ? t('modules.notify-email.verifyExpired')
         : t('modules.notify-email.verifyFailed')
   } finally {

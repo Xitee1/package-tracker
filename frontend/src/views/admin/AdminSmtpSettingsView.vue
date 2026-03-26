@@ -201,6 +201,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
 
 const { t } = useI18n()
 
@@ -243,9 +244,8 @@ async function fetchConfig() {
       form.value.sender_name = res.data.sender_name || ''
     }
   } catch (e: unknown) {
-    const err = e as { response?: { status?: number; data?: { detail?: string } } }
-    if (err.response?.status !== 404) {
-      loadError.value = err.response?.data?.detail || t('smtp.loadFailed')
+    if (getApiErrorStatus(e) !== 404) {
+      loadError.value = getApiErrorMessage(e, t('smtp.loadFailed'))
     }
   } finally {
     loading.value = false
@@ -268,8 +268,7 @@ async function handleSave() {
       saveSuccess.value = false
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    saveError.value = err.response?.data?.detail || t('smtp.saveFailed')
+    saveError.value = getApiErrorMessage(e, t('smtp.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -286,8 +285,7 @@ async function handleTest() {
       testSuccess.value = false
     }, 5000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    testError.value = err.response?.data?.detail || t('smtp.testFailed')
+    testError.value = getApiErrorMessage(e, t('smtp.testFailed'))
   } finally {
     testing.value = false
   }

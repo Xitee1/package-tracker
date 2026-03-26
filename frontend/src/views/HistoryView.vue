@@ -102,7 +102,7 @@
               <td class="px-5 py-4 text-sm">
                 <router-link
                   v-if="item.order_id"
-                  :to="`/orders/${item.order_id}`"
+                  :to="{ name: 'order-detail', params: { id: item.order_id } }"
                   class="text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   {{ t('queue.viewOrder') }}
@@ -173,7 +173,7 @@
               </button>
               <router-link
                 v-if="item.order_id"
-                :to="`/orders/${item.order_id}`"
+                :to="{ name: 'order-detail', params: { id: item.order_id } }"
                 class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
               >
                 {{ t('queue.viewOrder') }}
@@ -287,7 +287,7 @@
             <div class="mt-1">
               <router-link
                 v-if="detailItem.order_id"
-                :to="`/orders/${detailItem.order_id}`"
+                :to="{ name: 'order-detail', params: { id: detailItem.order_id } }"
                 class="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                 @click="closeDetail"
               >
@@ -424,6 +424,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQueueStore, type QueueItem, type QueueItemSummary } from '@/stores/queue'
+import { formatDateTime as formatDate } from '@/utils/format'
 
 const { t } = useI18n()
 const queueStore = useQueueStore()
@@ -551,17 +552,6 @@ function statusLabel(status: string): string {
     failed: t('queue.statusFailed'),
   }
   return labels[status] || status
-}
-
-// --- Formatting ---
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return (
-    date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) +
-    ' ' +
-    date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-  )
 }
 
 // --- Lifecycle ---

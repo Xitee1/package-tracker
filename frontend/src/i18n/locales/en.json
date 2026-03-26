@@ -488,7 +488,7 @@
     },
     "notify-webhook": {
       "title": "Webhook",
-      "description": "Send webhook notifications for order events",
+      "description": "Send webhook notifications for order events. Warning: users can target any URL, including internal network addresses. Only enable if you trust all users.",
       "userTitle": "Webhook",
       "webhookUrl": "URL",
       "webhookUrlPlaceholder": "https://example.com/webhook",

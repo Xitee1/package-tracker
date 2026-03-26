@@ -8,6 +8,7 @@ from app.core.auth import hash_password
 from app.core.encryption import encrypt_value
 from app.modules.providers.email_user.models import EmailAccount, WatchedFolder
 from app.modules._shared.email.models import ProcessedEmail
+from app.modules._shared.email.imap_watch_loop import generate_fallback_message_id
 from app.models.user import User
 
 
@@ -52,16 +53,6 @@ async def test_folder(db_session, test_account):
     await db_session.commit()
     await db_session.refresh(folder)
     return folder
-
-
-def generate_fallback_message_id(account_id: int, folder_path: str, uidvalidity: int | None, uid: int) -> str:
-    """
-    Generate fallback message_id using the same logic as imap_worker.py.
-    This mirrors the implementation to test the format.
-    """
-    uidvalidity_part = str(uidvalidity) if uidvalidity is not None else "no-uidvalidity"
-    folder_hash = hashlib.sha256(folder_path.encode()).hexdigest()[:16]
-    return f"fallback:{account_id}:{folder_hash}:{uidvalidity_part}:{uid}"
 
 
 @pytest.mark.asyncio

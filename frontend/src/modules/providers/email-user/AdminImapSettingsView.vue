@@ -94,6 +94,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
 import ModuleHeader from '@/components/ModuleHeader.vue'
 import { useModulesStore } from '@/stores/modules'
 
@@ -127,8 +128,7 @@ async function fetchSettings() {
     form.value.max_email_age_days = res.data.max_email_age_days
     form.value.check_uidvalidity = res.data.check_uidvalidity
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    loadError.value = err.response?.data?.detail || t('imap.loadFailed')
+    loadError.value = getApiErrorMessage(e, t('imap.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -145,8 +145,7 @@ async function handleSave() {
       saveSuccess.value = false
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    saveError.value = err.response?.data?.detail || t('imap.saveFailed')
+    saveError.value = getApiErrorMessage(e, t('imap.saveFailed'))
   } finally {
     saving.value = false
   }

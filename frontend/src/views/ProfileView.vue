@@ -260,6 +260,8 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/client'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { getApiErrorMessage } from '@/utils/api-error'
+import { formatDate } from '@/utils/format'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -300,8 +302,7 @@ async function handleChangePassword() {
       pwSuccess.value = ''
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    pwError.value = err.response?.data?.detail || t('profile.updateFailed')
+    pwError.value = getApiErrorMessage(e, t('profile.updateFailed'))
   } finally {
     pwSaving.value = false
   }
@@ -348,8 +349,7 @@ async function handleCreateKey() {
     showCreateForm.value = false
     await fetchKeys()
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    keyError.value = err.response?.data?.detail || t('profile.createKeyFailed')
+    keyError.value = getApiErrorMessage(e, t('profile.createKeyFailed'))
   } finally {
     keyCreating.value = false
   }
@@ -379,14 +379,6 @@ function copyKey() {
   setTimeout(() => {
     copied.value = false
   }, 2000)
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
 }
 
 onMounted(fetchKeys)

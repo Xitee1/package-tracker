@@ -80,6 +80,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
+import { getApiErrorMessage } from '@/utils/api-error'
 
 const { t } = useI18n()
 
@@ -102,8 +103,7 @@ async function fetchSettings() {
     form.value.max_age_days = res.data.max_age_days
     form.value.max_per_user = res.data.max_per_user
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    loadError.value = err.response?.data?.detail || t('queue.loadFailed')
+    loadError.value = getApiErrorMessage(e, t('queue.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -120,8 +120,7 @@ async function handleSave() {
       saveSuccess.value = false
     }, 3000)
   } catch (e: unknown) {
-    const err = e as { response?: { data?: { detail?: string } } }
-    saveError.value = err.response?.data?.detail || t('queue.saveFailed')
+    saveError.value = getApiErrorMessage(e, t('queue.saveFailed'))
   } finally {
     saving.value = false
   }

@@ -173,7 +173,7 @@
             <tr
               v-for="order in recentOrders"
               :key="order.id"
-              @click="$router.push(`/orders/${order.id}`)"
+              @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
               class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
             >
               <td class="px-5 py-3">
@@ -216,6 +216,7 @@
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useOrdersStore } from '@/stores/orders'
+import { formatDate, formatAmount } from '@/utils/format'
 
 const { t, te } = useI18n()
 const ordersStore = useOrdersStore()
@@ -254,17 +255,6 @@ function formatStatus(status: string): string {
   const key = `status.${status}`
   if (te(key)) return t(key)
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function formatAmount(amount: number | null, currency: string | null): string {
-  if (amount === null) return '-'
-  const curr = currency || 'USD'
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: curr }).format(amount)
 }
 
 onMounted(() => {

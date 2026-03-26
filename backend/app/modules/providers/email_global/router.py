@@ -1,5 +1,3 @@
-import imaplib
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_admin_user
 from app.core.encryption import decrypt_value, encrypt_value
 from app.database import get_db
+from app.modules._shared.email.imap_utils import list_imap_folders
 from app.modules.providers.email_global.models import GlobalMailConfig
 from app.modules.providers.email_global.schemas import (
     GlobalMailConfigRequest,
@@ -71,32 +70,14 @@ async def list_global_mail_folders(
         raise HTTPException(status_code=404, detail="Global mail not configured")
     try:
         password = decrypt_value(config.imap_password_encrypted)
-        if config.use_ssl:
-            mail = imaplib.IMAP4_SSL(config.imap_host, config.imap_port)
-        else:
-            mail = imaplib.IMAP4(config.imap_host, config.imap_port)
-        mail.login(config.imap_user, password)
-        try:
-            _, caps = mail.capability()
-            capabilities = caps[0].decode().upper().split() if caps else []
-            idle_supported = "IDLE" in capabilities
-
-            _, folder_list = mail.list()
-        finally:
-            try:
-                mail.logout()
-            except Exception:
-                pass
-        folders = []
-        for item in folder_list:
-            decoded = item.decode() if isinstance(item, bytes) else item
-            parts = decoded.rsplit('" "', 1)
-            if len(parts) == 2:
-                folders.append(parts[1].strip('"'))
-            else:
-                parts = decoded.rsplit(" ", 1)
-                folders.append(parts[-1].strip('"'))
-        return GlobalMailFoldersResponse(folders=folders, idle_supported=idle_supported)
+        result = await list_imap_folders(
+            host=config.imap_host,
+            port=config.imap_port,
+            user=config.imap_user,
+            password=password,
+            use_ssl=config.use_ssl,
+        )
+        return GlobalMailFoldersResponse(folders=result.folders, idle_supported=result.idle_supported)
     except HTTPException:
         raise
     except Exception as e:

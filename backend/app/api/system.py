@@ -60,7 +60,7 @@ async def system_status(db: AsyncSession = Depends(get_db)):
         configured = True
         if info.is_configured:
             try:
-                configured = await info.is_configured()
+                configured = await info.is_configured(db)
             except Exception:
                 configured = False
 

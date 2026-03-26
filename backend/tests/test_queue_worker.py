@@ -14,7 +14,7 @@ from app.models.order import Order
 from app.models.order_state import OrderState
 from app.models.queue_item import QueueItem
 from app.models.user import User
-from app.modules.analysers.llm.service import EmailAnalysis, EmailItem
+from app.schemas.analysis import AnalysisResult, ExtractedItem
 from app.services.orders.order_service import create_or_update_order
 from app.services.orders.order_matcher import DefaultOrderMatcher
 
@@ -62,11 +62,11 @@ def _make_queue_item(user_id: int, **kwargs) -> QueueItem:
     return QueueItem(**defaults)
 
 
-def _make_analysis(**kwargs) -> EmailAnalysis:
-    """Helper to create an EmailAnalysis with defaults."""
+def _make_analysis(**kwargs) -> AnalysisResult:
+    """Helper to create an AnalysisResult with defaults."""
     defaults = {"is_relevant": True}
     defaults.update(kwargs)
-    return EmailAnalysis(**defaults)
+    return AnalysisResult(**defaults)
 
 
 # ---------------------------------------------------------------------------
@@ -85,7 +85,7 @@ async def test_create_order_from_analysis(db_session, test_user):
         order_date="2025-01-15",
         total_amount=59.99,
         currency="USD",
-        items=[EmailItem(name="Keyboard", quantity=1, price=59.99)],
+        items=[ExtractedItem(name="Keyboard", quantity=1, price=59.99)],
     )
 
     order = await create_or_update_order(
@@ -212,7 +212,7 @@ async def test_irrelevant_analysis_creates_no_order(db_session, test_user):
 
 
 # ---------------------------------------------------------------------------
-# Tests for process_next_item (integration, mocked session + LLM)
+# Tests for process_next_item (integration, mocked session + analysers)
 # ---------------------------------------------------------------------------
 
 
@@ -229,10 +229,8 @@ async def test_process_skips_when_no_analyser_configured(db_session, test_user):
 
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock) as mock_check,
+        patch("app.services.queue.queue_worker.get_active_analysers", new_callable=AsyncMock, return_value=[]),
     ):
-        mock_check.return_value = False
-
         from app.services.queue.queue_worker import process_next_item
         await process_next_item()
 
@@ -255,12 +253,12 @@ async def test_process_queued_item_creates_order(db_session, test_user):
     await db_session.commit()
 
     analysis = _make_analysis(
-        email_type="order_confirmation",
+        document_type="order_confirmation",
         order_number="ORD-500",
         vendor_name="Amazon",
         vendor_domain="amazon.com",
         status="ordered",
-        items=[EmailItem(name="Keyboard", quantity=1, price=59.99)],
+        items=[ExtractedItem(name="Keyboard", quantity=1, price=59.99)],
     )
     raw_response = {"is_relevant": True, "order_number": "ORD-500"}
 
@@ -268,13 +266,12 @@ async def test_process_queued_item_creates_order(db_session, test_user):
     async def mock_async_session():
         yield db_session
 
+    mock_analyze = AsyncMock(return_value=(analysis, raw_response))
+
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
-        patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
+        patch("app.services.queue.queue_worker.get_active_analysers", new_callable=AsyncMock, return_value=[("llm", mock_analyze)]),
     ):
-        mock_analyze.return_value = (analysis, raw_response)
-
         from app.services.queue.queue_worker import process_next_item
         await process_next_item()
 
@@ -303,7 +300,7 @@ async def test_process_queued_item_creates_order(db_session, test_user):
 
 @pytest.mark.asyncio
 async def test_process_irrelevant_item(db_session, test_user):
-    """Processing an irrelevant email should complete the item without creating an order."""
+    """Processing an irrelevant item should complete without creating an order."""
     item = _make_queue_item(
         test_user.id,
         raw_data={
@@ -315,20 +312,19 @@ async def test_process_irrelevant_item(db_session, test_user):
     db_session.add(item)
     await db_session.commit()
 
-    analysis = EmailAnalysis(is_relevant=False)
+    analysis = AnalysisResult(is_relevant=False)
     raw_response = {"is_relevant": False}
 
     @asynccontextmanager
     async def mock_async_session():
         yield db_session
 
+    mock_analyze = AsyncMock(return_value=(analysis, raw_response))
+
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
-        patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
+        patch("app.services.queue.queue_worker.get_active_analysers", new_callable=AsyncMock, return_value=[("llm", mock_analyze)]),
     ):
-        mock_analyze.return_value = (analysis, raw_response)
-
         from app.services.queue.queue_worker import process_next_item
         await process_next_item()
 
@@ -369,7 +365,7 @@ async def test_process_updates_existing_order(db_session, test_user):
     await db_session.commit()
 
     analysis = _make_analysis(
-        email_type="shipment_confirmation",
+        document_type="shipment_confirmation",
         order_number="ORD-600",
         tracking_number="1Z999AA10123456784",
         carrier="UPS",
@@ -381,13 +377,12 @@ async def test_process_updates_existing_order(db_session, test_user):
     async def mock_async_session():
         yield db_session
 
+    mock_analyze = AsyncMock(return_value=(analysis, raw_response))
+
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
-        patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
+        patch("app.services.queue.queue_worker.get_active_analysers", new_callable=AsyncMock, return_value=[("llm", mock_analyze)]),
     ):
-        mock_analyze.return_value = (analysis, raw_response)
-
         from app.services.queue.queue_worker import process_next_item
         await process_next_item()
 
@@ -403,7 +398,7 @@ async def test_process_updates_existing_order(db_session, test_user):
 
 @pytest.mark.asyncio
 async def test_process_failed_llm(db_session, test_user):
-    """Mock LLM failure -> QueueItem status=failed, error_message set."""
+    """All analysers fail -> QueueItem status=failed, error_message set."""
     item = _make_queue_item(test_user.id)
     db_session.add(item)
     await db_session.commit()
@@ -413,13 +408,12 @@ async def test_process_failed_llm(db_session, test_user):
     async def mock_async_session():
         yield db_session
 
+    mock_analyze = AsyncMock(side_effect=RuntimeError("LLM unavailable"))
+
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_worker.analyze", new_callable=AsyncMock) as mock_analyze,
-        patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
+        patch("app.services.queue.queue_worker.get_active_analysers", new_callable=AsyncMock, return_value=[("llm", mock_analyze)]),
     ):
-        mock_analyze.side_effect = RuntimeError("LLM unavailable")
-
         from app.services.queue.queue_worker import process_next_item
         await process_next_item()
 
@@ -440,9 +434,11 @@ async def test_no_items_to_process(db_session):
     async def mock_async_session():
         yield db_session
 
+    mock_analyze = AsyncMock()
+
     with (
         patch("app.services.queue.queue_worker.async_session", mock_async_session),
-        patch("app.services.queue.queue_worker.has_available_analyser", new_callable=AsyncMock, return_value=True),
+        patch("app.services.queue.queue_worker.get_active_analysers", new_callable=AsyncMock, return_value=[("llm", mock_analyze)]),
     ):
         from app.services.queue.queue_worker import process_next_item
         await process_next_item()  # Should not raise

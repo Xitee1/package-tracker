@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 
 from app.modules.analysers.llm.models import LLMConfig
 from app.core.encryption import encrypt_value
-from app.modules.analysers.llm.service import analyze, EmailAnalysis
+from app.modules.analysers.llm.service import analyze, AnalysisResult
 
 
 def _make_llm_response(content: str):
@@ -38,7 +38,7 @@ async def test_analyze_relevant_order_email(db_session, llm_config):
     """Test that a relevant order confirmation email is parsed correctly."""
     raw = {
         "is_relevant": True,
-        "email_type": "order_confirmation",
+        "document_type": "order_confirmation",
         "order_number": "ORD-12345",
         "tracking_number": None,
         "carrier": None,
@@ -97,7 +97,7 @@ async def test_analyze_malformed_json_retry(db_session, llm_config):
     """Test that malformed JSON on first attempt triggers a retry."""
     good_response = {
         "is_relevant": True,
-        "email_type": "shipment_confirmation",
+        "document_type": "shipment_confirmation",
         "order_number": "ORD-999",
         "tracking_number": "1Z999AA10123456784",
         "carrier": "UPS",
