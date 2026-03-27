@@ -266,7 +266,7 @@
     "usePolling": "Use polling",
     "usePollingTooltip": "Force periodic scanning instead of push notifications",
     "idleNotSupported": "This email provider does not support push notifications (IMAP IDLE)",
-    "idleDetecting": "Sync mode has not been detected yet",
+    "idleDetecting": "Sync mode has not been checked yet",
     "folderLimitWarning": "Watching many folders requires one connection per folder. Some providers limit concurrent connections.",
     "idleNotSupportedReject": "This email provider does not support IMAP IDLE",
     "modeIdle": "IDLE",
