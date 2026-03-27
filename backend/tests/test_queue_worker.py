@@ -427,6 +427,35 @@ async def test_process_failed_llm(db_session, test_user):
 
 
 @pytest.mark.asyncio
+async def test_process_analyser_returns_error_dict(db_session, test_user):
+    """Analyser returns (None, {"error": ...}) -> status=failed, not completed."""
+    item = _make_queue_item(test_user.id)
+    db_session.add(item)
+    await db_session.commit()
+
+    error_response = {"error": "litellm.AuthenticationError: The api_key client option must be set"}
+
+    @asynccontextmanager
+    async def mock_async_session():
+        yield db_session
+
+    mock_analyze = AsyncMock(return_value=(None, error_response))
+
+    with (
+        patch("app.services.queue.queue_worker.async_session", mock_async_session),
+        patch("app.services.queue.queue_worker.get_active_analysers", new_callable=AsyncMock, return_value=[("llm", mock_analyze)]),
+    ):
+        from app.services.queue.queue_worker import process_next_item
+        await process_next_item()
+
+    await db_session.refresh(item)
+    assert item.status == "failed"
+    assert "AuthenticationError" in item.error_message
+    assert item.extracted_data == error_response
+    assert item.order_id is None
+
+
+@pytest.mark.asyncio
 async def test_no_items_to_process(db_session):
     """Empty queue -> no errors, no-op."""
 
