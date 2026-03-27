@@ -61,7 +61,7 @@ async def process_next_item() -> None:
 
             item.extracted_data = raw_response
 
-            if analysis is None or not analysis.is_relevant:
+            if not analysis.is_relevant:
                 item.status = "completed"
                 await db.commit()
                 return
