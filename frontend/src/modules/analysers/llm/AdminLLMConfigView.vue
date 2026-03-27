@@ -129,16 +129,31 @@
               {{ $t('llm.systemPromptHelp') }}
             </p>
             <textarea
-              v-model="displayPrompt"
+              v-model="promptText"
               rows="14"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
+              :placeholder="isUsingDefault ? defaultPromptText : ''"
+              @input="onPromptInput"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
+              :class="
+                isUsingDefault
+                  ? 'bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+              "
             ></textarea>
             <div class="mt-1 flex items-center gap-2">
+              <button
+                v-if="isUsingDefault"
+                type="button"
+                @click="handleEditDefault"
+                class="text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+              >
+                {{ $t('llm.editDefaultPrompt') }}
+              </button>
               <button
                 v-if="!isUsingDefault"
                 type="button"
                 @click="handleResetPrompt"
-                class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                class="text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
                 {{ $t('llm.resetToDefault') }}
               </button>
@@ -229,7 +244,9 @@ const form = ref({
 
 const { isDirty, reset: resetDirty } = useDirtyTracking(form)
 
-const defaultSystemPrompt = ref('')
+const promptText = ref('')
+const isUsingDefault = computed(() => form.value.system_prompt === null)
+const defaultPromptText = ref('')
 
 const knownProviders = ['openai', 'anthropic', 'ollama']
 
@@ -255,14 +272,14 @@ const basePlaceholder = computed(() => {
   return 'https://api.example.com/v1'
 })
 
-const displayPrompt = computed({
-  get: () => form.value.system_prompt ?? defaultSystemPrompt.value,
-  set: (val: string) => {
-    form.value.system_prompt = val === defaultSystemPrompt.value ? null : val
-  },
-})
+function onPromptInput() {
+  form.value.system_prompt = promptText.value || null
+}
 
-const isUsingDefault = computed(() => form.value.system_prompt === null)
+function handleEditDefault() {
+  promptText.value = defaultPromptText.value
+  form.value.system_prompt = defaultPromptText.value
+}
 
 function handleProviderChange() {
   if (providerSelect.value !== 'custom') {
@@ -276,6 +293,7 @@ function handleProviderChange() {
 }
 
 function handleResetPrompt() {
+  promptText.value = ''
   form.value.system_prompt = null
 }
 
@@ -290,8 +308,9 @@ async function fetchConfig() {
       form.value.api_key = ''
       form.value.api_base_url = res.data.api_base_url || ''
       hasExistingKey.value = res.data.has_api_key || false
-      defaultSystemPrompt.value = res.data.default_system_prompt || ''
-      form.value.system_prompt = res.data.system_prompt ?? null
+      defaultPromptText.value = res.data.default_system_prompt || ''
+      form.value.system_prompt = res.data.is_default ? null : (res.data.system_prompt || '')
+      promptText.value = res.data.is_default ? '' : (res.data.system_prompt || '')
 
       if (knownProviders.includes(form.value.provider)) {
         providerSelect.value = form.value.provider
@@ -323,10 +342,15 @@ async function handleSave() {
     if (showBaseUrl.value && form.value.api_base_url) {
       payload.api_base_url = form.value.api_base_url
     }
-    await api.patch('/modules/analysers/llm/config', payload)
+    const res = await api.patch('/modules/analysers/llm/config', payload)
     saveSuccess.value = true
     hasExistingKey.value = hasExistingKey.value || !!form.value.api_key
     form.value.api_key = ''
+    if (res.data) {
+      defaultPromptText.value = res.data.default_system_prompt || ''
+      form.value.system_prompt = res.data.is_default ? null : (res.data.system_prompt || '')
+      promptText.value = res.data.is_default ? '' : (res.data.system_prompt || '')
+    }
     resetDirty() // Must come after api_key clear so snapshot captures the cleared state
     setTimeout(() => {
       saveSuccess.value = false
