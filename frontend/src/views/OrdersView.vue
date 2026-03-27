@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('orders.title') }}</h1>
       <button
         @click="showCreateModal = true"
-        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 self-start sm:self-auto"
       >
         + {{ $t('orders.newOrder') }}
       </button>
@@ -43,8 +43,59 @@
         </div>
       </div>
 
-      <!-- Status Tabs -->
-      <div class="border-t border-gray-200 dark:border-gray-700 px-4">
+      <!-- Mobile: Status Dropdown -->
+      <div class="sm:hidden border-t border-gray-200 dark:border-gray-700 p-4">
+        <div class="relative">
+          <button
+            @click="filterDropdownOpen = !filterDropdownOpen"
+            class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
+          >
+            <span>
+              {{ activeTabLabel }}
+              <span
+                v-if="activeTabCount > 0"
+                class="ml-1.5 py-0.5 px-2 rounded-full text-xs bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+              >
+                {{ activeTabCount }}
+              </span>
+            </span>
+            <svg
+              class="w-4 h-4 transition-transform duration-200"
+              :class="{ 'rotate-180': filterDropdownOpen }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div
+            v-if="filterDropdownOpen"
+            class="absolute z-20 left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1"
+          >
+            <button
+              v-for="tab in tabs"
+              :key="tab.value"
+              @click="selectTab(tab.value); filterDropdownOpen = false"
+              class="w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between"
+              :class="activeTab === tab.value ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
+            >
+              <span>{{ tab.label }}</span>
+              <span
+                v-if="tab.count > 0"
+                class="py-0.5 px-2 rounded-full text-xs"
+                :class="activeTab === tab.value ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'"
+              >
+                {{ tab.count }}
+              </span>
+            </button>
+          </div>
+        </div>
+        <div v-if="filterDropdownOpen" class="fixed inset-0 z-10" @click="filterDropdownOpen = false"></div>
+      </div>
+
+      <!-- Desktop: Status Tabs -->
+      <div class="hidden sm:block border-t border-gray-200 dark:border-gray-700 px-4">
         <nav class="flex space-x-6 -mb-px" aria-label="Status filter">
           <button
             v-for="tab in tabs"
@@ -90,93 +141,129 @@
         <p class="text-sm">{{ $t('orders.noOrdersHint') }}</p>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr
-              class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
-            >
-              <th
-                v-for="col in [
-                  { key: 'order', label: $t('orders.order') },
-                  { key: 'vendor', label: $t('orders.vendor') },
-                  { key: 'carrier', label: $t('orders.carrier') },
-                  { key: 'status', label: $t('orders.status') },
-                  { key: 'date', label: $t('orders.date') },
-                  { key: 'amount', label: $t('orders.amount') },
-                ]"
-                :key="col.key"
-                @click="toggleSort(col.key)"
-                class="px-5 py-3 cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                :class="{ 'text-right': col.key === 'amount' }"
+      <div v-else>
+        <!-- Desktop Table -->
+        <div class="overflow-x-auto hidden lg:block">
+          <table class="w-full">
+            <thead>
+              <tr
+                class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
               >
-                <span class="inline-flex items-center gap-1">
-                  {{ col.label }}
-                  <svg
-                    v-if="ordersStore.sortBy === SORT_COLUMN_MAP[col.key]"
-                    class="w-3.5 h-3.5 text-blue-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    :aria-label="
-                      ordersStore.sortDir === 'asc' ? $t('orders.sortAsc') : $t('orders.sortDesc')
-                    "
-                  >
-                    <path
-                      v-if="ordersStore.sortDir === 'asc'"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 15l7-7 7 7"
-                    />
-                    <path
-                      v-else
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </span>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr
-              v-for="order in ordersStore.orders"
-              :key="order.id"
-              @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
-              class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-            >
-              <td class="px-5 py-4">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ order.order_number || `#${order.id}` }}
-                </div>
-                <div
-                  v-if="order.tracking_number"
-                  class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                <th
+                  v-for="col in [
+                    { key: 'order', label: $t('orders.order') },
+                    { key: 'vendor', label: $t('orders.vendor') },
+                    { key: 'carrier', label: $t('orders.carrier') },
+                    { key: 'status', label: $t('orders.status') },
+                    { key: 'date', label: $t('orders.date') },
+                    { key: 'amount', label: $t('orders.amount') },
+                  ]"
+                  :key="col.key"
+                  @click="toggleSort(col.key)"
+                  class="px-5 py-3 cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                  :class="{ 'text-right': col.key === 'amount' }"
                 >
-                  {{ order.tracking_number }}
-                </div>
-              </td>
-              <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
-                {{ order.vendor_name || order.vendor_domain || '-' }}
-              </td>
-              <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
-                {{ order.carrier || '-' }}
-              </td>
-              <td class="px-5 py-4">
-                <StatusBadge :status="order.status" />
-              </td>
-              <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
-                {{ formatDate(order.order_date || order.created_at) }}
-              </td>
-              <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400 text-right">
-                {{ formatAmount(order.total_amount, order.currency) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  <span class="inline-flex items-center gap-1">
+                    {{ col.label }}
+                    <svg
+                      v-if="ordersStore.sortBy === SORT_COLUMN_MAP[col.key]"
+                      class="w-3.5 h-3.5 text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      :aria-label="
+                        ordersStore.sortDir === 'asc' ? $t('orders.sortAsc') : $t('orders.sortDesc')
+                      "
+                    >
+                      <path
+                        v-if="ordersStore.sortDir === 'asc'"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 15l7-7 7 7"
+                      />
+                      <path
+                        v-else
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr
+                v-for="order in ordersStore.orders"
+                :key="order.id"
+                @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
+                class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+              >
+                <td class="px-5 py-4">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                    {{ order.order_number || `#${order.id}` }}
+                  </div>
+                  <div
+                    v-if="order.tracking_number"
+                    class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                  >
+                    {{ order.tracking_number }}
+                  </div>
+                </td>
+                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
+                  {{ order.vendor_name || order.vendor_domain || '-' }}
+                </td>
+                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
+                  {{ order.carrier || '-' }}
+                </td>
+                <td class="px-5 py-4">
+                  <StatusBadge :status="order.status" />
+                </td>
+                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatDate(order.order_date || order.created_at) }}
+                </td>
+                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400 text-right">
+                  {{ formatAmount(order.total_amount, order.currency) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="lg:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="order in ordersStore.orders"
+            :key="order.id"
+            @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
+            class="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm font-medium text-gray-900 dark:text-white truncate mr-2">
+                {{ order.order_number || `#${order.id}` }}
+              </span>
+              <StatusBadge :status="order.status" />
+            </div>
+            <div
+              v-if="order.tracking_number"
+              class="text-xs text-gray-500 dark:text-gray-400 mb-2 truncate"
+            >
+              {{ order.tracking_number }}
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>{{ order.vendor_name || order.vendor_domain || '-' }}</span>
+              <span>{{ formatDate(order.order_date || order.created_at) }}</span>
+            </div>
+            <div
+              v-if="order.total_amount"
+              class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right"
+            >
+              {{ formatAmount(order.total_amount, order.currency) }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -228,6 +315,17 @@ const ordersStore = useOrdersStore()
 const searchQuery = ref('')
 const activeTab = ref('')
 const showCreateModal = ref(false)
+const filterDropdownOpen = ref(false)
+
+const activeTabLabel = computed(() => {
+  const tab = tabs.value.find((t) => t.value === activeTab.value)
+  return tab?.label ?? t('orders.all')
+})
+
+const activeTabCount = computed(() => {
+  const tab = tabs.value.find((t) => t.value === activeTab.value)
+  return tab?.count ?? 0
+})
 
 // Map tab values to comma-separated backend status params
 const STATUS_MAP: Record<string, string> = {

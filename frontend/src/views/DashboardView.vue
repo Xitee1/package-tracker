@@ -156,57 +156,98 @@
         {{ $t('dashboard.noOrders') }}
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr
-              class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+      <div v-else>
+        <!-- Desktop Table -->
+        <div class="overflow-x-auto hidden lg:block">
+          <table class="w-full">
+            <thead>
+              <tr
+                class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                <th class="px-5 py-3">{{ $t('dashboard.order') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.vendor') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.status') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.date') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.amount') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr
+                v-for="order in recentOrders"
+                :key="order.id"
+                @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
+                class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+              >
+                <td class="px-5 py-3">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                    {{ order.order_number || order.tracking_number || `#${order.id}` }}
+                  </div>
+                  <div
+                    v-if="order.tracking_number && order.order_number"
+                    class="text-xs text-gray-500 dark:text-gray-400"
+                  >
+                    {{ order.tracking_number }}
+                  </div>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
+                  {{ order.vendor_name || order.vendor_domain || '-' }}
+                </td>
+                <td class="px-5 py-3">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="statusClass(order.status)"
+                  >
+                    {{ formatStatus(order.status) }}
+                  </span>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatDate(order.order_date || order.created_at) }}
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatAmount(order.total_amount, order.currency) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="lg:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="order in recentOrders"
+            :key="order.id"
+            @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
+            class="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm font-medium text-gray-900 dark:text-white truncate mr-2">
+                {{ order.order_number || order.tracking_number || `#${order.id}` }}
+              </span>
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
+                :class="statusClass(order.status)"
+              >
+                {{ formatStatus(order.status) }}
+              </span>
+            </div>
+            <div
+              v-if="order.tracking_number && order.order_number"
+              class="text-xs text-gray-500 dark:text-gray-400 mb-2 truncate"
             >
-              <th class="px-5 py-3">{{ $t('dashboard.order') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.vendor') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.status') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.date') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.amount') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr
-              v-for="order in recentOrders"
-              :key="order.id"
-              @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
-              class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+              {{ order.tracking_number }}
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>{{ order.vendor_name || order.vendor_domain || '-' }}</span>
+              <span>{{ formatDate(order.order_date || order.created_at) }}</span>
+            </div>
+            <div
+              v-if="order.total_amount"
+              class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right"
             >
-              <td class="px-5 py-3">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ order.order_number || order.tracking_number || `#${order.id}` }}
-                </div>
-                <div
-                  v-if="order.tracking_number && order.order_number"
-                  class="text-xs text-gray-500 dark:text-gray-400"
-                >
-                  {{ order.tracking_number }}
-                </div>
-              </td>
-              <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ order.vendor_name || order.vendor_domain || '-' }}
-              </td>
-              <td class="px-5 py-3">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="statusClass(order.status)"
-                >
-                  {{ formatStatus(order.status) }}
-                </span>
-              </td>
-              <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ formatDate(order.order_date || order.created_at) }}
-              </td>
-              <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ formatAmount(order.total_amount, order.currency) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              {{ formatAmount(order.total_amount, order.currency) }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
