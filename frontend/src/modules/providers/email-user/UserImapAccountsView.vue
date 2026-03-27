@@ -613,6 +613,9 @@ const foldersLoading = ref(false)
 const folderError = ref('')
 const scanningFolderId = ref<number | null>(null)
 
+// In-memory folder cache per account (cleared on page reload)
+const folderCache = ref<Record<number, { available: IMAPFolder[]; watched: WatchedFolder[] }>>({})
+
 const accountBeingEdited = computed(() => {
   if (!editingId.value) return null
   return accountsStore.accounts.find((a) => a.id === editingId.value) ?? null
@@ -739,9 +742,17 @@ async function toggleExpand(id: number) {
     return
   }
   expandedId.value = id
+  folderError.value = ''
+
+  const cached = folderCache.value[id]
+  if (cached) {
+    availableFolders.value = cached.available
+    watchedFolders.value = cached.watched
+    return
+  }
+
   availableFolders.value = []
   watchedFolders.value = []
-  folderError.value = ''
   await loadFolders(id)
 }
 
@@ -755,6 +766,7 @@ async function loadFolders(id: number) {
     ])
     availableFolders.value = folders
     watchedFolders.value = watched
+    folderCache.value[id] = { available: folders, watched: [...watched] }
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.loadFoldersFailed'))
   } finally {
@@ -784,6 +796,7 @@ async function handleOverrideChange(
     const updated = await accountsStore.updateWatchedFolder(accountId, wf.id, { [field]: value })
     const idx = watchedFolders.value.findIndex((f) => f.id === wf.id)
     if (idx !== -1) watchedFolders.value[idx] = updated
+    if (folderCache.value[accountId]) folderCache.value[accountId].watched = [...watchedFolders.value]
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.overrideUpdateFailed'))
   }
@@ -793,6 +806,7 @@ async function handleAddWatched(accountId: number, folderName: string) {
   try {
     const wf = await accountsStore.addWatchedFolder(accountId, folderName)
     watchedFolders.value.push(wf)
+    if (folderCache.value[accountId]) folderCache.value[accountId].watched = [...watchedFolders.value]
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.addWatchedFailed'))
   }
@@ -802,6 +816,7 @@ async function handleRemoveWatched(accountId: number, folderId: number) {
   try {
     await accountsStore.removeWatchedFolder(accountId, folderId)
     watchedFolders.value = watchedFolders.value.filter((wf) => wf.id !== folderId)
+    if (folderCache.value[accountId]) folderCache.value[accountId].watched = [...watchedFolders.value]
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.removeWatchedFailed'))
   }
