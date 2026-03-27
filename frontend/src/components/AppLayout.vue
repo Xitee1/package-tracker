@@ -1,5 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-950"
+    @touchstart.passive="handleTouchStart"
+    @touchmove.passive="handleTouchMove"
+    @touchend.passive="handleTouchEnd"
+  >
     <!-- Mobile sidebar backdrop -->
     <div
       v-if="sidebarOpen"
@@ -27,8 +32,9 @@
         <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $t('app.title') }}</span>
       </div>
 
-      <!-- Navigation -->
-      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <!-- Scrollable navigation area -->
+      <div class="flex-1 overflow-y-auto min-h-0">
+        <nav class="px-3 py-4 space-y-1">
         <router-link
           v-for="item in navItems"
           :key="item.to"
@@ -148,30 +154,31 @@
             {{ item.label }}
           </router-link>
         </template>
-      </nav>
+        </nav>
 
-      <!-- About -->
-      <div class="px-3 pb-2">
-        <router-link
-          to="/about"
-          class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
-          :class="
-            isActive('/about')
-              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-          "
-          @click="sidebarOpen = false"
-        >
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          {{ $t('nav.about') }}
-        </router-link>
+        <!-- About -->
+        <div class="px-3 pb-2">
+          <router-link
+            to="/about"
+            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+            :class="
+              isActive('/about')
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+            "
+            @click="sidebarOpen = false"
+          >
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            {{ $t('nav.about') }}
+          </router-link>
+        </div>
       </div>
 
       <!-- User Info -->
@@ -270,6 +277,38 @@ const auth = useAuthStore()
 const modulesStore = useModulesStore()
 
 const sidebarOpen = ref(false)
+
+// Touch handling for swipe gestures
+const touchStartX = ref(0)
+const touchStartY = ref(0)
+const touchIsHorizontal = ref(false)
+
+function handleTouchStart(e: TouchEvent) {
+  touchStartX.value = e.touches[0].clientX
+  touchStartY.value = e.touches[0].clientY
+  touchIsHorizontal.value = false
+}
+
+function handleTouchMove(e: TouchEvent) {
+  const diffX = Math.abs(e.touches[0].clientX - touchStartX.value)
+  const diffY = Math.abs(e.touches[0].clientY - touchStartY.value)
+  if (diffX > 10 && diffX > diffY) {
+    touchIsHorizontal.value = true
+  }
+}
+
+function handleTouchEnd(e: TouchEvent) {
+  if (!touchIsHorizontal.value) return
+  const diff = e.changedTouches[0].clientX - touchStartX.value
+  // Swipe right from left edge to open
+  if (diff > 70 && touchStartX.value < 30 && !sidebarOpen.value) {
+    sidebarOpen.value = true
+  }
+  // Swipe left to close
+  if (diff < -70 && sidebarOpen.value) {
+    sidebarOpen.value = false
+  }
+}
 
 const providerItems = computed(() => {
   return getUserSidebarItems().filter(
