@@ -248,9 +248,9 @@
       >
         <!-- Account Header -->
         <div class="p-5 cursor-pointer" @click="toggleExpand(account.id)">
-          <div class="flex items-start justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-3 mb-1">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate">
                   {{ account.name }}
                 </h3>
@@ -351,7 +351,7 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2 ml-4 flex-shrink-0" @click.stop>
+            <div class="flex items-center gap-2 flex-shrink-0" @click.stop>
               <button
                 @click="handleTest(account.id)"
                 :disabled="testingId === account.id"
@@ -463,7 +463,7 @@
             <div
               v-for="folder in availableFolders"
               :key="folder.name"
-              class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+              class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
             >
               <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <svg
@@ -484,7 +484,7 @@
                 </svg>
                 {{ folder.name }}
               </span>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <template v-if="isWatched(folder.name)">
                   <label class="flex items-center gap-1" :title="$t('accounts.ageDaysTooltip')">
                     <span class="text-xs text-gray-500 dark:text-gray-400">{{
