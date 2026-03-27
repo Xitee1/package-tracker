@@ -7,92 +7,44 @@
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Mobile: dropdown navigation -->
       <div class="sm:hidden">
-        <div class="relative">
-          <button
-            @click="dropdownOpen = !dropdownOpen"
-            @keydown.esc.window="dropdownOpen = false"
-            :aria-expanded="dropdownOpen"
-            aria-haspopup="true"
-            class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
+        <MobileNavDropdown :label="currentLabel">
+          <router-link
+            v-for="item in coreItems"
+            :key="item.name"
+            :to="{ name: item.name }"
+            class="block px-3 py-2 text-sm transition-colors"
+            :class="isActive(item.name) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
           >
-            <span>{{ currentLabel }}</span>
-            <svg
-              class="w-4 h-4 transition-transform duration-200"
-              :class="{ 'rotate-180': dropdownOpen }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div
-            v-if="dropdownOpen"
-            class="absolute z-20 left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 max-h-64 overflow-y-auto"
-          >
+            {{ $t(item.labelKey) }}
+          </router-link>
+          <template v-for="group in sidebarGroups" :key="group.group">
+            <div class="px-3 py-1.5 mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-t border-gray-100 dark:border-gray-700">
+              {{ $t('system.moduleType.' + group.group) }}
+            </div>
             <router-link
-              :to="{ name: 'queue-settings' }"
+              v-for="groupItem in group.items"
+              :key="groupItem.to"
+              :to="groupItem.to"
               class="block px-3 py-2 text-sm transition-colors"
-              :class="isActive('queue-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              :class="isActiveByPath(groupItem.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
             >
-              {{ $t('settings.queue') }}
+              {{ $t(groupItem.label) }}
             </router-link>
-            <router-link
-              :to="{ name: 'analysers-settings' }"
-              class="block px-3 py-2 text-sm transition-colors"
-              :class="isActive('analysers-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
-            >
-              {{ $t('settings.analysers') }}
-            </router-link>
-            <router-link
-              :to="{ name: 'smtp-settings' }"
-              class="block px-3 py-2 text-sm transition-colors"
-              :class="isActive('smtp-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
-            >
-              {{ $t('settings.smtp') }}
-            </router-link>
-            <template v-for="group in sidebarGroups" :key="group.group">
-              <div class="px-3 py-1.5 mt-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-t border-gray-100 dark:border-gray-700">
-                {{ $t('system.moduleType.' + group.group) }}
-              </div>
-              <router-link
-                v-for="item in group.items"
-                :key="item.to"
-                :to="item.to"
-                class="block px-3 py-2 text-sm transition-colors"
-                :class="isActiveByPath(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
-              >
-                {{ $t(item.label) }}
-              </router-link>
-            </template>
-          </div>
-        </div>
-        <div v-if="dropdownOpen" class="fixed inset-0 z-10" @click="dropdownOpen = false"></div>
+          </template>
+        </MobileNavDropdown>
       </div>
 
       <!-- Desktop: vertical tab nav with collapsible groups -->
       <nav class="hidden sm:block sm:w-52 flex-shrink-0">
         <div class="flex flex-col gap-1">
           <router-link
-            :to="{ name: 'queue-settings' }"
+            v-for="item in coreItems"
+            :key="item.name"
+            :to="{ name: item.name }"
             class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-            :class="isActive('queue-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            :class="isActive(item.name) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
           >
-            {{ $t('settings.queue') }}
-          </router-link>
-          <router-link
-            :to="{ name: 'analysers-settings' }"
-            class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-            :class="isActive('analysers-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
-          >
-            {{ $t('settings.analysers') }}
-          </router-link>
-          <router-link
-            :to="{ name: 'smtp-settings' }"
-            class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-            :class="isActive('smtp-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
-          >
-            {{ $t('settings.smtp') }}
+            {{ $t(item.labelKey) }}
           </router-link>
 
           <template v-for="group in sidebarGroups" :key="group.group">
@@ -140,34 +92,33 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getAdminSidebarItems } from '@/core/moduleRegistry'
+import MobileNavDropdown from '@/components/MobileNavDropdown.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 
 const sidebarGroups = getAdminSidebarItems()
-
 const collapsedGroups = reactive<Record<string, boolean>>({})
-const dropdownOpen = ref(false)
+
+const coreItems = [
+  { name: 'queue-settings', labelKey: 'settings.queue' },
+  { name: 'analysers-settings', labelKey: 'settings.analysers' },
+  { name: 'smtp-settings', labelKey: 'settings.smtp' },
+]
 
 const currentLabel = computed(() => {
-  const name = route.name
-  if (name === 'queue-settings') return t('settings.queue')
-  if (name === 'analysers-settings') return t('settings.analysers')
-  if (name === 'smtp-settings') return t('settings.smtp')
+  const coreItem = coreItems.find((item) => route.name === item.name)
+  if (coreItem) return t(coreItem.labelKey)
   for (const group of sidebarGroups) {
     for (const item of group.items) {
       if (route.path === item.to) return t(item.label)
     }
   }
   return t('settings.title')
-})
-
-watch(() => route.path, () => {
-  dropdownOpen.value = false
 })
 
 function toggleGroup(group: string) {

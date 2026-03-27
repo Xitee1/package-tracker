@@ -6,41 +6,17 @@
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Mobile: dropdown navigation -->
       <div class="sm:hidden">
-        <div class="relative">
-          <button
-            @click="dropdownOpen = !dropdownOpen"
-            @keydown.esc.window="dropdownOpen = false"
-            :aria-expanded="dropdownOpen"
-            aria-haspopup="true"
-            class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
+        <MobileNavDropdown :label="currentLabel">
+          <router-link
+            v-for="item in notifierItems"
+            :key="item.to"
+            :to="item.to"
+            class="block px-3 py-2 text-sm transition-colors"
+            :class="isActive(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
           >
-            <span>{{ currentLabel }}</span>
-            <svg
-              class="w-4 h-4 transition-transform duration-200"
-              :class="{ 'rotate-180': dropdownOpen }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <div
-            v-if="dropdownOpen"
-            class="absolute z-20 left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 max-h-64 overflow-y-auto"
-          >
-            <router-link
-              v-for="item in notifierItems"
-              :key="item.to"
-              :to="item.to"
-              class="block px-3 py-2 text-sm transition-colors"
-              :class="isActive(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
-            >
-              {{ $t(item.label) }}
-            </router-link>
-          </div>
-        </div>
-        <div v-if="dropdownOpen" class="fixed inset-0 z-10" @click="dropdownOpen = false"></div>
+            {{ $t(item.label) }}
+          </router-link>
+        </MobileNavDropdown>
       </div>
 
       <!-- Desktop: vertical sidebar -->
@@ -66,17 +42,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useModulesStore } from '@/stores/modules'
 import { getNotifierSidebarItems } from '@/core/moduleRegistry'
+import MobileNavDropdown from '@/components/MobileNavDropdown.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 const modulesStore = useModulesStore()
-
-const dropdownOpen = ref(false)
 
 const notifierItems = computed(() => {
   return getNotifierSidebarItems().filter(
@@ -87,10 +62,6 @@ const notifierItems = computed(() => {
 const currentLabel = computed(() => {
   const item = notifierItems.value.find((i) => route.path === i.to)
   return item ? t(item.label) : t('notifications.title')
-})
-
-watch(() => route.path, () => {
-  dropdownOpen.value = false
 })
 
 function isActive(path: string): boolean {
