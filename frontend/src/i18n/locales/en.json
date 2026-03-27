@@ -269,7 +269,7 @@
     "idleDetecting": "Sync mode has not been checked yet",
     "folderLimitWarning": "Watching many folders requires one connection per folder. Some providers limit concurrent connections.",
     "idleNotSupportedReject": "This email provider does not support IMAP IDLE",
-    "modeIdle": "IDLE",
+    "modeIdle": "IDLE supported",
     "modeIdleTooltip": "Real-time notifications for new emails (IMAP IDLE)",
     "modePolling": "Polling",
     "modePollingTooltip": "Emails are fetched at regular intervals",
