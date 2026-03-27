@@ -83,8 +83,12 @@ export const useAccountsStore = defineStore('accounts', () => {
     accounts.value = accounts.value.filter((a) => a.id !== id)
   }
 
-  async function testConnection(id: number): Promise<{ success: boolean; message: string }> {
+  async function testConnection(id: number): Promise<{ success: boolean; message: string; idle_supported: boolean | null }> {
     const res = await api.post(`/providers/email-user/accounts/${id}/test`)
+    if (res.data.idle_supported != null) {
+      const acc = accounts.value.find((a) => a.id === id)
+      if (acc) acc.idle_supported = res.data.idle_supported
+    }
     return res.data
   }
 

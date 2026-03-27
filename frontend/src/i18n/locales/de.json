@@ -266,7 +266,7 @@
     "usePolling": "Polling verwenden",
     "usePollingTooltip": "Erzwingt periodisches Scannen anstelle von Push-Benachrichtigungen",
     "idleNotSupported": "Dieser E-Mail-Anbieter unterstützt keine Push-Benachrichtigungen (IMAP IDLE)",
-    "idleDetecting": "Abrufmodus (IDLE oder Polling) wird beim Testen oder Ordner laden erkannt",
+    "idleDetecting": "Abrufmodus wurde noch nicht erkannt",
     "folderLimitWarning": "Die Überwachung vieler Ordner erfordert eine Verbindung pro Ordner. Einige Anbieter begrenzen die gleichzeitigen Verbindungen.",
     "idleNotSupportedReject": "Dieser E-Mail-Anbieter unterstützt kein IMAP IDLE",
     "modeIdle": "IDLE",
