@@ -279,27 +279,27 @@ const modulesStore = useModulesStore()
 const sidebarOpen = ref(false)
 
 // Touch handling for swipe gestures
-const touchStartX = ref(0)
-const touchStartY = ref(0)
-const touchIsHorizontal = ref(false)
+let touchStartX = 0
+let touchStartY = 0
+let touchIsHorizontal = false
 
 function handleTouchStart(e: TouchEvent) {
-  touchStartX.value = e.touches[0].clientX
-  touchStartY.value = e.touches[0].clientY
-  touchIsHorizontal.value = false
+  touchStartX = e.touches[0].clientX
+  touchStartY = e.touches[0].clientY
+  touchIsHorizontal = false
 }
 
 function handleTouchMove(e: TouchEvent) {
-  const diffX = Math.abs(e.touches[0].clientX - touchStartX.value)
-  const diffY = Math.abs(e.touches[0].clientY - touchStartY.value)
+  const diffX = Math.abs(e.touches[0].clientX - touchStartX)
+  const diffY = Math.abs(e.touches[0].clientY - touchStartY)
   if (diffX > 10 && diffX > diffY) {
-    touchIsHorizontal.value = true
+    touchIsHorizontal = true
   }
 }
 
 function handleTouchEnd(e: TouchEvent) {
-  if (!touchIsHorizontal.value) return
-  const diff = e.changedTouches[0].clientX - touchStartX.value
+  if (!touchIsHorizontal) return
+  const diff = e.changedTouches[0].clientX - touchStartX
   // Swipe right from left edge to open
   if (diff > 70 && touchStartX.value < 30 && !sidebarOpen.value) {
     sidebarOpen.value = true
