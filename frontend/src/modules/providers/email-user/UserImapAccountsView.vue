@@ -280,7 +280,13 @@
                     'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400':
                       account.idle_supported === null && !account.use_polling,
                   }"
-                  :title="account.idle_supported === null ? $t('accounts.idleDetecting') : ''"
+                  :title="
+                    account.idle_supported === null
+                      ? $t('accounts.idleDetecting')
+                      : account.use_polling
+                        ? $t('accounts.modePollingTooltip')
+                        : $t('accounts.modeIdleTooltip')
+                  "
                 >
                   {{
                     account.use_polling
