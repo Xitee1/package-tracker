@@ -351,28 +351,30 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2 flex-shrink-0" @click.stop>
-              <button
-                @click="handleTest(account.id)"
-                :disabled="testingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-700 disabled:opacity-50"
-                :title="$t('common.test')"
-              >
-                {{ testingId === account.id ? $t('common.testing') : $t('common.test') }}
-              </button>
-              <button
-                @click="openEditForm(account)"
-                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                {{ $t('common.edit') }}
-              </button>
-              <button
-                @click="handleDelete(account)"
-                :disabled="deletingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-50"
-              >
-                {{ deletingId === account.id ? $t('common.deleting') : $t('common.delete') }}
-              </button>
+            <div class="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0" @click.stop>
+              <div class="flex items-center gap-2">
+                <button
+                  @click="handleTest(account.id)"
+                  :disabled="testingId === account.id"
+                  class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-700 disabled:opacity-50"
+                  :title="$t('common.test')"
+                >
+                  {{ testingId === account.id ? $t('common.testing') : $t('common.test') }}
+                </button>
+                <button
+                  @click="openEditForm(account)"
+                  class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  {{ $t('common.edit') }}
+                </button>
+                <button
+                  @click="handleDelete(account)"
+                  :disabled="deletingId === account.id"
+                  class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-50"
+                >
+                  {{ deletingId === account.id ? $t('common.deleting') : $t('common.delete') }}
+                </button>
+              </div>
               <button
                 @click="toggleExpand(account.id)"
                 class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
