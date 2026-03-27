@@ -27,5 +27,10 @@ jobs:
           show_full_output: "true"
           claude_args: |
             --model claude-opus-4-6
-            --allowedTools "*"
+          settings: |
+            {
+              "permissions": {
+                "allow": ["Bash", "Read", "Edit", "Write", "Glob", "Grep"]
+              }
+            }
           prompt: "Review the PR changes. Post inline comments for bugs, security issues, performance problems, and code quality concerns."
