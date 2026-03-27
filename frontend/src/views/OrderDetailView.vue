@@ -34,7 +34,7 @@
     <!-- Order Detail -->
     <template v-else-if="order">
       <!-- Header -->
-      <div class="flex items-start justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
         <div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             {{ $t('orderDetail.orderTitle', { id: order.order_number || '#' + order.id }) }}
@@ -161,7 +161,8 @@
             {{ $t('orderDetail.items') }}
           </h3>
         </div>
-        <div class="overflow-x-auto">
+        <!-- Desktop Table -->
+        <div class="overflow-x-auto hidden sm:block">
           <table class="w-full">
             <thead>
               <tr
@@ -184,6 +185,21 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div v-for="(item, idx) in order.items" :key="idx" class="px-4 py-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                {{ item.price !== null ? formatAmount(item.price, order.currency) : '-' }}
+              </span>
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ $t('orderDetail.qty') }}: {{ item.quantity }}
+            </div>
+          </div>
         </div>
       </div>
 
