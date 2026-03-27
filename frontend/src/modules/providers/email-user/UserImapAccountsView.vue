@@ -247,7 +247,7 @@
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
       >
         <!-- Account Header -->
-        <div class="p-5">
+        <div class="p-5 cursor-pointer" @click="toggleExpand(account.id)">
           <div class="flex items-start justify-between">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-3 mb-1">
@@ -345,7 +345,7 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2 ml-4 flex-shrink-0">
+            <div class="flex items-center gap-2 ml-4 flex-shrink-0" @click.stop>
               <button
                 @click="handleTest(account.id)"
                 :disabled="testingId === account.id"
