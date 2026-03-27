@@ -7,22 +7,17 @@
     "loading": "Laden...",
     "saving": "Speichern...",
     "deleting": "Löschen...",
-    "search": "Suchen",
     "admin": "Admin",
     "user": "Benutzer",
     "you": "Du",
-    "none": "Keine",
     "active": "Aktiv",
     "inactive": "Inaktiv",
     "remove": "Entfernen",
     "test": "Testen",
     "testing": "Teste...",
     "refresh": "Aktualisieren",
-    "yes": "Ja",
-    "no": "Nein",
     "ssl": "SSL",
     "watch": "Überwachen",
-    "watched": "Überwacht",
     "themeLight": "Hell",
     "themeSystem": "System",
     "themeDark": "Dunkel",
@@ -31,14 +26,11 @@
   "nav": {
     "dashboard": "Dashboard",
     "orders": "Bestellungen",
-    "emailAccounts": "E-Mail-Konten",
     "users": "Benutzer",
-    "llmConfig": "LLM-Konfiguration",
     "status": "Status",
     "settings": "Einstellungen",
     "history": "Verlauf",
     "providers": "Anbieter",
-    "analysers": "Analyser",
     "logout": "Abmelden",
     "about": "Über",
     "notifications": "Benachrichtigungen"
@@ -133,6 +125,7 @@
     "pageInfo": "Seite {page} von {totalPages}",
     "previousPage": "Zurück",
     "nextPage": "Weiter",
+    "removeItem": "Artikel entfernen",
     "sortAsc": "Aufsteigend sortiert",
     "sortDesc": "Absteigend sortiert"
   },
@@ -218,7 +211,6 @@
     "statusDelivered": "Zugestellt"
   },
   "accounts": {
-    "title": "E-Mail-Konten",
     "addAccount": "Konto hinzufügen",
     "editAccount": "Konto bearbeiten",
     "addEmailAccount": "E-Mail-Konto hinzufügen",
@@ -248,9 +240,6 @@
     "folderManagement": "Ordnerverwaltung",
     "loadFolders": "Ordner laden",
     "loadingFolders": "Laden...",
-    "watchedFolders": "Überwachte Ordner",
-    "noWatchedFolders": "Keine Ordner werden überwacht.",
-    "availableFolders": "Verfügbare IMAP-Ordner",
     "loadFoldersHint": "Klicken Sie auf \"Ordner laden\", um verfügbare Ordner abzurufen.",
     "loadFoldersFailed": "Ordner konnten nicht geladen werden. Überprüfen Sie die Kontoverbindung.",
     "addWatchedFailed": "Überwachter Ordner konnte nicht hinzugefügt werden.",
@@ -269,15 +258,11 @@
     "idleNotSupported": "Dieser E-Mail-Anbieter unterstützt keine Push-Benachrichtigungen (IMAP IDLE)",
     "idleDetecting": "Abrufmodus wurde noch nicht geprüft",
     "folderLimitWarning": "Die Überwachung vieler Ordner erfordert eine Verbindung pro Ordner. Einige Anbieter begrenzen die gleichzeitigen Verbindungen.",
-    "idleNotSupportedReject": "Dieser E-Mail-Anbieter unterstützt kein IMAP IDLE",
     "modeIdle": "IDLE",
     "modeIdleTooltip": "Echtzeit-Benachrichtigungen über neue E-Mails unterstützt (IMAP IDLE)",
     "modePolling": "Polling",
     "modePollingTooltip": "E-Mails werden in regelmäßigen Abständen abgerufen",
-    "modeDetecting": "Modus ausstehend",
-    "tabImap": "IMAP-Konten",
-    "tabForwarding": "Weiterleitung",
-    "noModulesEnabled": "Derzeit sind keine E-Mail-Funktionen aktiviert. Wenden Sie sich an Ihren Administrator."
+    "modeDetecting": "Modus ausstehend"
   },
   "profile": {
     "title": "Profil",
@@ -344,7 +329,6 @@
     "deleteFailed": "Benutzer konnte nicht gelöscht werden."
   },
   "llm": {
-    "title": "LLM-Konfiguration",
     "loadingConfig": "Konfiguration laden...",
     "configSaved": "Konfiguration erfolgreich gespeichert.",
     "provider": "Anbieter",
@@ -371,7 +355,6 @@
     "systemPrompt": "System-Prompt",
     "systemPromptHelp": "Die Anweisung an das LLM, die steuert, wie E-Mails analysiert werden. Standard beibehalten, sofern kein benutzerdefiniertes Extraktionsverhalten benötigt wird.",
     "resetToDefault": "Standard wiederherstellen",
-    "promptResetSuccess": "Prompt auf Standard zurückgesetzt.",
     "usingDefaultPrompt": "Standard-Prompt wird verwendet"
   },
   "system": {
@@ -379,20 +362,8 @@
     "loadingStatus": "Systemstatus laden...",
     "loadFailed": "Systemstatus konnte nicht geladen werden.",
     "lastRefreshed": "Zuletzt aktualisiert vor {seconds}s",
-    "watchedFolders": "Überwachte Ordner",
     "watchedFoldersValue": "{running} / {total} laufend",
-    "processing": "Verarbeitung",
-    "processingValue": "{count} E-Mails in {folders} Ordnern",
-    "processingIdle": "Leerlauf",
     "errors": "Fehler",
-    "todayActivity": "Heutige Aktivität",
-    "todayEmails": "{count} E-Mails verarbeitet",
-    "statsTitle": "Verarbeitungsaktivität",
-    "statsHour": "Stunde",
-    "statsDay": "Tag",
-    "statsWeek": "Woche",
-    "emailsProcessed": "E-Mails verarbeitet",
-    "errorsCount": "Fehler",
     "foldersCount": "{count} Ordner",
     "emailsQueued": "{count} E-Mails in Warteschlange",
     "noFolders": "Keine überwachten Ordner konfiguriert.",
@@ -408,7 +379,6 @@
     "nextCheck": "Nächste Prüfung in {time}",
     "queueIdle": "Leerlauf",
     "queueProcessing": "E-Mail {position} von {total} wird verarbeitet",
-    "noStats": "Noch keine Verarbeitungsdaten verfügbar.",
     "queueStats": "Warteschlangen-Statistik",
     "scheduledJobs": "Geplante Aufgaben",
     "jobInterval": "Alle {seconds}s",
@@ -416,7 +386,6 @@
     "jobNextRun": "Nächster Lauf",
     "jobLastStatus": "Letzter Status",
     "jobNever": "Nie",
-    "modules": "Module",
     "moduleType": {
       "analyser": "Analyser",
       "provider": "Anbieter",
@@ -436,21 +405,16 @@
     "configureAnalysers": "Analyser konfigurieren"
   },
   "analysers": {
-    "title": "Analyser",
     "description": "Verwalte Analyser-Module und deren Ausführungspriorität. Analyser mit höherer Priorität werden zuerst versucht.",
     "empty": "Keine Analyser-Module registriert.",
-    "priority": "Priorität",
     "configure": "Konfigurieren",
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
-    "notConfigured": "Nicht konfiguriert",
-    "configured": "Konfiguriert",
     "loadFailed": "Analyser-Module konnten nicht geladen werden.",
     "savePriorityFailed": "Prioritätsreihenfolge konnte nicht gespeichert werden."
   },
   "forwarding": {
     "infoText": "Leiten Sie Ihre Bestellbestätigungen weiter an:",
-    "notConfigured": "Die globale E-Mail-Weiterleitung ist noch nicht konfiguriert. Wenden Sie sich an Ihren Administrator.",
     "emailAddress": "Ihre E-Mail-Adresse",
     "emailPlaceholder": "ihre.email{'@'}beispiel.de",
     "addAddress": "Adresse hinzufügen",
@@ -483,7 +447,6 @@
       "sendVerification": "Verifizierung senden",
       "verificationSent": "Verifizierungs-E-Mail gesendet. Prüfen Sie Ihren Posteingang.",
       "verified": "Verifiziert",
-      "notVerified": "Nicht verifiziert",
       "pendingVerification": "Verifizierung ausstehend — prüfen Sie Ihre E-Mails",
       "verifySuccess": "E-Mail erfolgreich verifiziert!",
       "verifyFailed": "Verifizierung fehlgeschlagen.",
@@ -502,8 +465,7 @@
       "testSuccess": "Test-Webhook erfolgreich gesendet (HTTP {code}).",
       "testFailed": "Test-Webhook fehlgeschlagen.",
       "configSaved": "Webhook-Konfiguration gespeichert."
-    },
-    "toggleFailed": "Modul konnte nicht aktualisiert werden."
+    }
   },
   "globalMail": {
     "connectionTitle": "Verbindungsdetails",
@@ -528,15 +490,11 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "llmConfig": "LLM-Konfiguration",
-    "imap": "IMAP",
     "queue": "Warteschlange",
-    "email": "E-Mail",
     "analysers": "Analyser",
     "smtp": "E-Mail (SMTP)"
   },
   "imap": {
-    "title": "IMAP-Einstellungen",
     "maxEmailAgeDays": "Max. E-Mail-Alter (Tage)",
     "maxEmailAgeDaysHint": "Nur E-Mails verarbeiten, die neuer als diese Anzahl Tage sind.",
     "checkUidvalidity": "UIDVALIDITY prüfen",
@@ -586,12 +544,10 @@
     "testFailed": "Test-E-Mail konnte nicht gesendet werden.",
     "configSaved": "SMTP-Konfiguration gespeichert.",
     "saveFailed": "SMTP-Konfiguration konnte nicht gespeichert werden.",
-    "loadFailed": "SMTP-Konfiguration konnte nicht geladen werden.",
-    "notConfigured": "SMTP ist noch nicht konfiguriert. Konfigurieren Sie es, um E-Mail-Benachrichtigungen zu aktivieren."
+    "loadFailed": "SMTP-Konfiguration konnte nicht geladen werden."
   },
   "notifications": {
     "title": "Benachrichtigungen",
-    "noModulesEnabled": "Derzeit sind keine Benachrichtigungsmodule aktiviert. Wenden Sie sich an Ihren Administrator.",
     "events": "Benachrichtigen bei",
     "eventNewOrder": "Neue Bestellung",
     "eventTrackingUpdate": "Tracking-Update",

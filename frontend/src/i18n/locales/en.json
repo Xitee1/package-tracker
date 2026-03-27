@@ -7,22 +7,17 @@
     "loading": "Loading...",
     "saving": "Saving...",
     "deleting": "Deleting...",
-    "search": "Search",
     "admin": "Admin",
     "user": "User",
     "you": "You",
-    "none": "None",
     "active": "Active",
     "inactive": "Inactive",
     "remove": "Remove",
     "test": "Test",
     "testing": "Testing...",
     "refresh": "Refresh",
-    "yes": "Yes",
-    "no": "No",
     "ssl": "SSL",
     "watch": "Watch",
-    "watched": "Watched",
     "themeLight": "Light",
     "themeSystem": "System",
     "themeDark": "Dark",
@@ -31,14 +26,11 @@
   "nav": {
     "dashboard": "Dashboard",
     "orders": "Orders",
-    "emailAccounts": "Email Accounts",
     "users": "Users",
-    "llmConfig": "LLM Config",
     "status": "Status",
     "settings": "Settings",
     "history": "History",
     "providers": "Providers",
-    "analysers": "Analysers",
     "logout": "Logout",
     "about": "About",
     "notifications": "Notifications"
@@ -133,6 +125,7 @@
     "pageInfo": "Page {page} of {totalPages}",
     "previousPage": "Previous",
     "nextPage": "Next",
+    "removeItem": "Remove item",
     "sortAsc": "Sorted ascending",
     "sortDesc": "Sorted descending"
   },
@@ -218,7 +211,6 @@
     "statusDelivered": "Delivered"
   },
   "accounts": {
-    "title": "Email Accounts",
     "addAccount": "Add Account",
     "editAccount": "Edit Account",
     "addEmailAccount": "Add Email Account",
@@ -248,9 +240,6 @@
     "folderManagement": "Folder Management",
     "loadFolders": "Load Folders",
     "loadingFolders": "Loading...",
-    "watchedFolders": "Watched Folders",
-    "noWatchedFolders": "No folders being watched.",
-    "availableFolders": "Available IMAP Folders",
     "loadFoldersHint": "Click \"Load Folders\" to fetch available folders.",
     "loadFoldersFailed": "Failed to load folders. Check account connection.",
     "addWatchedFailed": "Failed to add watched folder.",
@@ -269,15 +258,11 @@
     "idleNotSupported": "This email provider does not support push notifications (IMAP IDLE)",
     "idleDetecting": "Sync mode has not been checked yet",
     "folderLimitWarning": "Watching many folders requires one connection per folder. Some providers limit concurrent connections.",
-    "idleNotSupportedReject": "This email provider does not support IMAP IDLE",
     "modeIdle": "IDLE",
     "modeIdleTooltip": "Real-time notifications for new emails supported (IMAP IDLE)",
     "modePolling": "Polling",
     "modePollingTooltip": "Emails are fetched at regular intervals",
-    "modeDetecting": "Mode pending",
-    "tabImap": "IMAP Accounts",
-    "tabForwarding": "Forwarding",
-    "noModulesEnabled": "No email features are currently enabled. Contact your administrator."
+    "modeDetecting": "Mode pending"
   },
   "profile": {
     "title": "Profile",
@@ -344,7 +329,6 @@
     "deleteFailed": "Failed to delete user."
   },
   "llm": {
-    "title": "LLM Configuration",
     "loadingConfig": "Loading configuration...",
     "configSaved": "Configuration saved successfully.",
     "provider": "Provider",
@@ -371,7 +355,6 @@
     "systemPrompt": "System Prompt",
     "systemPromptHelp": "The instruction sent to the LLM that controls how emails are analysed. Leave as default unless you need custom extraction behaviour.",
     "resetToDefault": "Reset to Default",
-    "promptResetSuccess": "Prompt reset to default.",
     "usingDefaultPrompt": "Using default prompt"
   },
   "system": {
@@ -379,20 +362,8 @@
     "loadingStatus": "Loading system status...",
     "loadFailed": "Failed to load system status.",
     "lastRefreshed": "Last refreshed {seconds}s ago",
-    "watchedFolders": "Watched Folders",
     "watchedFoldersValue": "{running} / {total} running",
-    "processing": "Processing",
-    "processingValue": "{count} emails across {folders} folders",
-    "processingIdle": "Idle",
     "errors": "Errors",
-    "todayActivity": "Today's Activity",
-    "todayEmails": "{count} emails processed",
-    "statsTitle": "Processing Activity",
-    "statsHour": "Hour",
-    "statsDay": "Day",
-    "statsWeek": "Week",
-    "emailsProcessed": "Emails Processed",
-    "errorsCount": "Errors",
     "foldersCount": "{count} folders",
     "emailsQueued": "{count} emails queued",
     "noFolders": "No watched folders configured.",
@@ -408,7 +379,6 @@
     "nextCheck": "next check in {time}",
     "queueIdle": "idle",
     "queueProcessing": "Processing email {position} of {total}",
-    "noStats": "No processing data available yet.",
     "queueStats": "Queue Statistics",
     "scheduledJobs": "Scheduled Jobs",
     "jobInterval": "Every {seconds}s",
@@ -416,7 +386,6 @@
     "jobNextRun": "Next run",
     "jobLastStatus": "Last status",
     "jobNever": "Never",
-    "modules": "Modules",
     "moduleType": {
       "analyser": "Analyser",
       "provider": "Provider",
@@ -436,21 +405,16 @@
     "configureAnalysers": "Configure Analysers"
   },
   "analysers": {
-    "title": "Analysers",
     "description": "Manage analyser modules and their execution priority. Higher priority analysers are tried first.",
     "empty": "No analyser modules are registered.",
-    "priority": "Priority",
     "configure": "Configure",
     "moveUp": "Move up",
     "moveDown": "Move down",
-    "notConfigured": "Not configured",
-    "configured": "Configured",
     "loadFailed": "Failed to load analyser modules.",
     "savePriorityFailed": "Failed to save priority order."
   },
   "forwarding": {
     "infoText": "Forward your order confirmation emails to:",
-    "notConfigured": "Global mail forwarding is not configured yet. Contact your administrator.",
     "emailAddress": "Your Email Address",
     "emailPlaceholder": "your.email{'@'}example.com",
     "addAddress": "Add Address",
@@ -483,7 +447,6 @@
       "sendVerification": "Send Verification",
       "verificationSent": "Verification email sent. Check your inbox.",
       "verified": "Verified",
-      "notVerified": "Not verified",
       "pendingVerification": "Verification pending — check your email",
       "verifySuccess": "Email verified successfully!",
       "verifyFailed": "Verification failed.",
@@ -502,8 +465,7 @@
       "testSuccess": "Test webhook sent successfully (HTTP {code}).",
       "testFailed": "Test webhook failed.",
       "configSaved": "Webhook configuration saved."
-    },
-    "toggleFailed": "Failed to update module."
+    }
   },
   "globalMail": {
     "connectionTitle": "Connection Details",
@@ -528,15 +490,11 @@
   },
   "settings": {
     "title": "Settings",
-    "llmConfig": "LLM Config",
-    "imap": "IMAP",
     "queue": "Queue",
-    "email": "Email",
     "analysers": "Analysers",
     "smtp": "E-Mail (SMTP)"
   },
   "imap": {
-    "title": "IMAP Settings",
     "maxEmailAgeDays": "Max Email Age (days)",
     "maxEmailAgeDaysHint": "Only process emails newer than this when scanning folders.",
     "checkUidvalidity": "Check UIDVALIDITY",
@@ -586,12 +544,10 @@
     "testFailed": "Failed to send test email.",
     "configSaved": "SMTP configuration saved.",
     "saveFailed": "Failed to save SMTP configuration.",
-    "loadFailed": "Failed to load SMTP configuration.",
-    "notConfigured": "SMTP is not configured yet. Configure it to enable email notifications."
+    "loadFailed": "Failed to load SMTP configuration."
   },
   "notifications": {
     "title": "Notifications",
-    "noModulesEnabled": "No notification modules are currently enabled. Contact your administrator.",
     "events": "Notify me about",
     "eventNewOrder": "New order detected",
     "eventTrackingUpdate": "Tracking update",
