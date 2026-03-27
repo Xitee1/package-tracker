@@ -76,4 +76,4 @@ async def test_llm(db: AsyncSession = Depends(get_db)):
         return {"success": True, "message": f"LLM responded: {text}"}
     except Exception as e:
         logger.warning("LLM test failed for %s/%s: %s", config.provider, config.model_name, e)
-        raise HTTPException(status_code=502, detail="LLM test call failed")
+        raise HTTPException(status_code=502, detail=f"LLM test call failed: {e}")

@@ -8,10 +8,10 @@ class SmtpConfig(Base):
     __tablename__ = "smtp_config"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    host: Mapped[str] = mapped_column(String(255))
+    host: Mapped[str] = mapped_column(String(255), default="")
     port: Mapped[int] = mapped_column(Integer, default=587)
     username: Mapped[str | None] = mapped_column(String(255), nullable=True)
     password_encrypted: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     security: Mapped[str] = mapped_column(String(10), default="starttls")
-    sender_address: Mapped[str] = mapped_column(String(320))
+    sender_address: Mapped[str] = mapped_column(String(320), default="")
     sender_name: Mapped[str] = mapped_column(String(255), default="Package Tracker")

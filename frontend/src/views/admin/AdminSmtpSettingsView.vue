@@ -139,8 +139,8 @@
           <div class="pt-2">
             <button
               type="submit"
-              :disabled="saving"
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="saving || !isDirty"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ saving ? $t('common.saving') : $t('smtp.saveConfig') }}
             </button>
@@ -187,7 +187,7 @@
           <button
             type="submit"
             :disabled="testing"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ testing ? $t('common.testing') : $t('smtp.testConnection') }}
           </button>
@@ -201,7 +201,8 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
-import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
+import { getApiErrorMessage } from '@/utils/api-error'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 
 const { t } = useI18n()
 
@@ -219,6 +220,8 @@ const form = ref({
   sender_name: '',
 })
 
+const { isDirty, reset: resetDirty } = useDirtyTracking(form)
+
 const saving = ref(false)
 const saveError = ref('')
 const saveSuccess = ref(false)
@@ -233,20 +236,17 @@ async function fetchConfig() {
   loadError.value = ''
   try {
     const res = await api.get('/admin/smtp')
-    if (res.data && res.data.host) {
-      configExists.value = true
-      form.value.host = res.data.host || ''
-      form.value.port = res.data.port ?? 587
-      form.value.username = res.data.username || ''
-      form.value.password = ''
-      form.value.security = res.data.security || 'starttls'
-      form.value.sender_address = res.data.sender_address || ''
-      form.value.sender_name = res.data.sender_name || ''
-    }
+    configExists.value = res.data.configured
+    form.value.host = res.data.host || ''
+    form.value.port = res.data.port ?? 587
+    form.value.username = res.data.username || ''
+    form.value.password = ''
+    form.value.security = res.data.security || 'starttls'
+    form.value.sender_address = res.data.sender_address || ''
+    form.value.sender_name = res.data.sender_name || ''
+    resetDirty()
   } catch (e: unknown) {
-    if (getApiErrorStatus(e) !== 404) {
-      loadError.value = getApiErrorMessage(e, t('smtp.loadFailed'))
-    }
+    loadError.value = getApiErrorMessage(e, t('smtp.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -263,6 +263,7 @@ async function handleSave() {
     }
     await api.put('/admin/smtp', payload)
     saveSuccess.value = true
+    resetDirty()
     configExists.value = true
     setTimeout(() => {
       saveSuccess.value = false

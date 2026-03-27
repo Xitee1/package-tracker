@@ -172,8 +172,8 @@
         <div class="flex items-center gap-3 pt-2">
           <button
             type="submit"
-            :disabled="formSaving"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="formSaving || (editingId !== null && !isDirty)"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{
               formSaving
@@ -247,7 +247,7 @@
         class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
       >
         <!-- Account Header -->
-        <div class="p-5">
+        <div class="p-5 cursor-pointer" @click="toggleExpand(account.id)">
           <div class="flex items-start justify-between">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-3 mb-1">
@@ -280,7 +280,13 @@
                     'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400':
                       account.idle_supported === null && !account.use_polling,
                   }"
-                  :title="account.idle_supported === null ? $t('accounts.idleDetecting') : ''"
+                  :title="
+                    account.idle_supported === null
+                      ? $t('accounts.idleDetecting')
+                      : account.use_polling
+                        ? $t('accounts.modePollingTooltip')
+                        : $t('accounts.modeIdleTooltip')
+                  "
                 >
                   {{
                     account.use_polling
@@ -345,11 +351,11 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2 ml-4 flex-shrink-0">
+            <div class="flex items-center gap-2 ml-4 flex-shrink-0" @click.stop>
               <button
                 @click="handleTest(account.id)"
                 :disabled="testingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-700 disabled:opacity-50"
                 :title="$t('common.test')"
               >
                 {{ testingId === account.id ? $t('common.testing') : $t('common.test') }}
@@ -363,7 +369,7 @@
               <button
                 @click="handleDelete(account)"
                 :disabled="deletingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50"
+                class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-50"
               >
                 {{ deletingId === account.id ? $t('common.deleting') : $t('common.delete') }}
               </button>
@@ -416,7 +422,7 @@
             <button
               @click="loadFolders(account.id)"
               :disabled="foldersLoading"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 disabled:opacity-50"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md hover:not-disabled:bg-blue-100 dark:hover:not-disabled:bg-blue-900/50 disabled:opacity-50"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -551,7 +557,7 @@
           <button
             @click="confirmDelete"
             :disabled="deletingId !== null"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:not-disabled:bg-red-700 disabled:opacity-50"
           >
             {{ $t('common.delete') }}
           </button>
@@ -566,6 +572,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore, type EmailAccount, type IMAPFolder, type WatchedFolder } from './store'
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 
 const { t } = useI18n()
 const accountsStore = useAccountsStore()
@@ -587,6 +594,8 @@ const form = ref({
   use_polling: false,
 })
 
+const { isDirty, reset: resetDirty } = useDirtyTracking(form, { guard: false })
+
 // Test connection state
 const testingId = ref<number | null>(null)
 const testResults = ref<Record<number, { success: boolean; message: string }>>({})
@@ -603,6 +612,9 @@ const watchedFolders = ref<WatchedFolder[]>([])
 const foldersLoading = ref(false)
 const folderError = ref('')
 const scanningFolderId = ref<number | null>(null)
+
+// In-memory folder cache per account (cleared on page reload)
+const folderCache = ref<Record<number, { available: IMAPFolder[]; watched: WatchedFolder[] }>>({})
 
 const accountBeingEdited = computed(() => {
   if (!editingId.value) return null
@@ -627,6 +639,7 @@ function resetForm() {
 function openAddForm() {
   resetForm()
   showForm.value = true
+  resetDirty()
 }
 
 function openEditForm(account: EmailAccount) {
@@ -643,6 +656,7 @@ function openEditForm(account: EmailAccount) {
   }
   formError.value = ''
   showForm.value = true
+  resetDirty()
 }
 
 function closeForm() {
@@ -728,9 +742,17 @@ async function toggleExpand(id: number) {
     return
   }
   expandedId.value = id
+  folderError.value = ''
+
+  const cached = folderCache.value[id]
+  if (cached) {
+    availableFolders.value = cached.available
+    watchedFolders.value = cached.watched
+    return
+  }
+
   availableFolders.value = []
   watchedFolders.value = []
-  folderError.value = ''
   await loadFolders(id)
 }
 
@@ -744,6 +766,7 @@ async function loadFolders(id: number) {
     ])
     availableFolders.value = folders
     watchedFolders.value = watched
+    folderCache.value[id] = { available: folders, watched: [...watched] }
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.loadFoldersFailed'))
   } finally {
@@ -773,6 +796,7 @@ async function handleOverrideChange(
     const updated = await accountsStore.updateWatchedFolder(accountId, wf.id, { [field]: value })
     const idx = watchedFolders.value.findIndex((f) => f.id === wf.id)
     if (idx !== -1) watchedFolders.value[idx] = updated
+    if (folderCache.value[accountId]) folderCache.value[accountId].watched = [...watchedFolders.value]
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.overrideUpdateFailed'))
   }
@@ -782,6 +806,7 @@ async function handleAddWatched(accountId: number, folderName: string) {
   try {
     const wf = await accountsStore.addWatchedFolder(accountId, folderName)
     watchedFolders.value.push(wf)
+    if (folderCache.value[accountId]) folderCache.value[accountId].watched = [...watchedFolders.value]
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.addWatchedFailed'))
   }
@@ -791,6 +816,7 @@ async function handleRemoveWatched(accountId: number, folderId: number) {
   try {
     await accountsStore.removeWatchedFolder(accountId, folderId)
     watchedFolders.value = watchedFolders.value.filter((wf) => wf.id !== folderId)
+    if (folderCache.value[accountId]) folderCache.value[accountId].watched = [...watchedFolders.value]
   } catch (e: unknown) {
     folderError.value = getApiErrorMessage(e, t('accounts.removeWatchedFailed'))
   }
