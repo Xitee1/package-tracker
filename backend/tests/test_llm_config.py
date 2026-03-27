@@ -140,3 +140,13 @@ async def test_patch_config_null_system_prompt_resets_to_default(client, admin_t
     data = resp.json()
     assert data["is_default"] is True
     assert data["system_prompt"] == data["default_system_prompt"]
+
+
+@pytest.mark.asyncio
+async def test_patch_config_empty_string_prompt_treated_as_default(client, admin_token):
+    """PATCH with system_prompt='' normalizes to null (uses default)."""
+    config_with_empty = {**LLM_CONFIG, "system_prompt": ""}
+    resp = await client.patch("/api/v1/modules/analysers/llm/config", json=config_with_empty, headers=auth(admin_token))
+    data = resp.json()
+    assert data["is_default"] is True
+    assert data["system_prompt"] == data["default_system_prompt"]

@@ -239,12 +239,13 @@ const form = ref({
   model_name: '',
   api_key: '',
   api_base_url: '',
+  system_prompt: null as string | null,
 })
 
 const { isDirty, reset: resetDirty } = useDirtyTracking(form)
 
 const promptText = ref('')
-const isUsingDefault = ref(true)
+const isUsingDefault = computed(() => form.value.system_prompt === null)
 const defaultPromptText = ref('')
 
 const knownProviders = ['openai', 'anthropic', 'ollama']
@@ -272,16 +273,12 @@ const basePlaceholder = computed(() => {
 })
 
 function onPromptInput() {
-  if (!promptText.value) {
-    isUsingDefault.value = true
-  } else if (isUsingDefault.value) {
-    isUsingDefault.value = false
-  }
+  form.value.system_prompt = promptText.value || null
 }
 
 function handleEditDefault() {
   promptText.value = defaultPromptText.value
-  isUsingDefault.value = false
+  form.value.system_prompt = defaultPromptText.value
 }
 
 function handleProviderChange() {
@@ -296,8 +293,8 @@ function handleProviderChange() {
 }
 
 function handleResetPrompt() {
-  isUsingDefault.value = true
   promptText.value = ''
+  form.value.system_prompt = null
 }
 
 async function fetchConfig() {
@@ -312,7 +309,7 @@ async function fetchConfig() {
       form.value.api_base_url = res.data.api_base_url || ''
       hasExistingKey.value = res.data.has_api_key || false
       defaultPromptText.value = res.data.default_system_prompt || ''
-      isUsingDefault.value = res.data.is_default ?? true
+      form.value.system_prompt = res.data.is_default ? null : (res.data.system_prompt || '')
       promptText.value = res.data.is_default ? '' : (res.data.system_prompt || '')
 
       if (knownProviders.includes(form.value.provider)) {
@@ -337,7 +334,7 @@ async function handleSave() {
     const payload: Record<string, string | null> = {
       provider: form.value.provider,
       model_name: form.value.model_name,
-      system_prompt: isUsingDefault.value ? null : promptText.value,
+      system_prompt: form.value.system_prompt,
     }
     if (showApiKey.value && form.value.api_key) {
       payload.api_key = form.value.api_key
@@ -351,10 +348,8 @@ async function handleSave() {
     form.value.api_key = ''
     if (res.data) {
       defaultPromptText.value = res.data.default_system_prompt || ''
-      isUsingDefault.value = res.data.is_default ?? true
-      if (res.data.is_default) {
-        promptText.value = ''
-      }
+      form.value.system_prompt = res.data.is_default ? null : (res.data.system_prompt || '')
+      promptText.value = res.data.is_default ? '' : (res.data.system_prompt || '')
     }
     resetDirty() // Must come after api_key clear so snapshot captures the cleared state
     setTimeout(() => {

@@ -27,7 +27,7 @@ async def get_config(db: AsyncSession = Depends(get_db)):
         api_base_url=config.api_base_url, is_active=config.is_active,
         has_api_key=bool(config.api_key_encrypted),
         system_prompt=config.system_prompt or SYSTEM_PROMPT,
-        is_default=config.system_prompt is None,
+        is_default=not config.system_prompt,
         default_system_prompt=SYSTEM_PROMPT,
     )
 
@@ -46,7 +46,7 @@ async def update_config(req: LLMConfigRequest, db: AsyncSession = Depends(get_db
         config.api_key_encrypted = encrypt_value(req.api_key)
     if req.api_base_url is not None:
         config.api_base_url = req.api_base_url
-    config.system_prompt = req.system_prompt
+    config.system_prompt = req.system_prompt or None
     config.is_active = True
     await db.commit()
     await db.refresh(config)
@@ -55,7 +55,7 @@ async def update_config(req: LLMConfigRequest, db: AsyncSession = Depends(get_db
         api_base_url=config.api_base_url, is_active=config.is_active,
         has_api_key=bool(config.api_key_encrypted),
         system_prompt=config.system_prompt or SYSTEM_PROMPT,
-        is_default=config.system_prompt is None,
+        is_default=not config.system_prompt,
         default_system_prompt=SYSTEM_PROMPT,
     )
 
