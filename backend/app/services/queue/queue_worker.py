@@ -61,14 +61,7 @@ async def process_next_item() -> None:
 
             item.extracted_data = raw_response
 
-            if analysis is None:
-                error_detail = raw_response.get("error", "Unknown analysis error") if isinstance(raw_response, dict) else "Unknown analysis error"
-                item.status = "failed"
-                item.error_message = error_detail
-                await db.commit()
-                return
-
-            if not analysis.is_relevant:
+            if analysis is None or not analysis.is_relevant:
                 item.status = "completed"
                 await db.commit()
                 return
