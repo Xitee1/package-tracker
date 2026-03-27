@@ -84,6 +84,9 @@ async def test_connection(account_id: int, user: User = Depends(get_current_user
         password=password,
         use_ssl=account.use_ssl,
     )
+    if result.idle_supported is not None and account.idle_supported != result.idle_supported:
+        account.idle_supported = result.idle_supported
+        await db.commit()
     return {"success": result.success, "message": result.message, "idle_supported": result.idle_supported}
 
 
@@ -101,6 +104,9 @@ async def list_folders(account_id: int, user: User = Depends(get_current_user), 
             password=password,
             use_ssl=account.use_ssl,
         )
+        if account.idle_supported != result.idle_supported:
+            account.idle_supported = result.idle_supported
+            await db.commit()
         return result.folders
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to list folders: {e}")
