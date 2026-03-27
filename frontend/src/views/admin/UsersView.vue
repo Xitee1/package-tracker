@@ -81,7 +81,7 @@
           <button
             type="submit"
             :disabled="formSaving || !isDirty"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ formSaving ? $t('users.creating') : $t('users.createUser') }}
           </button>
@@ -173,7 +173,7 @@
                   <button
                     @click="handleDelete(user)"
                     :disabled="auth.user?.id === user.id"
-                    class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                    class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {{ $t('common.delete') }}
                   </button>
@@ -205,7 +205,7 @@
           <button
             @click="confirmDelete"
             :disabled="deleting"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:not-disabled:bg-red-700 disabled:opacity-50"
           >
             {{ deleting ? $t('common.deleting') : $t('common.delete') }}
           </button>

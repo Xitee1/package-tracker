@@ -119,7 +119,7 @@
               <button
                 type="submit"
                 :disabled="savingConnection || !connectionDirty"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ savingConnection ? $t('common.saving') : $t('globalMail.saveConnection') }}
               </button>
@@ -217,7 +217,7 @@
               <button
                 type="submit"
                 :disabled="savingSettings || loadingFolders || !settingsDirty"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ savingSettings ? $t('common.saving') : $t('globalMail.saveSettings') }}
               </button>
