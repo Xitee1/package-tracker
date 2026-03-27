@@ -301,7 +301,7 @@ function handleTouchEnd(e: TouchEvent) {
   if (!touchIsHorizontal) return
   const diff = e.changedTouches[0].clientX - touchStartX
   // Swipe right from left edge to open
-  if (diff > 70 && touchStartX.value < 30 && !sidebarOpen.value) {
+  if (diff > 70 && touchStartX < 30 && !sidebarOpen.value) {
     sidebarOpen.value = true
   }
   // Swipe left to close
