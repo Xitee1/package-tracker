@@ -265,7 +265,7 @@
           <button
             @click="confirmDelete"
             :disabled="deleting"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:not-disabled:bg-red-700 disabled:opacity-50"
           >
             {{ deleting ? $t('common.deleting') : $t('common.delete') }}
           </button>

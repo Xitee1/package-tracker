@@ -76,7 +76,7 @@
             <button
               type="submit"
               :disabled="sendingVerification"
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{
                 sendingVerification
@@ -173,8 +173,8 @@
           <div class="pt-2">
             <button
               type="submit"
-              :disabled="savingEvents"
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="savingEvents || !eventsDirty"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ savingEvents ? $t('common.saving') : $t('common.save') }}
             </button>
@@ -190,6 +190,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '@/api/client'
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 
 const { t } = useI18n()
 
@@ -202,6 +203,7 @@ const config = ref({
   verified: false,
 })
 
+// No dirty tracking for emailForm — it triggers a verification action, not a save/revert pattern
 const emailForm = ref('')
 const sendingVerification = ref(false)
 const verificationSent = ref(false)
@@ -212,6 +214,7 @@ const events = ref({
   tracking_update: true,
   package_delivered: true,
 })
+const { isDirty: eventsDirty, reset: resetEventsDirty } = useDirtyTracking(events)
 const savingEvents = ref(false)
 const eventsError = ref('')
 const eventsSaveSuccess = ref(false)
@@ -233,6 +236,7 @@ async function fetchConfig() {
     events.value.new_order = eventList.includes('new_order')
     events.value.tracking_update = eventList.includes('tracking_update')
     events.value.package_delivered = eventList.includes('package_delivered')
+    resetEventsDirty()
   } catch (e: unknown) {
     if (getApiErrorStatus(e) !== 404) {
       loadError.value = getApiErrorMessage(e, t('notifications.saveFailed'))
@@ -282,6 +286,7 @@ async function handleSaveEvents() {
     const eventList = Object.entries(events.value).filter(([_, v]) => v).map(([k]) => k)
     await api.put('/notifiers/notify-email/config/events', { events: eventList })
     eventsSaveSuccess.value = true
+    resetEventsDirty()
     setTimeout(() => {
       eventsSaveSuccess.value = false
     }, 3000)

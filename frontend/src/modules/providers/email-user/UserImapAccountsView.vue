@@ -172,8 +172,8 @@
         <div class="flex items-center gap-3 pt-2">
           <button
             type="submit"
-            :disabled="formSaving"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="formSaving || (editingId !== null && !isDirty)"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{
               formSaving
@@ -349,7 +349,7 @@
               <button
                 @click="handleTest(account.id)"
                 :disabled="testingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-700 disabled:opacity-50"
                 :title="$t('common.test')"
               >
                 {{ testingId === account.id ? $t('common.testing') : $t('common.test') }}
@@ -363,7 +363,7 @@
               <button
                 @click="handleDelete(account)"
                 :disabled="deletingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50"
+                class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-50"
               >
                 {{ deletingId === account.id ? $t('common.deleting') : $t('common.delete') }}
               </button>
@@ -416,7 +416,7 @@
             <button
               @click="loadFolders(account.id)"
               :disabled="foldersLoading"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 disabled:opacity-50"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md hover:not-disabled:bg-blue-100 dark:hover:not-disabled:bg-blue-900/50 disabled:opacity-50"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -551,7 +551,7 @@
           <button
             @click="confirmDelete"
             :disabled="deletingId !== null"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:not-disabled:bg-red-700 disabled:opacity-50"
           >
             {{ $t('common.delete') }}
           </button>
@@ -566,6 +566,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore, type EmailAccount, type IMAPFolder, type WatchedFolder } from './store'
 import { getApiErrorMessage, getApiErrorStatus } from '@/utils/api-error'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 
 const { t } = useI18n()
 const accountsStore = useAccountsStore()
@@ -586,6 +587,8 @@ const form = ref({
   polling_interval_sec: 300,
   use_polling: false,
 })
+
+const { isDirty, reset: resetDirty } = useDirtyTracking(form, { guard: false })
 
 // Test connection state
 const testingId = ref<number | null>(null)
@@ -627,6 +630,7 @@ function resetForm() {
 function openAddForm() {
   resetForm()
   showForm.value = true
+  resetDirty()
 }
 
 function openEditForm(account: EmailAccount) {
@@ -643,6 +647,7 @@ function openEditForm(account: EmailAccount) {
   }
   formError.value = ''
   showForm.value = true
+  resetDirty()
 }
 
 function closeForm() {

@@ -103,8 +103,8 @@
         <div class="pt-2">
           <button
             type="submit"
-            :disabled="pwSaving"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="pwSaving || !pwDirty"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ pwSaving ? $t('profile.updating') : $t('profile.updatePassword') }}
           </button>
@@ -176,7 +176,7 @@
         <button
           @click="handleCreateKey"
           :disabled="!newKeyName.trim() || keyCreating"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ keyCreating ? $t('profile.creating') : $t('profile.create') }}
         </button>
@@ -196,7 +196,7 @@
         <button
           @click="showCreateForm = true"
           :disabled="apiKeys.length >= 25"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ $t('profile.createApiKey') }}
         </button>
@@ -256,6 +256,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api/client'
@@ -278,6 +279,7 @@ const pwSaving = ref(false)
 const pwError = ref('')
 const pwSuccess = ref('')
 const pwForm = ref({ currentPassword: '', newPassword: '', confirmPassword: '' })
+const { isDirty: pwDirty, reset: resetPwDirty } = useDirtyTracking(pwForm)
 
 async function handleChangePassword() {
   pwError.value = ''
@@ -298,6 +300,7 @@ async function handleChangePassword() {
     })
     pwSuccess.value = t('profile.passwordUpdated')
     pwForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
+    resetPwDirty()
     setTimeout(() => {
       pwSuccess.value = ''
     }, 3000)

@@ -188,7 +188,7 @@
       <button
         @click="prevPage"
         :disabled="ordersStore.page <= 1"
-        class="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {{ $t('orders.previousPage') }}
       </button>
@@ -198,7 +198,7 @@
       <button
         @click="nextPage"
         :disabled="ordersStore.page >= totalPages"
-        class="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {{ $t('orders.nextPage') }}
       </button>

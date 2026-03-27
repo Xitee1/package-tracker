@@ -247,8 +247,8 @@
           </button>
           <button
             type="submit"
-            :disabled="submitting"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            :disabled="submitting || (mode === 'edit' && !isDirty)"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:not-disabled:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
             {{
               submitting
@@ -268,6 +268,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useDirtyTracking } from '@/composables/useDirtyTracking'
 import { useI18n } from 'vue-i18n'
 import { useOrdersStore, type OrderDetail, type CreateOrderData } from '@/stores/orders'
 import { getApiErrorMessage } from '@/utils/api-error'
@@ -336,6 +337,8 @@ if (props.mode === 'edit' && props.order) {
       : [],
   }
 }
+
+const { isDirty, reset: resetDirty } = useDirtyTracking(form, { guard: false })
 
 function addItem() {
   form.value.items.push({ name: '', quantity: 1, price: null })
