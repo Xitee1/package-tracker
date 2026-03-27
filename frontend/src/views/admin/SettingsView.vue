@@ -10,6 +10,9 @@
         <div class="relative">
           <button
             @click="dropdownOpen = !dropdownOpen"
+            @keydown.esc.window="dropdownOpen = false"
+            :aria-expanded="dropdownOpen"
+            aria-haspopup="true"
             class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
           >
             <span>{{ currentLabel }}</span>
