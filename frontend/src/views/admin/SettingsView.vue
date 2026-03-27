@@ -31,23 +31,23 @@
             class="absolute z-20 left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 max-h-64 overflow-y-auto"
           >
             <router-link
-              to="/admin/settings/queue"
+              :to="{ name: 'queue-settings' }"
               class="block px-3 py-2 text-sm transition-colors"
-              :class="isActive('/admin/settings/queue') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              :class="isActive('queue-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
             >
               {{ $t('settings.queue') }}
             </router-link>
             <router-link
-              to="/admin/settings/analysers"
+              :to="{ name: 'analysers-settings' }"
               class="block px-3 py-2 text-sm transition-colors"
-              :class="isActive('/admin/settings/analysers') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              :class="isActive('analysers-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
             >
               {{ $t('settings.analysers') }}
             </router-link>
             <router-link
-              to="/admin/settings/smtp"
+              :to="{ name: 'smtp-settings' }"
               class="block px-3 py-2 text-sm transition-colors"
-              :class="isActive('/admin/settings/smtp') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              :class="isActive('smtp-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
             >
               {{ $t('settings.smtp') }}
             </router-link>
@@ -60,7 +60,7 @@
                 :key="item.to"
                 :to="item.to"
                 class="block px-3 py-2 text-sm transition-colors"
-                :class="isActive(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+                :class="isActiveByPath(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
               >
                 {{ $t(item.label) }}
               </router-link>
@@ -74,23 +74,23 @@
       <nav class="hidden sm:block sm:w-52 flex-shrink-0">
         <div class="flex flex-col gap-1">
           <router-link
-            to="/admin/settings/queue"
+            :to="{ name: 'queue-settings' }"
             class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-            :class="isActive('/admin/settings/queue') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            :class="isActive('queue-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
           >
             {{ $t('settings.queue') }}
           </router-link>
           <router-link
-            to="/admin/settings/analysers"
+            :to="{ name: 'analysers-settings' }"
             class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-            :class="isActive('/admin/settings/analysers') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            :class="isActive('analysers-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
           >
             {{ $t('settings.analysers') }}
           </router-link>
           <router-link
-            to="/admin/settings/smtp"
+            :to="{ name: 'smtp-settings' }"
             class="px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-            :class="isActive('/admin/settings/smtp') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            :class="isActive('smtp-settings') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
           >
             {{ $t('settings.smtp') }}
           </router-link>
@@ -122,7 +122,7 @@
                 :key="item.to"
                 :to="item.to"
                 class="px-3 py-2 pl-5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap block"
-                :class="isActive(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
+                :class="isActiveByPath(item.to) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
               >
                 {{ $t(item.label) }}
               </router-link>
@@ -154,13 +154,13 @@ const collapsedGroups = reactive<Record<string, boolean>>({})
 const dropdownOpen = ref(false)
 
 const currentLabel = computed(() => {
-  const path = route.path
-  if (path.endsWith('/queue')) return t('settings.queue')
-  if (path.endsWith('/analysers')) return t('settings.analysers')
-  if (path.endsWith('/smtp')) return t('settings.smtp')
+  const name = route.name
+  if (name === 'queue-settings') return t('settings.queue')
+  if (name === 'analysers-settings') return t('settings.analysers')
+  if (name === 'smtp-settings') return t('settings.smtp')
   for (const group of sidebarGroups) {
     for (const item of group.items) {
-      if (path === item.to) return t(item.label)
+      if (route.path === item.to) return t(item.label)
     }
   }
   return t('settings.title')
@@ -174,7 +174,11 @@ function toggleGroup(group: string) {
   collapsedGroups[group] = !collapsedGroups[group]
 }
 
-function isActive(path: string): boolean {
+function isActive(name: string): boolean {
+  return route.name === name
+}
+
+function isActiveByPath(path: string): boolean {
   return route.path === path
 }
 </script>
