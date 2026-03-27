@@ -298,8 +298,11 @@ function handleTouchMove(e: TouchEvent) {
 }
 
 function handleTouchEnd(e: TouchEvent) {
-  if (!touchIsHorizontal) return
   const diff = e.changedTouches[0].clientX - touchStartX
+  const diffY = e.changedTouches[0].clientY - touchStartY
+  // Fallback for fast flicks where few touchmove events fire
+  const isHorizontal = touchIsHorizontal || (Math.abs(diff) > 70 && Math.abs(diff) > Math.abs(diffY))
+  if (!isHorizontal) return
   // Swipe right from left edge to open
   if (diff > 70 && touchStartX < 30 && !sidebarOpen.value) {
     sidebarOpen.value = true
