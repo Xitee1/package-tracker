@@ -143,6 +143,7 @@ async def fetch_new_emails(
         route = await callbacks.route_email(sender, db)
         if route is None:
             await callbacks.save_uid(uid, db)
+            ctx.last_seen_uid = uid
             continue
         user_id, source = route
 
@@ -168,6 +169,7 @@ async def fetch_new_emails(
         )
 
         await callbacks.save_uid(uid, db)
+        ctx.last_seen_uid = uid
 
     if state:
         state.last_scan_at = datetime.now(timezone.utc)
