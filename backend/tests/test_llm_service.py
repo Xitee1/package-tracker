@@ -130,45 +130,38 @@ async def test_analyze_malformed_json_retry(db_session, llm_config):
 
 @pytest.mark.asyncio
 async def test_analyze_malformed_json_both_attempts_fail(db_session, llm_config):
-    """Test that two consecutive malformed JSON responses return None."""
+    """Test that two consecutive malformed JSON responses raise ValueError."""
     with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
         mock_llm.return_value = _make_llm_response("not json at all")
 
-        analysis, raw_resp = await analyze(
-            {"subject": "Order update", "sender": "orders@shop.com", "body": "Some body text"},
-            db=db_session,
-        )
-
-    assert analysis is None
-    assert "error" in raw_resp
-    assert "Failed to parse" in raw_resp["error"]
+        with pytest.raises(ValueError, match="Failed to parse LLM response"):
+            await analyze(
+                {"subject": "Order update", "sender": "orders@shop.com", "body": "Some body text"},
+                db=db_session,
+            )
 
 
 @pytest.mark.asyncio
 async def test_analyze_no_llm_config(db_session):
-    """Test that missing LLM config returns None with error."""
-    analysis, raw_resp = await analyze(
-        {"subject": "Your order", "sender": "shop@example.com", "body": "Order details..."},
-        db=db_session,
-    )
-
-    assert analysis is None
-    assert raw_resp == {"error": "No LLM configured"}
-
-
-@pytest.mark.asyncio
-async def test_analyze_llm_api_error(db_session, llm_config):
-    """Test that an LLM API exception returns None with error message."""
-    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
-        mock_llm.side_effect = Exception("API rate limit exceeded")
-
-        analysis, raw_resp = await analyze(
+    """Test that missing LLM config raises RuntimeError."""
+    with pytest.raises(RuntimeError, match="No LLM configured"):
+        await analyze(
             {"subject": "Your order", "sender": "shop@example.com", "body": "Order details..."},
             db=db_session,
         )
 
-    assert analysis is None
-    assert raw_resp == {"error": "API rate limit exceeded"}
+
+@pytest.mark.asyncio
+async def test_analyze_llm_api_error(db_session, llm_config):
+    """Test that an LLM API exception propagates."""
+    with patch("app.modules.analysers.llm.service.litellm.acompletion", new_callable=AsyncMock) as mock_llm:
+        mock_llm.side_effect = Exception("API rate limit exceeded")
+
+        with pytest.raises(Exception, match="API rate limit exceeded"):
+            await analyze(
+                {"subject": "Your order", "sender": "shop@example.com", "body": "Order details..."},
+                db=db_session,
+            )
 
 
 @pytest.mark.asyncio

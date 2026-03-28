@@ -72,12 +72,16 @@ Rules:
 Do not include any text outside the JSON object."""
 
 
-async def analyze(raw_data: dict, db: AsyncSession) -> tuple[AnalysisResult | None, dict]:
-    """Analyze raw input data using the configured LLM. Returns (parsed_result, raw_response_dict)."""
+async def analyze(raw_data: dict, db: AsyncSession) -> tuple[AnalysisResult, dict]:
+    """Analyze raw input data using the configured LLM. Returns (parsed_result, raw_response_dict).
+
+    Raises on any failure (no config, API error, parse error) so the caller
+    can handle errors via normal exception flow.
+    """
     result = await db.execute(select(LLMConfig).where(LLMConfig.is_active.is_(True)))
     config = result.scalar_one_or_none()
     if not config:
-        return None, {"error": "No LLM configured"}
+        raise RuntimeError("No LLM configured")
 
     api_key = decrypt_value(config.api_key_encrypted) if config.api_key_encrypted else None
 
@@ -101,8 +105,6 @@ async def analyze(raw_data: dict, db: AsyncSession) -> tuple[AnalysisResult | No
             except (json.JSONDecodeError, ValidationError):
                 if attempt == 0:
                     continue
-                return None, {"error": "Failed to parse LLM response", "raw": raw_text}
-            except Exception as e:
-                return None, {"error": str(e)}
+                raise ValueError(f"Failed to parse LLM response after 2 attempts: {raw_text}")
     finally:
         _active_requests -= 1
