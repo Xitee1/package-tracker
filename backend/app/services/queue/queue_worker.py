@@ -53,6 +53,7 @@ async def process_next_item() -> None:
         if not item:
             return
 
+        item_id = item.id
         item.status = "processing"
         await db.commit()
 
@@ -112,11 +113,17 @@ async def process_next_item() -> None:
             await db.commit()
 
         except Exception as e:
-            logger.error(f"Failed to process queue item {item.id}: {e}")
-            await db.rollback()
-            async with async_session() as err_db:
-                err_item = await err_db.get(QueueItem, item.id)
-                if err_item:
-                    err_item.status = "failed"
-                    err_item.error_message = str(e)
-                    await err_db.commit()
+            logger.error(f"Failed to process queue item {item_id}: {e}")
+            try:
+                await db.rollback()
+            except Exception:
+                pass
+            try:
+                async with async_session() as err_db:
+                    err_item = await err_db.get(QueueItem, item_id)
+                    if err_item:
+                        err_item.status = "failed"
+                        err_item.error_message = str(e)
+                        await err_db.commit()
+            except Exception as inner:
+                logger.error(f"Could not mark queue item {item_id} as failed: {inner}")
