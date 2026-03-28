@@ -1,14 +1,11 @@
 """Tests for queue startup reset (stuck 'processing' items reset to 'queued')."""
 
-from sqlalchemy import select, update
+import pytest
 
 from app.core.auth import hash_password
+from app.main import reset_stuck_queue_items
 from app.models.queue_item import QueueItem
 from app.models.user import User
-from app.main import reset_stuck_queue_items
-
-
-import pytest
 
 
 @pytest.fixture
