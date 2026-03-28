@@ -22,11 +22,13 @@ async def get_config(db: AsyncSession = Depends(get_db)):
     config = result.scalar_one_or_none()
     if not config:
         return None
+    is_default = not config.system_prompt
     return LLMConfigResponse(
         id=config.id, provider=config.provider, model_name=config.model_name,
         api_base_url=config.api_base_url, is_active=config.is_active,
         has_api_key=bool(config.api_key_encrypted),
-        system_prompt=config.system_prompt,
+        system_prompt=SYSTEM_PROMPT if is_default else config.system_prompt,
+        is_default=is_default,
         default_system_prompt=SYSTEM_PROMPT,
     )
 
@@ -45,15 +47,17 @@ async def update_config(req: LLMConfigRequest, db: AsyncSession = Depends(get_db
         config.api_key_encrypted = encrypt_value(req.api_key)
     if req.api_base_url is not None:
         config.api_base_url = req.api_base_url
-    config.system_prompt = req.system_prompt
+    config.system_prompt = req.system_prompt.strip() if req.system_prompt else None
     config.is_active = True
     await db.commit()
     await db.refresh(config)
+    is_default = not config.system_prompt
     return LLMConfigResponse(
         id=config.id, provider=config.provider, model_name=config.model_name,
         api_base_url=config.api_base_url, is_active=config.is_active,
         has_api_key=bool(config.api_key_encrypted),
-        system_prompt=config.system_prompt,
+        system_prompt=SYSTEM_PROMPT if is_default else config.system_prompt,
+        is_default=is_default,
         default_system_prompt=SYSTEM_PROMPT,
     )
 

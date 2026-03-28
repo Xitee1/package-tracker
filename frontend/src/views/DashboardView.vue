@@ -5,22 +5,22 @@
     </h1>
 
     <!-- Status Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
       <div
-        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-5"
       >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
               {{ $t('dashboard.ordered') }}
             </p>
-            <p class="text-2xl font-bold text-blue-600 mt-1">{{ statusCounts.ordered }}</p>
+            <p class="text-xl sm:text-2xl font-bold text-blue-600 mt-0.5 sm:mt-1">{{ statusCounts.ordered }}</p>
           </div>
           <div
-            class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0"
           >
             <svg
-              class="w-5 h-5 text-blue-600"
+              class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -37,20 +37,20 @@
       </div>
 
       <div
-        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-5"
       >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
               {{ $t('dashboard.shipped') }}
             </p>
-            <p class="text-2xl font-bold text-indigo-600 mt-1">{{ statusCounts.shipped }}</p>
+            <p class="text-xl sm:text-2xl font-bold text-indigo-600 mt-0.5 sm:mt-1">{{ statusCounts.shipped }}</p>
           </div>
           <div
-            class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center flex-shrink-0"
           >
             <svg
-              class="w-5 h-5 text-indigo-600"
+              class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -67,20 +67,20 @@
       </div>
 
       <div
-        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-5"
       >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
               {{ $t('dashboard.inTransit') }}
             </p>
-            <p class="text-2xl font-bold text-orange-600 mt-1">{{ statusCounts.in_transit }}</p>
+            <p class="text-xl sm:text-2xl font-bold text-orange-600 mt-0.5 sm:mt-1">{{ statusCounts.in_transit }}</p>
           </div>
           <div
-            class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0"
           >
             <svg
-              class="w-5 h-5 text-orange-600"
+              class="w-4 h-4 sm:w-5 sm:h-5 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -97,20 +97,20 @@
       </div>
 
       <div
-        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5"
+        class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-5"
       >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
               {{ $t('dashboard.delivered') }}
             </p>
-            <p class="text-2xl font-bold text-green-600 mt-1">{{ statusCounts.delivered }}</p>
+            <p class="text-xl sm:text-2xl font-bold text-green-600 mt-0.5 sm:mt-1">{{ statusCounts.delivered }}</p>
           </div>
           <div
-            class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0"
           >
             <svg
-              class="w-5 h-5 text-green-600"
+              class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -156,57 +156,65 @@
         {{ $t('dashboard.noOrders') }}
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr
-              class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-            >
-              <th class="px-5 py-3">{{ $t('dashboard.order') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.vendor') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.status') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.date') }}</th>
-              <th class="px-5 py-3">{{ $t('dashboard.amount') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr
-              v-for="order in recentOrders"
-              :key="order.id"
-              @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
-              class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-            >
-              <td class="px-5 py-3">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ order.order_number || order.tracking_number || `#${order.id}` }}
-                </div>
-                <div
-                  v-if="order.tracking_number && order.order_number"
-                  class="text-xs text-gray-500 dark:text-gray-400"
-                >
-                  {{ order.tracking_number }}
-                </div>
-              </td>
-              <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ order.vendor_name || order.vendor_domain || '-' }}
-              </td>
-              <td class="px-5 py-3">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="statusClass(order.status)"
-                >
-                  {{ formatStatus(order.status) }}
-                </span>
-              </td>
-              <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ formatDate(order.order_date || order.created_at) }}
-              </td>
-              <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                {{ formatAmount(order.total_amount, order.currency) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div v-else>
+        <!-- Desktop Table -->
+        <div class="overflow-x-auto hidden lg:block">
+          <table class="w-full">
+            <thead>
+              <tr
+                class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                <th class="px-5 py-3">{{ $t('dashboard.order') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.vendor') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.status') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.date') }}</th>
+                <th class="px-5 py-3">{{ $t('dashboard.amount') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr
+                v-for="order in recentOrders"
+                :key="order.id"
+                @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
+                class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+              >
+                <td class="px-5 py-3">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                    {{ order.order_number || order.tracking_number || `#${order.id}` }}
+                  </div>
+                  <div
+                    v-if="order.tracking_number && order.order_number"
+                    class="text-xs text-gray-500 dark:text-gray-400"
+                  >
+                    {{ order.tracking_number }}
+                  </div>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
+                  {{ order.vendor_name || order.vendor_domain || '-' }}
+                </td>
+                <td class="px-5 py-3">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="statusClass(order.status)"
+                  >
+                    {{ formatStatus(order.status) }}
+                  </span>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatDate(order.order_date || order.created_at) }}
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatAmount(order.total_amount, order.currency) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="lg:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <OrderCard v-for="order in recentOrders" :key="order.id" :order="order" />
+        </div>
       </div>
     </div>
   </div>
@@ -217,6 +225,7 @@ import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useOrdersStore } from '@/stores/orders'
 import { formatDate, formatAmount } from '@/utils/format'
+import OrderCard from '@/components/OrderCard.vue'
 
 const { t, te } = useI18n()
 const ordersStore = useOrdersStore()

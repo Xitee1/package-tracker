@@ -31,7 +31,8 @@ class LLMConfigResponse(BaseModel):
     api_base_url: Optional[str]
     is_active: bool
     has_api_key: bool
-    system_prompt: Optional[str] = None
+    system_prompt: str
+    is_default: bool = True
     default_system_prompt: str = ""
 
     model_config = {"from_attributes": True}

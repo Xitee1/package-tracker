@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('users.title') }}</h1>
       <button
         v-if="!showForm"
         @click="showForm = true"
-        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 self-start sm:self-auto"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -112,76 +112,129 @@
         </div>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr
-              class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
-            >
-              <th class="px-5 py-3">{{ $t('users.id') }}</th>
-              <th class="px-5 py-3">{{ $t('users.username') }}</th>
-              <th class="px-5 py-3">{{ $t('users.role') }}</th>
-              <th class="px-5 py-3 text-right">{{ $t('users.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr
-              v-for="user in users"
-              :key="user.id"
-              class="hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ user.id }}</td>
-              <td class="px-5 py-3">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{
-                    user.username
-                  }}</span>
+      <div v-else>
+        <!-- Desktop Table -->
+        <div class="overflow-x-auto hidden lg:block">
+          <table class="w-full">
+            <thead>
+              <tr
+                class="text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700"
+              >
+                <th class="px-5 py-3">{{ $t('users.id') }}</th>
+                <th class="px-5 py-3">{{ $t('users.username') }}</th>
+                <th class="px-5 py-3">{{ $t('users.role') }}</th>
+                <th class="px-5 py-3 text-right">{{ $t('users.actions') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr
+                v-for="user in users"
+                :key="user.id"
+                class="hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">{{ user.id }}</td>
+                <td class="px-5 py-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{
+                      user.username
+                    }}</span>
+                    <span
+                      v-if="auth.user?.id === user.id"
+                      class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                    >
+                      {{ $t('common.you') }}
+                    </span>
+                  </div>
+                </td>
+                <td class="px-5 py-3">
                   <span
-                    v-if="auth.user?.id === user.id"
-                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                  >
-                    {{ $t('common.you') }}
-                  </span>
-                </div>
-              </td>
-              <td class="px-5 py-3">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="
-                    user.is_admin
-                      ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                  "
-                >
-                  {{ user.is_admin ? $t('common.admin') : $t('common.user') }}
-                </span>
-              </td>
-              <td class="px-5 py-3 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button
-                    @click="toggleAdmin(user)"
-                    :disabled="auth.user?.id === user.id"
-                    class="px-3 py-1.5 text-xs font-medium rounded-md border disabled:opacity-40 disabled:cursor-not-allowed"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                     :class="
                       user.is_admin
-                        ? 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-                        : 'text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/50'
+                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                     "
                   >
-                    {{ user.is_admin ? $t('users.removeAdmin') : $t('users.makeAdmin') }}
-                  </button>
-                  <button
-                    @click="handleDelete(user)"
-                    :disabled="auth.user?.id === user.id"
-                    class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {{ $t('common.delete') }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                    {{ user.is_admin ? $t('common.admin') : $t('common.user') }}
+                  </span>
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      @click="toggleAdmin(user)"
+                      :disabled="auth.user?.id === user.id"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md border disabled:opacity-40 disabled:cursor-not-allowed"
+                      :class="
+                        user.is_admin
+                          ? 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          : 'text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/50'
+                      "
+                    >
+                      {{ user.is_admin ? $t('users.removeAdmin') : $t('users.makeAdmin') }}
+                    </button>
+                    <button
+                      @click="handleDelete(user)"
+                      :disabled="auth.user?.id === user.id"
+                      class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {{ $t('common.delete') }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="lg:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div v-for="user in users" :key="user.id" class="p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{
+                  user.username
+                }}</span>
+                <span
+                  v-if="auth.user?.id === user.id"
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                >
+                  {{ $t('common.you') }}
+                </span>
+              </div>
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
+                :class="
+                  user.is_admin
+                    ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                "
+              >
+                {{ user.is_admin ? $t('common.admin') : $t('common.user') }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2 pt-1">
+              <button
+                @click="toggleAdmin(user)"
+                :disabled="auth.user?.id === user.id"
+                class="px-3 py-1.5 text-xs font-medium rounded-md border disabled:opacity-40 disabled:cursor-not-allowed"
+                :class="
+                  user.is_admin
+                    ? 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/50'
+                "
+              >
+                {{ user.is_admin ? $t('users.removeAdmin') : $t('users.makeAdmin') }}
+              </button>
+              <button
+                @click="handleDelete(user)"
+                :disabled="auth.user?.id === user.id"
+                class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-900 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {{ $t('common.delete') }}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

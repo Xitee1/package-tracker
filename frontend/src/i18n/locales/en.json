@@ -355,7 +355,8 @@
     "systemPrompt": "System Prompt",
     "systemPromptHelp": "The instruction sent to the LLM that controls how emails are analysed. Leave as default unless you need custom extraction behaviour.",
     "resetToDefault": "Reset to Default",
-    "usingDefaultPrompt": "Using default prompt"
+    "usingDefaultPrompt": "Using default prompt",
+    "editDefaultPrompt": "Edit default prompt"
   },
   "system": {
     "title": "System Status",

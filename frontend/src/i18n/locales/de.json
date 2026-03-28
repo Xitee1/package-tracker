@@ -355,7 +355,8 @@
     "systemPrompt": "System-Prompt",
     "systemPromptHelp": "Die Anweisung an das LLM, die steuert, wie E-Mails analysiert werden. Standard beibehalten, sofern kein benutzerdefiniertes Extraktionsverhalten benötigt wird.",
     "resetToDefault": "Standard wiederherstellen",
-    "usingDefaultPrompt": "Standard-Prompt wird verwendet"
+    "usingDefaultPrompt": "Standard-Prompt wird verwendet",
+    "editDefaultPrompt": "Standard-Prompt bearbeiten"
   },
   "system": {
     "title": "Systemstatus",
