@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from alembic.config import Config
 from alembic import command
 import sqlalchemy as sa
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import engine, async_session, wait_for_db
 from app.models import *  # noqa: F401, F403
 from app.models.smtp_config import SmtpConfig
@@ -32,7 +33,7 @@ def _run_migrations(connection) -> None:
     logger.info("Database migrations complete.")
 
 
-async def reset_stuck_queue_items(session) -> int:
+async def reset_stuck_queue_items(session: AsyncSession) -> int:
     """Reset queue items stuck at 'processing' back to 'queued'.
 
     Called on startup to recover from crashes/restarts.
@@ -40,7 +41,7 @@ async def reset_stuck_queue_items(session) -> int:
     result = await session.execute(
         update(QueueItem)
         .where(QueueItem.status == "processing")
-        .values(status="queued")
+        .values(status="queued", updated_at=func.now())
     )
     count = result.rowcount
     if count:
