@@ -45,7 +45,6 @@ async def reset_stuck_queue_items(session: AsyncSession) -> int:
     )
     count = result.rowcount
     if count:
-        await session.commit()
         logger.info(f"Reset {count} stuck queue item(s) from 'processing' to 'queued'.")
     return count
 
@@ -67,6 +66,7 @@ async def lifespan(app: FastAPI):
     # Reset queue items stuck at 'processing' from a previous crash
     async with async_session() as session:
         await reset_stuck_queue_items(session)
+        await session.commit()
 
     scheduler = await create_scheduler()
     async with scheduler:
