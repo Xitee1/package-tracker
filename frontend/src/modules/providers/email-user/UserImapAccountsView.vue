@@ -248,9 +248,9 @@
       >
         <!-- Account Header -->
         <div class="p-5 cursor-pointer" @click="toggleExpand(account.id)">
-          <div class="flex items-start justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-3 mb-1">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate">
                   {{ account.name }}
                 </h3>
@@ -351,28 +351,30 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2 ml-4 flex-shrink-0" @click.stop>
-              <button
-                @click="handleTest(account.id)"
-                :disabled="testingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-700 disabled:opacity-50"
-                :title="$t('common.test')"
-              >
-                {{ testingId === account.id ? $t('common.testing') : $t('common.test') }}
-              </button>
-              <button
-                @click="openEditForm(account)"
-                class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                {{ $t('common.edit') }}
-              </button>
-              <button
-                @click="handleDelete(account)"
-                :disabled="deletingId === account.id"
-                class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-50"
-              >
-                {{ deletingId === account.id ? $t('common.deleting') : $t('common.delete') }}
-              </button>
+            <div class="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0" @click.stop>
+              <div class="flex items-center gap-2">
+                <button
+                  @click="handleTest(account.id)"
+                  :disabled="testingId === account.id"
+                  class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:not-disabled:bg-gray-50 dark:hover:not-disabled:bg-gray-700 disabled:opacity-50"
+                  :title="$t('common.test')"
+                >
+                  {{ testingId === account.id ? $t('common.testing') : $t('common.test') }}
+                </button>
+                <button
+                  @click="openEditForm(account)"
+                  class="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  {{ $t('common.edit') }}
+                </button>
+                <button
+                  @click="handleDelete(account)"
+                  :disabled="deletingId === account.id"
+                  class="px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 rounded-md hover:not-disabled:bg-red-50 dark:hover:not-disabled:bg-red-900/30 disabled:opacity-50"
+                >
+                  {{ deletingId === account.id ? $t('common.deleting') : $t('common.delete') }}
+                </button>
+              </div>
               <button
                 @click="toggleExpand(account.id)"
                 class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -463,7 +465,7 @@
             <div
               v-for="folder in availableFolders"
               :key="folder.name"
-              class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+              class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2"
             >
               <span class="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <svg
@@ -484,7 +486,7 @@
                 </svg>
                 {{ folder.name }}
               </span>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <template v-if="isWatched(folder.name)">
                   <label class="flex items-center gap-1" :title="$t('accounts.ageDaysTooltip')">
                     <span class="text-xs text-gray-500 dark:text-gray-400">{{

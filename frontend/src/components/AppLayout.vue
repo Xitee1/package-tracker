@@ -1,5 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-950"
+    @touchstart.passive="handleTouchStart"
+    @touchmove.passive="handleTouchMove"
+    @touchend.passive="handleTouchEnd"
+  >
     <!-- Mobile sidebar backdrop -->
     <div
       v-if="sidebarOpen"
@@ -27,113 +32,11 @@
         <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $t('app.title') }}</span>
       </div>
 
-      <!-- Navigation -->
-      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <router-link
-          v-for="item in navItems"
-          :key="item.to"
-          :to="item.to"
-          class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
-          :class="
-            isActive(item.to)
-              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-          "
-          @click="sidebarOpen = false"
-        >
-          <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
-          {{ item.label }}
-        </router-link>
-
-        <!-- Providers Section -->
-        <template v-if="providerItems.length > 0">
-          <button
-            @click="providersExpanded = !providersExpanded"
-            class="flex items-center justify-between w-full px-3 py-2 mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            {{ $t('nav.providers') }}
-            <svg
-              class="w-3.5 h-3.5 transition-transform duration-200"
-              :class="{ 'rotate-180': !providersExpanded }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          <template v-if="providersExpanded">
-            <router-link
-              v-for="item in providerItems"
-              :key="item.to"
-              :to="item.to"
-              class="flex items-center gap-3 px-3 py-2.5 pl-6 text-sm font-medium rounded-lg transition-colors"
-              :class="
-                isActive(item.to)
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-              "
-              @click="sidebarOpen = false"
-            >
-              {{ $t(item.label) }}
-            </router-link>
-          </template>
-        </template>
-
-        <!-- Notifications Section -->
-        <template v-if="notifierItems.length > 0">
-          <button
-            @click="notifiersExpanded = !notifiersExpanded"
-            class="flex items-center justify-between w-full px-3 py-2 mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            {{ $t('nav.notifications') }}
-            <svg
-              class="w-3.5 h-3.5 transition-transform duration-200"
-              :class="{ 'rotate-180': !notifiersExpanded }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          <template v-if="notifiersExpanded">
-            <router-link
-              v-for="item in notifierItems"
-              :key="item.to"
-              :to="item.to"
-              class="flex items-center gap-3 px-3 py-2.5 pl-6 text-sm font-medium rounded-lg transition-colors"
-              :class="
-                isActive(item.to)
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-              "
-              @click="sidebarOpen = false"
-            >
-              {{ $t(item.label) }}
-            </router-link>
-          </template>
-        </template>
-
-        <!-- Admin Section -->
-        <template v-if="auth.isAdmin">
-          <div class="pt-4 pb-1 px-3">
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              {{ $t('common.admin') }}
-            </p>
-          </div>
+      <!-- Scrollable navigation area -->
+      <div class="flex-1 overflow-y-auto min-h-0">
+        <nav class="px-3 py-4 space-y-1">
           <router-link
-            v-for="item in adminNavItems"
+            v-for="item in navItems"
             :key="item.to"
             :to="item.to"
             class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
@@ -147,31 +50,135 @@
             <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
             {{ item.label }}
           </router-link>
-        </template>
-      </nav>
 
-      <!-- About -->
-      <div class="px-3 pb-2">
-        <router-link
-          to="/about"
-          class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
-          :class="
-            isActive('/about')
-              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-          "
-          @click="sidebarOpen = false"
-        >
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          {{ $t('nav.about') }}
-        </router-link>
+          <!-- Providers Section -->
+          <template v-if="providerItems.length > 0">
+            <button
+              @click="providersExpanded = !providersExpanded"
+              class="flex items-center justify-between w-full px-3 py-2 mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              {{ $t('nav.providers') }}
+              <svg
+                class="w-3.5 h-3.5 transition-transform duration-200"
+                :class="{ 'rotate-180': !providersExpanded }"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <template v-if="providersExpanded">
+              <router-link
+                v-for="item in providerItems"
+                :key="item.to"
+                :to="item.to"
+                class="flex items-center gap-3 px-3 py-2.5 pl-6 text-sm font-medium rounded-lg transition-colors"
+                :class="
+                  isActive(item.to)
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                "
+                @click="sidebarOpen = false"
+              >
+                {{ $t(item.label) }}
+              </router-link>
+            </template>
+          </template>
+
+          <!-- Notifications Section -->
+          <template v-if="notifierItems.length > 0">
+            <button
+              @click="notifiersExpanded = !notifiersExpanded"
+              class="flex items-center justify-between w-full px-3 py-2 mt-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              {{ $t('nav.notifications') }}
+              <svg
+                class="w-3.5 h-3.5 transition-transform duration-200"
+                :class="{ 'rotate-180': !notifiersExpanded }"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <template v-if="notifiersExpanded">
+              <router-link
+                v-for="item in notifierItems"
+                :key="item.to"
+                :to="item.to"
+                class="flex items-center gap-3 px-3 py-2.5 pl-6 text-sm font-medium rounded-lg transition-colors"
+                :class="
+                  isActive(item.to)
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                "
+                @click="sidebarOpen = false"
+              >
+                {{ $t(item.label) }}
+              </router-link>
+            </template>
+          </template>
+
+          <!-- Admin Section -->
+          <template v-if="auth.isAdmin">
+            <div class="pt-4 pb-1 px-3">
+              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                {{ $t('common.admin') }}
+              </p>
+            </div>
+            <router-link
+              v-for="item in adminNavItems"
+              :key="item.to"
+              :to="item.to"
+              class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+              :class="
+                isActive(item.to)
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+              "
+              @click="sidebarOpen = false"
+            >
+              <span v-html="item.icon" class="w-5 h-5 flex-shrink-0"></span>
+              {{ item.label }}
+            </router-link>
+          </template>
+        </nav>
+
+        <!-- About -->
+        <div class="px-3 pb-2">
+          <router-link
+            to="/about"
+            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+            :class="
+              isActive('/about')
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+            "
+            @click="sidebarOpen = false"
+          >
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            {{ $t('nav.about') }}
+          </router-link>
+        </div>
       </div>
 
       <!-- User Info -->
@@ -270,6 +277,41 @@ const auth = useAuthStore()
 const modulesStore = useModulesStore()
 
 const sidebarOpen = ref(false)
+
+// Touch handling for swipe gestures
+let touchStartX = 0
+let touchStartY = 0
+let touchIsHorizontal = false
+
+function handleTouchStart(e: TouchEvent) {
+  touchStartX = e.touches[0].clientX
+  touchStartY = e.touches[0].clientY
+  touchIsHorizontal = false
+}
+
+function handleTouchMove(e: TouchEvent) {
+  const diffX = Math.abs(e.touches[0].clientX - touchStartX)
+  const diffY = Math.abs(e.touches[0].clientY - touchStartY)
+  if (diffX > 10 && diffX > diffY) {
+    touchIsHorizontal = true
+  }
+}
+
+function handleTouchEnd(e: TouchEvent) {
+  const diff = e.changedTouches[0].clientX - touchStartX
+  const diffY = e.changedTouches[0].clientY - touchStartY
+  // Fallback for fast flicks where few touchmove events fire
+  const isHorizontal = touchIsHorizontal || (Math.abs(diff) > 70 && Math.abs(diff) > Math.abs(diffY))
+  if (!isHorizontal) return
+  // Swipe right from left edge to open
+  if (diff > 70 && touchStartX < 30 && !sidebarOpen.value) {
+    sidebarOpen.value = true
+  }
+  // Swipe left to close
+  if (diff < -70 && sidebarOpen.value) {
+    sidebarOpen.value = false
+  }
+}
 
 const providerItems = computed(() => {
   return getUserSidebarItems().filter(

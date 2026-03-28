@@ -207,7 +207,8 @@
         v-if="apiKeys.length > 0"
         class="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden"
       >
-        <table class="w-full text-sm">
+        <!-- Desktop Table -->
+        <table class="w-full text-sm hidden sm:table">
           <thead class="bg-gray-50 dark:bg-gray-800">
             <tr>
               <th class="text-left px-4 py-2 font-medium text-gray-700 dark:text-gray-300">
@@ -248,6 +249,28 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Mobile Cards -->
+        <div class="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div v-for="k in apiKeys" :key="k.id" class="p-4 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ k.name }}</span>
+              <button
+                @click="handleDeleteKey(k.id)"
+                class="text-xs text-red-600 dark:text-red-400 hover:underline flex-shrink-0"
+              >
+                {{ confirmDeleteId === k.id ? $t('profile.confirm') : $t('common.delete') }}
+              </button>
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              <code>{{ k.key_prefix }}...</code>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>{{ formatDate(k.created_at) }}</span>
+              <span>{{ k.last_used_at ? formatDate(k.last_used_at) : $t('profile.never') }}</span>
+            </div>
+          </div>
+        </div>
       </div>
       <p v-else class="text-sm text-gray-500 dark:text-gray-400">{{ $t('profile.noApiKeys') }}</p>
     </div>
