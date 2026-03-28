@@ -4,10 +4,12 @@ from fastapi import FastAPI
 from alembic.config import Config
 from alembic import command
 import sqlalchemy as sa
-from sqlalchemy import select
+from sqlalchemy import func, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import engine, async_session, wait_for_db
 from app.models import *  # noqa: F401, F403
 from app.models.smtp_config import SmtpConfig
+from app.models.queue_item import QueueItem
 from app.core.module_registry import (
     discover_modules, sync_module_configs, startup_enabled_modules,
     shutdown_all_modules, get_all_modules,
@@ -31,6 +33,22 @@ def _run_migrations(connection) -> None:
     logger.info("Database migrations complete.")
 
 
+async def reset_stuck_queue_items(session: AsyncSession) -> int:
+    """Reset queue items stuck at 'processing' back to 'queued'.
+
+    Called on startup to recover from crashes/restarts.
+    """
+    result = await session.execute(
+        update(QueueItem)
+        .where(QueueItem.status == "processing")
+        .values(status="queued", updated_at=func.now())
+    )
+    count = result.rowcount
+    if count:
+        logger.info(f"Reset {count} stuck queue item(s) from 'processing' to 'queued'.")
+    return count
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await wait_for_db()
@@ -44,6 +62,11 @@ async def lifespan(app: FastAPI):
             session.add(SmtpConfig())
             await session.commit()
             logger.info("Seeded default SMTP config.")
+
+    # Reset queue items stuck at 'processing' from a previous crash
+    async with async_session() as session:
+        await reset_stuck_queue_items(session)
+        await session.commit()
 
     scheduler = await create_scheduler()
     async with scheduler:
