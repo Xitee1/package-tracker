@@ -1,7 +1,7 @@
 <template>
-  <div
-    @click="$router.push({ name: 'order-detail', params: { id: order.id } })"
-    class="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+  <router-link
+    :to="{ name: 'order-detail', params: { id: order.id } }"
+    class="block p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
   >
     <div class="flex items-center justify-between mb-1">
       <span class="text-sm font-medium text-gray-900 dark:text-white truncate mr-2">
@@ -25,7 +25,7 @@
     >
       {{ formatAmount(order.total_amount, order.currency) }}
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script setup lang="ts">
