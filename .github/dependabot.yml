@@ -12,6 +12,7 @@ updates:
     groups:
       all-dependencies:
         update-types:
+          - "major"
           - "minor"
           - "patch"
 
@@ -22,6 +23,7 @@ updates:
     groups:
       all-dependencies:
         update-types:
+          - "major"
           - "minor"
           - "patch"
 
@@ -32,5 +34,6 @@ updates:
     groups:
       all-dependencies:
         update-types:
+          - "major"
           - "minor"
           - "patch"
